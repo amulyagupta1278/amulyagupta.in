@@ -1,141 +1,124 @@
-/**
-* Template Name: Personal - v2.1.0
-* Template URL: https://bootstrapmade.com/personal-free-resume-bootstrap-template/
-* Author: BootstrapMade.com
-* License: https://bootstrapmade.com/license/
-*/
-!(function($) {
-  "use strict";
+/* =============================================
+   AMULYA GUPTA PORTFOLIO — main.js
+   ============================================= */
 
-  // Smooth scroll for the navigation menu and links with .scrollto classes
-  var scrolltoOffset = $('#header').outerHeight() - 20;
-  $(document).on('click', '.nav-menu a, .mobile-nav a, .scrollto', function(e) {
-    if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
-      e.preventDefault();
-      var target = $(this.hash);
-      if (target.length) {
+// ======= GOOGLE ANALYTICS 4 =======
+window.dataLayer = window.dataLayer || [];
+function gtag(){ dataLayer.push(arguments); }
+gtag('js', new Date());
+gtag('config', 'G-M678E1N87E');
 
-        var scrollto = target.offset().top - scrolltoOffset;
+// ======= NAV: SCROLL SHADOW + ACTIVE =======
+(function(){
+  const nav = document.querySelector('.nav');
+  const links = document.querySelectorAll('.nav-links a, .nav-mobile a');
+  const path = window.location.pathname.split('/').pop() || 'index.html';
 
-        if ($(this).attr("href") == '#header') {
-          scrollto = 0;
-        }
-
-        $('html, body').animate({
-          scrollTop: scrollto
-        }, 1500, 'easeInOutExpo');
-
-        if ($(this).parents('.nav-menu, .mobile-nav').length) {
-          $('.nav-menu .active, .mobile-nav .active').removeClass('active');
-          $(this).closest('li').addClass('active');
-        }
-
-        if ($('body').hasClass('mobile-nav-active')) {
-          $('body').removeClass('mobile-nav-active');
-          $('.mobile-nav-toggle i').toggleClass('icofont-navigation-menu icofont-close');
-          $('.mobile-nav-overly').fadeOut();
-        }
-        return false;
-      }
+  links.forEach(link => {
+    const href = link.getAttribute('href') || '';
+    if (href === path || (path === '' && href === 'index.html') ||
+        (path.includes('index') && href === 'index.html')) {
+      link.classList.add('active');
     }
   });
 
-  // Activate smooth scroll on page load with hash links in the url
-  $(document).ready(function() {
-    if (window.location.hash) {
-      var initial_nav = window.location.hash;
-      if ($(initial_nav).length) {
-        var scrollto = $(initial_nav).offset().top - scrolltoOffset;
-        $('html, body').animate({
-          scrollTop: scrollto
-        }, 1500, 'easeInOutExpo');
-      }
-    }
+  window.addEventListener('scroll', () => {
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 30);
   });
+})();
 
-  // Mobile Navigation
-  if ($('.nav-menu').length) {
-    var $mobile_nav = $('.nav-menu').clone().prop({
-      class: 'mobile-nav d-lg-none'
-    });
-    $('body').append($mobile_nav);
-    $('body').prepend('<button type="button" class="mobile-nav-toggle d-lg-none"><i class="icofont-navigation-menu"></i></button>');
-    $('body').append('<div class="mobile-nav-overly"></div>');
+// ======= HAMBURGER MENU =======
+(function(){
+  const ham = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('nav-mobile');
+  if (!ham || !mobileNav) return;
+  ham.addEventListener('click', () => {
+    ham.classList.toggle('open');
+    mobileNav.classList.toggle('open');
+  });
+})();
 
-    $(document).on('click', '.mobile-nav-toggle', function(e) {
-      $('body').toggleClass('mobile-nav-active');
-      $('.mobile-nav-toggle i').toggleClass('icofont-navigation-menu icofont-close');
-      $('.mobile-nav-overly').toggle();
-    });
-
-    $(document).click(function(e) {
-      var container = $(".mobile-nav, .mobile-nav-toggle");
-      if (!container.is(e.target) && container.has(e.target).length === 0) {
-        if ($('body').hasClass('mobile-nav-active')) {
-          $('body').removeClass('mobile-nav-active');
-          $('.mobile-nav-toggle i').toggleClass('icofont-navigation-menu icofont-close');
-          $('.mobile-nav-overly').fadeOut();
-        }
-      }
-    });
-  } else if ($(".mobile-nav, .mobile-nav-toggle").length) {
-    $(".mobile-nav, .mobile-nav-toggle").hide();
+// ======= TYPING EFFECT =======
+(function(){
+  const el = document.getElementById('typing-text');
+  if (!el) return;
+  const phrases = [
+    'MLOps & Python AI Engineer',
+    'Production ML Systems Builder',
+    'FastAPI + Kubernetes Developer',
+    'End-to-End MLOps Specialist',
+  ];
+  let i = 0, j = 0, deleting = false;
+  function type(){
+    const phrase = phrases[i];
+    el.textContent = deleting ? phrase.slice(0,--j) : phrase.slice(0,++j);
+    let delay = deleting ? 45 : 90;
+    if (!deleting && j === phrase.length) { delay = 2200; deleting = true; }
+    else if (deleting && j === 0) { deleting = false; i = (i+1) % phrases.length; delay = 400; }
+    setTimeout(type, delay);
   }
+  setTimeout(type, 600);
+})();
 
-  // jQuery counterUp
-  $('[data-toggle="counter-up"]').counterUp({
-    delay: 10,
-    time: 1000
-  });
-
-  // Skills section
-  $('.skills-content').waypoint(function() {
-    $('.progress .progress-bar').each(function() {
-      $(this).css("width", $(this).attr("aria-valuenow") + '%');
+// ======= STAT COUNTERS =======
+(function(){
+  const counters = document.querySelectorAll('[data-count]');
+  if (!counters.length) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseFloat(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      const prefix = el.dataset.prefix || '';
+      const isFloat = el.dataset.float === 'true';
+      const duration = 1800;
+      const steps = 60;
+      let current = 0;
+      const inc = target / steps;
+      const timer = setInterval(() => {
+        current = Math.min(current + inc, target);
+        el.textContent = prefix + (isFloat ? current.toFixed(1) : Math.floor(current)) + suffix;
+        if (current >= target) clearInterval(timer);
+      }, duration / steps);
+      observer.unobserve(el);
     });
-  }, {
-    offset: '80%'
-  });
+  }, { threshold: 0.5 });
+  counters.forEach(c => observer.observe(c));
+})();
 
-  // Testimonials carousel (uses the Owl Carousel library)
-  $(".testimonials-carousel").owlCarousel({
-    autoplay: true,
-    dots: true,
-    loop: true,
-    responsive: {
-      0: {
-        items: 1
-      },
-      768: {
-        items: 2
-      },
-      900: {
-        items: 3
+// ======= FADE-IN ON SCROLL =======
+(function(){
+  const fades = document.querySelectorAll('.fade-in');
+  if (!fades.length) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
       }
-    }
-  });
-
-  // Porfolio isotope and filter
-  $(window).on('load', function() {
-    var portfolioIsotope = $('.portfolio-container').isotope({
-      itemSelector: '.portfolio-item',
-      layoutMode: 'fitRows'
     });
+  }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+  fades.forEach(el => observer.observe(el));
+})();
 
-    $('#portfolio-flters li').on('click', function() {
-      $("#portfolio-flters li").removeClass('filter-active');
-      $(this).addClass('filter-active');
+// ======= GA4 EVENT TRACKING =======
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('[data-ga-event]');
+  if (!btn) return;
+  const event = btn.dataset.gaEvent;
+  const label = btn.dataset.gaLabel || btn.textContent.trim();
+  gtag('event', event, { event_label: label, event_category: 'engagement' });
+});
 
-      portfolioIsotope.isotope({
-        filter: $(this).data('filter')
-      });
-    });
-
+// ======= SMOOTH HASH SCROLL =======
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', function(e){
+    const target = document.querySelector(this.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+});
 
-  // Initiate venobox (lightbox feature used in portofilo)
-  $(document).ready(function() {
-    $('.venobox').venobox();
-  });
-
-})(jQuery);
+console.log('%c Amulya Gupta Portfolio ', 'background:#1A73E8;color:#fff;padding:6px 12px;border-radius:6px;font-weight:bold;', '\nMLOps & Python AI Engineer | BITS Pilani');

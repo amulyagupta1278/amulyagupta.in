@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MLOps in 2025: The Stack I Actually Use (and Why) | Amulya Gupta</title>
+  <meta name="description" content="The opinionated MLOps stack I've settled on — MLflow, Prefect, FastAPI, Docker, Kubernetes, Prometheus, Grafana, and GitHub Actions — and why each one earned its place." />
+  <meta property="og:title" content="MLOps in 2025: The Stack I Actually Use" />
+  <meta property="og:url" content="https://amulyagupta1278.github.io/blog/post-2-rag-system.html" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M678E1N87E"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-M678E1N87E');</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="canonical" href="https://amulyagupta1278.github.io/blog/post-2-rag-system.html" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo">AG<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../about.html">About</a></li>
+      <li><a href="../projects.html">Projects</a></li>
+      <li><a href="../experience.html">Experience</a></li>
+      <li><a href="index.html">Blog</a></li>
+      <li><a href="../contact.html" class="btn-nav">Contact</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-mobile" id="nav-mobile">
+    <a href="../index.html">Home</a>
+    <a href="../about.html">About</a>
+    <a href="../projects.html">Projects</a>
+    <a href="../experience.html">Experience</a>
+    <a href="index.html">Blog</a>
+    <a href="../contact.html">Contact</a>
+  </div>
+</nav>
+
+<header class="post-header">
+  <div class="bg-grid"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="container" style="position:relative;z-index:1;max-width:860px;">
+    <div class="post-tags">
+      <span class="post-tag">MLOps</span>
+      <span class="post-tag">· Opinion</span>
+      <span class="post-tag">· Tooling</span>
+    </div>
+    <h1 style="font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:16px;">MLOps in 2025: The Stack I Actually Use (and Why)</h1>
+    <div style="display:flex;align-items:center;gap:20px;color:var(--muted);font-size:0.88rem;flex-wrap:wrap;">
+      <span>By <strong style="color:var(--white);">Amulya Gupta</strong></span>
+      <span>6 min read</span>
+      <a href="index.html" style="color:var(--blue-light);">← Back to Blog</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="section" style="padding-top:48px;">
+  <div class="container" style="max-width:760px;">
+    <div class="post-body">
+
+      <p>There are 47 MLOps tools. Each one has a marketing page telling you it's the only one you'll ever need. Here's my honest take on the stack I've actually settled on — and why each tool earned its place after doing the work.</p>
+
+      <h2>The Principle: Start Simple, Add Complexity When You Feel the Pain</h2>
+      <p>The worst mistake I see is teams adopting complex orchestration before they need it, or adding observability tools they never query. Every tool in this list is here because I felt a real pain that it solved. Not because a blog post told me it was "best practice."</p>
+
+      <h2>Experiment Tracking: MLflow</h2>
+      <p>I chose MLflow over Weights & Biases and Neptune for one main reason: it's self-hosted and free at any scale. For personal projects and smaller teams, paying per-seat for experiment tracking doesn't make sense. MLflow gives you experiment tracking, model registry, artifact storage, and a decent UI. It integrates with everything. The learning curve is low. It does the job.</p>
+      <p>What I'm watching: for LLM projects, I'm starting to look at LangSmith specifically for prompt versioning and trace-level debugging. MLflow isn't quite there for that use case yet.</p>
+
+      <h2>Orchestration: Prefect</h2>
+      <p>I chose Prefect over Apache Airflow for Python-first teams. Airflow's DAG model is powerful, but the overhead for small-to-medium pipelines is painful. Prefect lets you decorate your existing Python functions and get scheduling, retries, observability, and deployment without rewriting your code. The local dev experience is significantly better. For teams that are mostly Python engineers building ML pipelines, Prefect is the right default.</p>
+
+      <h2>Serving: FastAPI</h2>
+      <p>FastAPI is non-negotiable for me. Async by default, automatic OpenAPI documentation, Pydantic validation, and a clean developer experience. I've tried Flask — it's fine for quick prototypes, but once you need validation, middleware, and structured response models, FastAPI is just faster to work with correctly.</p>
+
+      <h2>Containers: Docker</h2>
+      <p>If you're not containerising your ML services, you're creating environment dependency problems that will bite you in production. Docker is the baseline. Learn multi-stage builds, learn how to keep images lean, learn health checks. These aren't optional skills for production ML.</p>
+
+      <h2>Orchestration: Kubernetes</h2>
+      <p>The learning curve is real. But it's worth it. Kubernetes gives you rolling deployments with zero downtime, horizontal scaling, health checks built into the scheduler, declarative infrastructure, and a common interface across all cloud providers. I use Minikube locally to validate manifests before deploying to a real cluster. The manifests work the same everywhere.</p>
+
+      <h2>Monitoring: Prometheus + Grafana</h2>
+      <p>The industry standard for a reason. Prometheus handles metric collection and storage. Grafana handles visualisation and alerting. The FastAPI service exposes a /metrics endpoint that Prometheus scrapes. The setup is repeatable and the dashboards are versioned as code. I track inference latency at p50/p95/p99, error rate, request volume, and prediction distribution over time (for drift detection).</p>
+
+      <h2>CI/CD: GitHub Actions</h2>
+      <p>Free, sufficient, and integrates directly with your repository. For personal projects and small teams, GitHub Actions handles everything: linting, testing, Docker build, push to registry, and Kubernetes deployment. No separate CI server to maintain. The YAML syntax isn't perfect, but the ecosystem of pre-built actions covers almost every use case.</p>
+
+      <h2>What I'm Exploring Next</h2>
+      <p>Ray Serve for high-throughput inference requirements. BentoML for a slightly higher-level serving abstraction. LangSmith specifically for LLM-based applications where you need trace-level visibility into prompt chains. OpenTelemetry for standardised observability across services.</p>
+
+      <h2>The Bottom Line</h2>
+      <p>Start simple. MLflow for tracking, Prefect for orchestration, FastAPI for serving, Docker for packaging, GitHub Actions for CI/CD, Prometheus and Grafana for monitoring. Add Kubernetes when you need it. Add complexity when you feel the pain of not having it — not before.</p>
+
+      <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <a href="index.html" class="btn btn-outline btn-sm">← Back to Blog</a>
+        <a href="post-1-mlops-pipeline.html" class="btn btn-primary btn-sm">Read: MLOps Pipeline Post →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">AG<span>.</span> Amulya Gupta</div>
+    <p class="footer-copy">© 2025 Amulya Gupta · MLOps & Python AI Engineer · BITS Pilani</p>
+    <div class="footer-links">
+      <a href="../sitemap.xml">Sitemap</a>
+      <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/amulya-gupta-bits-pilani" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

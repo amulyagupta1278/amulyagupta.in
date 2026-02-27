@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MLOps Projects | Amulya Gupta — Production ML Pipelines &amp; AI Systems</title>
+  <meta name="description" content="Explore Amulya Gupta's MLOps and AI engineering projects: end-to-end ML pipelines, FastAPI inference services, Kubernetes deployments, and automated ELT pipelines." />
+  <meta property="og:title" content="MLOps Projects | Amulya Gupta" />
+  <meta property="og:description" content="Production-grade ML pipelines, FastAPI services, and AI systems." />
+  <meta property="og:url" content="https://amulyagupta1278.github.io/projects.html" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M678E1N87E"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-M678E1N87E');</script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="canonical" href="https://amulyagupta1278.github.io/projects.html" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">AG<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="experience.html">Experience</a></li>
+      <li><a href="blog/index.html">Blog</a></li>
+      <li><a href="contact.html" class="btn-nav">Contact</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-mobile" id="nav-mobile">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="projects.html">Projects</a>
+    <a href="experience.html">Experience</a>
+    <a href="blog/index.html">Blog</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="bg-grid"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="container" style="position:relative;z-index:1;">
+    <div class="section-tag">// My Projects</div>
+    <h1>My Projects</h1>
+    <p class="subtitle">I don't do Jupyter notebooks as portfolio pieces. Every project here is built to production standards: containerised, monitored, tested, and deployed.</p>
+  </div>
+</header>
+
+<main>
+
+<!-- Project 1 -->
+<section class="section" id="heart-disease">
+  <div class="container">
+    <article class="card fade-in" style="max-width:900px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+        <div>
+          <span class="project-num">Project 01</span>
+          <h2 style="font-size:1.6rem;margin-bottom:10px;">Heart Disease Prediction — End-to-End MLOps System</h2>
+        </div>
+        <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener" class="btn btn-outline btn-sm" data-ga-event="project_github_click" data-ga-label="heart-disease">View on GitHub ↗</a>
+      </div>
+      <div class="badges" style="margin-bottom:24px;">
+        <span class="badge">MLOps</span>
+        <span class="badge">Docker</span>
+        <span class="badge">Kubernetes</span>
+        <span class="badge">FastAPI</span>
+        <span class="badge">MLflow</span>
+        <span class="badge">Prometheus</span>
+        <span class="badge">Grafana</span>
+        <span class="badge">GitHub Actions</span>
+        <span class="badge">Python</span>
+      </div>
+
+      <h3 style="margin-bottom:10px;">Problem Statement</h3>
+      <p style="margin-bottom:20px;">Heart disease prediction models are commonly trained in isolation — but rarely deployed reliably. The challenge: build a full MLOps lifecycle, not just a model, that can be reproduced, versioned, deployed, and monitored in a real infrastructure environment.</p>
+
+      <h3 style="margin-bottom:14px;">What I Built — Architecture</h3>
+      <div style="display:grid;gap:12px;margin-bottom:24px;">
+        <div class="callout"><strong>Data & Training Layer:</strong> Preprocessing pipeline with reproducible artifact management using MLflow experiment tracking</div>
+        <div class="callout"><strong>Inference Layer:</strong> FastAPI service with input validation (Pydantic), health check endpoints, and Prometheus metrics exposure</div>
+        <div class="callout"><strong>Infrastructure Layer:</strong> Docker containerisation + Kubernetes (Minikube) orchestration with declarative manifests</div>
+        <div class="callout"><strong>Observability Layer:</strong> Prometheus scraping metrics + Grafana dashboards for inference latency, error rates, and request volume</div>
+        <div class="callout"><strong>CI/CD Layer:</strong> GitHub Actions pipeline automating build, test, and deployment on every push</div>
+      </div>
+
+      <h3 style="margin-bottom:12px;">Key Technical Decisions</h3>
+      <ul style="list-style:none;margin-bottom:24px;">
+        <li style="padding:8px 0;border-bottom:1px solid var(--border);color:rgba(240,246,255,0.8);font-size:0.95rem;padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--blue);">▸</span> Chose MLflow over manual artifact tracking for full reproducibility — any experiment can be re-run identically</li>
+        <li style="padding:8px 0;border-bottom:1px solid var(--border);color:rgba(240,246,255,0.8);font-size:0.95rem;padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--blue);">▸</span> FastAPI over Flask for async support, built-in OpenAPI docs, and Pydantic validation — production-appropriate choice</li>
+        <li style="padding:8px 0;color:rgba(240,246,255,0.8);font-size:0.95rem;padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--blue);">▸</span> Kubernetes even on Minikube to prove the manifests work in a real orchestration environment</li>
+      </ul>
+
+      <h3 style="margin-bottom:10px;">Outcome & Learnings</h3>
+      <p>Delivered a fully containerised, observable ML inference system with automated deployment — demonstrating the complete MLOps lifecycle from raw data to production monitoring. Key learning: observability is not optional; you need to know your model is behaving correctly in production.</p>
+    </article>
+  </div>
+</section>
+
+<!-- Project 2 -->
+<section class="section" id="churn" style="background:var(--bg-card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <article class="card fade-in" style="max-width:900px;background:var(--bg);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+        <div>
+          <span class="project-num">Project 02</span>
+          <h2 style="font-size:1.6rem;margin-bottom:10px;">Customer Churn Prediction — Automated ELT Pipeline & ML System</h2>
+        </div>
+        <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener" class="btn btn-outline btn-sm" data-ga-event="project_github_click" data-ga-label="churn">View on GitHub ↗</a>
+      </div>
+      <div class="badges" style="margin-bottom:24px;">
+        <span class="badge">Python</span>
+        <span class="badge">Prefect</span>
+        <span class="badge">ETL Pipeline</span>
+        <span class="badge">Supervised Learning</span>
+        <span class="badge">Data Engineering</span>
+        <span class="badge">Automation</span>
+        <span class="badge">PostgreSQL</span>
+      </div>
+
+      <h3 style="margin-bottom:10px;">Problem Statement</h3>
+      <p style="margin-bottom:20px;">Customer churn data typically comes from multiple sources — CRM, usage logs, billing — and is messy. Building a reliable, automated pipeline to ingest, clean, consolidate, and feed this data into a model training loop is the real engineering challenge.</p>
+
+      <h3 style="margin-bottom:14px;">What I Built</h3>
+      <div style="display:grid;gap:12px;margin-bottom:24px;">
+        <div class="callout"><strong>ELT Pipeline:</strong> Python-based orchestration using Prefect for multi-source ingestion, transformation, and consolidation</div>
+        <div class="callout"><strong>Data Quality Layer:</strong> Cleaning and validation steps ensuring training data consistency</div>
+        <div class="callout"><strong>Model Layer:</strong> Trained and evaluated multiple supervised learning models, selecting highest performer at 90%+ accuracy</div>
+        <div class="callout"><strong>Performance Optimization:</strong> Reduced pipeline execution time by ~40%, enabling dramatically faster retraining and experimentation cycles</div>
+      </div>
+
+      <h3 style="margin-bottom:10px;">Outcome</h3>
+      <p>A production-ready automated ML pipeline that processes multi-source customer data, trains and evaluates models, and can be re-triggered on schedule — 40% faster than the initial baseline implementation.</p>
+    </article>
+  </div>
+</section>
+
+<!-- Project 3 — HCLTech Case Study -->
+<section class="section" id="hcltech">
+  <div class="container">
+    <article class="card fade-in" style="max-width:900px;">
+      <div style="margin-bottom:20px;">
+        <span class="project-num">Project 03 — Production Case Study</span>
+        <h2 style="font-size:1.6rem;margin-bottom:10px;">Adobe Journey Optimizer — Production Campaign Platform at Scale</h2>
+        <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:8px;padding:10px 14px;font-size:0.85rem;color:rgba(240,246,255,0.7);margin-top:12px;">
+          ℹ️ This is a case study of my production work at HCLTech. No proprietary code is shared — only outcomes, decisions, and learnings.
+        </div>
+      </div>
+      <div class="badges" style="margin-bottom:24px;">
+        <span class="badge">Production</span>
+        <span class="badge">Adobe Journey Optimizer</span>
+        <span class="badge">20M+ Users</span>
+        <span class="badge">Campaign Engineering</span>
+        <span class="badge">Data Pipelines</span>
+        <span class="badge">Personalization</span>
+      </div>
+
+      <h3 style="margin-bottom:14px;">What I Owned</h3>
+      <ul style="list-style:none;margin-bottom:24px;">
+        <li style="padding:8px 0;border-bottom:1px solid var(--border);color:rgba(240,246,255,0.8);font-size:0.95rem;padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--blue);">▸</span> End-to-end ownership of large-scale in-app campaign delivery using Adobe Journey Optimizer</li>
+        <li style="padding:8px 0;border-bottom:1px solid var(--border);color:rgba(240,246,255,0.8);font-size:0.95rem;padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--blue);">▸</span> Delivered 40+ production campaigns during peak Black Friday/Cyber Monday traffic periods</li>
+        <li style="padding:8px 0;border-bottom:1px solid var(--border);color:rgba(240,246,255,0.8);font-size:0.95rem;padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--blue);">▸</span> Reached 20M+ users while improving CTR and purchase completion by 10–15%</li>
+        <li style="padding:8px 0;border-bottom:1px solid var(--border);color:rgba(240,246,255,0.8);font-size:0.95rem;padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--blue);">▸</span> Owned production readiness: QA coordination, experience rendering validation, stable releases</li>
+        <li style="padding:8px 0;color:rgba(240,246,255,0.8);font-size:0.95rem;padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--blue);">▸</span> Built and optimized data ingestion workflows supporting personalised decisioning systems</li>
+      </ul>
+
+      <h3 style="margin-bottom:10px;">Engineering Highlights</h3>
+      <p>Zero critical post-launch issues across 40+ high-stakes campaigns during the most traffic-intensive retail periods of the year. This requires meticulous production readiness, audience segmentation discipline, and cross-functional coordination across engineering, QA, and product.</p>
+    </article>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">AG<span>.</span> Amulya Gupta</div>
+    <p class="footer-copy">© 2025 Amulya Gupta · MLOps & Python AI Engineer · BITS Pilani</p>
+    <div class="footer-links">
+      <a href="sitemap.xml">Sitemap</a>
+      <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/amulya-gupta-bits-pilani" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

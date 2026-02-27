@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How I Built an End-to-End MLOps Pipeline: MLflow + FastAPI + Kubernetes | Amulya Gupta</title>
+  <meta name="description" content="A complete walkthrough of building a production MLOps pipeline — from MLflow experiment tracking to FastAPI inference to Kubernetes deployment with Prometheus/Grafana observability." />
+  <meta property="og:title" content="End-to-End MLOps Pipeline: MLflow + FastAPI + Kubernetes" />
+  <meta property="og:url" content="https://amulyagupta1278.github.io/blog/post-1-mlops-pipeline.html" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M678E1N87E"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-M678E1N87E');</script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="canonical" href="https://amulyagupta1278.github.io/blog/post-1-mlops-pipeline.html" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo">AG<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../about.html">About</a></li>
+      <li><a href="../projects.html">Projects</a></li>
+      <li><a href="../experience.html">Experience</a></li>
+      <li><a href="index.html">Blog</a></li>
+      <li><a href="../contact.html" class="btn-nav">Contact</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-mobile" id="nav-mobile">
+    <a href="../index.html">Home</a>
+    <a href="../about.html">About</a>
+    <a href="../projects.html">Projects</a>
+    <a href="../experience.html">Experience</a>
+    <a href="index.html">Blog</a>
+    <a href="../contact.html">Contact</a>
+  </div>
+</nav>
+
+<header class="post-header">
+  <div class="bg-grid"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="container" style="position:relative;z-index:1;max-width:860px;">
+    <div class="post-tags">
+      <span class="post-tag">MLOps</span>
+      <span class="post-tag">· FastAPI</span>
+      <span class="post-tag">· Kubernetes</span>
+      <span class="post-tag">· MLflow</span>
+    </div>
+    <h1 style="font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:16px;">How I Built an End-to-End MLOps Pipeline: MLflow + FastAPI + Kubernetes</h1>
+    <div style="display:flex;align-items:center;gap:20px;color:var(--muted);font-size:0.88rem;flex-wrap:wrap;">
+      <span>By <strong style="color:var(--white);">Amulya Gupta</strong></span>
+      <span>8 min read</span>
+      <a href="index.html" style="color:var(--blue-light);">← Back to Blog</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="section" style="padding-top:48px;">
+  <div class="container" style="max-width:760px;">
+    <div class="post-body">
+
+      <p>Most ML engineers stop at the notebook. They train a model, check the accuracy, and call it done. But shipping a model to production — in a way that's reliable, reproducible, and observable — is a completely different engineering challenge. Here's exactly how I approached it.</p>
+
+      <h2>Why Most ML Portfolios Miss the Point</h2>
+      <p>The notebook is where the idea lives. Production is where it has to survive. The gap between the two involves: versioning experiments so they can be reproduced, serving predictions reliably at scale, packaging the service so it runs anywhere, orchestrating deployment without manual steps, and knowing when something is going wrong in production. My goal with this project was to build every layer.</p>
+
+      <h2>Section 1: The Architecture</h2>
+      <p>The full pipeline is five layers, each with a clear responsibility:</p>
+      <div class="callout"><strong>Data & Training:</strong> Preprocessing → MLflow experiment tracking → artifact storage</div>
+      <div class="callout"><strong>Inference:</strong> FastAPI service → Pydantic validation → /predict, /health, /metrics</div>
+      <div class="callout"><strong>Infrastructure:</strong> Docker image → Kubernetes manifests (Minikube for local, cloud-ready)</div>
+      <div class="callout"><strong>Observability:</strong> Prometheus scrape → Grafana dashboards (latency, error rates, throughput)</div>
+      <div class="callout"><strong>CI/CD:</strong> GitHub Actions → automated build/test/deploy on every push</div>
+
+      <h2>Section 2: Data & Training with MLflow</h2>
+      <p>MLflow handles experiment tracking and artifact management. Every training run logs its parameters, metrics, and model artifact. This means any experiment can be reproduced exactly — something that matters enormously when you need to audit or re-deploy a specific model version.</p>
+
+      <div class="code-block">
+import mlflow
+
+with mlflow.start_run():
+    mlflow.log_param("n_estimators", 100)
+    mlflow.log_param("max_depth", 5)
+    
+    model.fit(X_train, y_train)
+    accuracy = model.score(X_test, y_test)
+    
+    mlflow.log_metric("accuracy", accuracy)
+    mlflow.sklearn.log_model(model, "model")
+      </div>
+
+      <h2>Section 3: Building the FastAPI Inference Service</h2>
+      <p>FastAPI was the right choice here for three reasons: native async support, automatic OpenAPI documentation generation, and Pydantic validation built in. The service exposes three key endpoints: /predict for inference, /health for Kubernetes liveness/readiness probes, and /metrics for Prometheus scraping.</p>
+
+      <div class="code-block">
+from fastapi import FastAPI
+from pydantic import BaseModel
+import mlflow.sklearn
+
+app = FastAPI()
+
+class PredictRequest(BaseModel):
+    age: int
+    cholesterol: float
+    blood_pressure: float
+
+@app.post("/predict")
+async def predict(request: PredictRequest):
+    features = [[request.age, request.cholesterol, request.blood_pressure]]
+    prediction = model.predict(features)
+    return {"prediction": int(prediction[0]), "confidence": float(model.predict_proba(features).max())}
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
+      </div>
+
+      <h2>Section 4: Containerising with Docker</h2>
+      <p>The Dockerfile follows production best practices: multi-stage build to keep the image lean, non-root user for security, health check instruction for orchestrator integration, and pinned dependency versions for reproducibility.</p>
+
+      <h2>Section 5: Kubernetes Deployment</h2>
+      <p>Even on Minikube, using Kubernetes manifests forces you to think in production terms: resource limits, readiness probes, rolling updates, and service exposure. The manifests work on any cluster — cloud or local.</p>
+
+      <h2>Section 6: Observability with Prometheus & Grafana</h2>
+      <p>Observability isn't optional in production. If you don't know your model's inference latency, error rate, and request volume, you're flying blind. Prometheus scrapes metrics from the /metrics endpoint every 15 seconds. Grafana visualises them. I track p50/p95/p99 inference latency, prediction distribution drift, error rate, and requests per second.</p>
+
+      <h2>Section 7: CI/CD with GitHub Actions</h2>
+      <p>Every push to main triggers the pipeline: lint → test → build Docker image → push to registry → deploy to Kubernetes. No manual steps. If a test fails, the deployment doesn't happen. This is table stakes for production engineering.</p>
+
+      <h2>What I Learned</h2>
+      <p>The hardest part wasn't any individual component — it was wiring them together reliably. The most important lesson: observability is a first-class engineering concern, not an afterthought. And the second: reproducibility in experiment tracking saves enormous debugging time when a deployed model starts behaving unexpectedly.</p>
+
+      <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <a href="index.html" class="btn btn-outline btn-sm">← Back to Blog</a>
+        <a href="../projects.html#heart-disease" class="btn btn-primary btn-sm">View Full Project →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">AG<span>.</span> Amulya Gupta</div>
+    <p class="footer-copy">© 2025 Amulya Gupta · MLOps & Python AI Engineer · BITS Pilani</p>
+    <div class="footer-links">
+      <a href="../sitemap.xml">Sitemap</a>
+      <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/amulya-gupta-bits-pilani" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
