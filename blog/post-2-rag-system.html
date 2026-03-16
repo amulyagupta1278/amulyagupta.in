@@ -79,38 +79,38 @@
   <div class="container" style="max-width:760px;">
     <div class="post-body">
 
-      <p>There are 47 MLOps tools. Each one has a marketing page telling you it's the only one you'll ever need. Here's my honest take on the stack I've actually settled on — and why each tool earned its place after doing the work.</p>
+      <p>I counted once — there are something like 47 MLOps tools out there, and every single one claims to be the only thing you'll ever need. I spent way too long evaluating options before I realised the best way to pick a stack is to just start building and swap things out when they hurt. So here's what I actually use, after going through that process.</p>
 
-      <h2>The Principle: Start Simple, Add Complexity When You Feel the Pain</h2>
-      <p>The worst mistake I see is teams adopting complex orchestration before they need it, or adding observability tools they never query. Every tool in this list is here because I felt a real pain that it solved. Not because a blog post told me it was "best practice."</p>
+      <h2>My One Rule: Don't Add Things Until They Hurt</h2>
+      <p>I've watched teams adopt Airflow for a three-step pipeline, or set up elaborate monitoring that nobody ever checks. Every tool on this list earned its spot by solving a problem I was already having. If I hadn't felt the pain yet, it didn't make the cut. That keeps things from getting bloated.</p>
 
       <h2>Experiment Tracking: MLflow</h2>
-      <p>I chose MLflow over Weights & Biases and Neptune for one main reason: it's self-hosted and free at any scale. For personal projects and smaller teams, paying per-seat for experiment tracking doesn't make sense. MLflow gives you experiment tracking, model registry, artifact storage, and a decent UI. It integrates with everything. The learning curve is low. It does the job.</p>
-      <p>What I'm watching: for LLM projects, I'm starting to look at LangSmith specifically for prompt versioning and trace-level debugging. MLflow isn't quite there for that use case yet.</p>
+      <p>I tried Weights & Biases and Neptune, and they're both good products. But I kept coming back to MLflow because it's free and self-hosted. For personal projects, paying per-seat for experiment tracking felt wrong. MLflow covers tracking, the model registry, artifact storage, and gives you a decent UI for comparing runs. Nothing flashy, but it gets out of your way.</p>
+      <p>One area where it falls short: LLM work. I've been poking at LangSmith for prompt versioning and tracing, because MLflow doesn't handle that well yet.</p>
 
       <h2>Orchestration: Prefect</h2>
-      <p>I chose Prefect over Apache Airflow for Python-first teams. Airflow's DAG model is powerful, but the overhead for small-to-medium pipelines is painful. Prefect lets you decorate your existing Python functions and get scheduling, retries, observability, and deployment without rewriting your code. The local dev experience is significantly better. For teams that are mostly Python engineers building ML pipelines, Prefect is the right default.</p>
+      <p>I used Airflow at a previous gig and it was fine for large, complex DAGs. But for the kind of ML pipelines I'm building now — maybe five to ten steps, all Python — it's way more infrastructure than you need. Prefect lets me slap a decorator on my existing functions and get scheduling, retries, and observability without rewriting anything. The local dev experience is night and day compared to Airflow.</p>
 
       <h2>Serving: FastAPI</h2>
-      <p>FastAPI is non-negotiable for me. Async by default, automatic OpenAPI documentation, Pydantic validation, and a clean developer experience. I've tried Flask — it's fine for quick prototypes, but once you need validation, middleware, and structured response models, FastAPI is just faster to work with correctly.</p>
+      <p>This one isn't even a close call for me anymore. I started with Flask years ago, and it's fine for quick prototypes. But the moment you need input validation, proper error responses, and auto-generated docs, you end up bolting on three more libraries anyway. FastAPI gives you all of that out of the box, plus async support. I haven't looked back.</p>
 
       <h2>Containers: Docker</h2>
-      <p>If you're not containerising your ML services, you're creating environment dependency problems that will bite you in production. Docker is the baseline. Learn multi-stage builds, learn how to keep images lean, learn health checks. These aren't optional skills for production ML.</p>
+      <p>I learned this one the hard way. Shipped a model that worked perfectly on my laptop, failed silently on the deployment server because of a numpy version mismatch. Now everything goes in a container, no exceptions. Multi-stage builds keep the images small, and pinning every dependency version means I'm not debugging phantom issues at 2am.</p>
 
       <h2>Orchestration: Kubernetes</h2>
-      <p>The learning curve is real. But it's worth it. Kubernetes gives you rolling deployments with zero downtime, horizontal scaling, health checks built into the scheduler, declarative infrastructure, and a common interface across all cloud providers. I use Minikube locally to validate manifests before deploying to a real cluster. The manifests work the same everywhere.</p>
+      <p>Look, the learning curve is steep. I won't pretend otherwise. But once you get past the initial YAML headaches, Kubernetes gives you rolling deploys, auto-scaling, health checks baked into the scheduler, and the same interface whether you're running locally on Minikube or on a cloud cluster. I validate all my manifests locally first, and they just work when I move to a real environment.</p>
 
       <h2>Monitoring: Prometheus + Grafana</h2>
-      <p>The industry standard for a reason. Prometheus handles metric collection and storage. Grafana handles visualisation and alerting. The FastAPI service exposes a /metrics endpoint that Prometheus scrapes. The setup is repeatable and the dashboards are versioned as code. I track inference latency at p50/p95/p99, error rate, request volume, and prediction distribution over time (for drift detection).</p>
+      <p>These two have been around forever, and for good reason — they just work. My FastAPI services expose a /metrics endpoint, Prometheus scrapes it, and Grafana turns it into dashboards I can actually read. I track p50/p95/p99 latency, error rates, request volume, and prediction distribution over time to catch drift. The whole setup is versioned as code, so spinning it up for a new project takes minutes.</p>
 
       <h2>CI/CD: GitHub Actions</h2>
-      <p>Free, sufficient, and integrates directly with your repository. For personal projects and small teams, GitHub Actions handles everything: linting, testing, Docker build, push to registry, and Kubernetes deployment. No separate CI server to maintain. The YAML syntax isn't perfect, but the ecosystem of pre-built actions covers almost every use case.</p>
+      <p>It's free, it lives right next to my code, and I don't need to maintain a Jenkins server. The YAML syntax can be annoying, but the ecosystem of pre-built actions covers almost everything I need: linting, tests, Docker builds, registry pushes, and Kubernetes deployments. For personal projects and small teams, it's hard to justify anything else.</p>
 
-      <h2>What I'm Exploring Next</h2>
-      <p>Ray Serve for high-throughput inference requirements. BentoML for a slightly higher-level serving abstraction. LangSmith specifically for LLM-based applications where you need trace-level visibility into prompt chains. OpenTelemetry for standardised observability across services.</p>
+      <h2>What I'm Poking At Next</h2>
+      <p>Ray Serve keeps coming up when I talk to people doing high-throughput inference. BentoML looks interesting for a higher-level serving abstraction. LangSmith is already in my toolkit for LLM tracing. And I'm watching OpenTelemetry closely — standardised observability across services would clean up a lot of my monitoring setup.</p>
 
-      <h2>The Bottom Line</h2>
-      <p>Start simple. MLflow for tracking, Prefect for orchestration, FastAPI for serving, Docker for packaging, GitHub Actions for CI/CD, Prometheus and Grafana for monitoring. Add Kubernetes when you need it. Add complexity when you feel the pain of not having it — not before.</p>
+      <h2>If I Had to Summarise</h2>
+      <p>Start with MLflow, Prefect, FastAPI, Docker, and GitHub Actions. Add Prometheus and Grafana when you actually deploy something. Bring in Kubernetes when you need it, not before. The goal is to solve the problems you have today, not the ones you might have next year.</p>
 
       <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
         <a href="index.html" class="btn btn-outline btn-sm">← Back to Blog</a>
@@ -125,7 +125,7 @@
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-logo">AG<span>.</span> Amulya Gupta</div>
-    <p class="footer-copy">© 2026 Amulya Gupta · MLOps & Python AI Engineer · BITS Pilani</p>
+    <p class="footer-copy">© 2026 Amulya Gupta · AI Systems Engineer · BITS Pilani</p>
     <div class="footer-links">
       <a href="../sitemap.xml">Sitemap</a>
       <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>

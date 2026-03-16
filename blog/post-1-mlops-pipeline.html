@@ -80,21 +80,21 @@
   <div class="container" style="max-width:760px;">
     <div class="post-body">
 
-      <p>Most ML engineers stop at the notebook. They train a model, check the accuracy, and call it done. But shipping a model to production — in a way that's reliable, reproducible, and observable — is a completely different engineering challenge. Here's exactly how I approached it.</p>
+      <p>I kept running into the same frustration — every ML tutorial ends at model.fit(). You get a nice accuracy score, maybe a confusion matrix, and that's supposed to be the finish line. But when I tried to actually get a model running somewhere a teammate could hit it with a request, everything fell apart. So I decided to build the whole thing, soup to nuts, and figure out where the real headaches are.</p>
 
-      <h2>Why Most ML Portfolios Miss the Point</h2>
-      <p>The notebook is where the idea lives. Production is where it has to survive. The gap between the two involves: versioning experiments so they can be reproduced, serving predictions reliably at scale, packaging the service so it runs anywhere, orchestrating deployment without manual steps, and knowing when something is going wrong in production. My goal with this project was to build every layer.</p>
+      <h2>The Gap Nobody Talks About</h2>
+      <p>Training a model is maybe 20% of the work. The rest is all the unglamorous stuff: making sure you can reproduce an experiment six months later, keeping the service up when traffic spikes, knowing when predictions start drifting before someone files a bug report. I wanted to build every one of those layers myself, not just read about them.</p>
 
-      <h2>Section 1: The Architecture</h2>
-      <p>The full pipeline is five layers, each with a clear responsibility:</p>
+      <h2>How It All Fits Together</h2>
+      <p>I broke the system into five layers. Each one handles a specific job:</p>
       <div class="callout"><strong>Data & Training:</strong> Preprocessing → MLflow experiment tracking → artifact storage</div>
       <div class="callout"><strong>Inference:</strong> FastAPI service → Pydantic validation → /predict, /health, /metrics</div>
       <div class="callout"><strong>Infrastructure:</strong> Docker image → Kubernetes manifests (Minikube for local, cloud-ready)</div>
       <div class="callout"><strong>Observability:</strong> Prometheus scrape → Grafana dashboards (latency, error rates, throughput)</div>
       <div class="callout"><strong>CI/CD:</strong> GitHub Actions → automated build/test/deploy on every push</div>
 
-      <h2>Section 2: Data & Training with MLflow</h2>
-      <p>MLflow handles experiment tracking and artifact management. Every training run logs its parameters, metrics, and model artifact. This means any experiment can be reproduced exactly — something that matters enormously when you need to audit or re-deploy a specific model version.</p>
+      <h2>Experiment Tracking with MLflow</h2>
+      <p>I went with MLflow because I got tired of losing track of which hyperparameters produced which results. After the third time I couldn't figure out how to recreate a model that worked well two weeks ago, I set up proper tracking. Now every run logs its params, metrics, and the model artifact itself. It sounds basic, but it's saved me more debugging time than any other single decision.</p>
 
       <div class="code-block">
 import mlflow
@@ -110,8 +110,8 @@ with mlflow.start_run():
     mlflow.sklearn.log_model(model, "model")
       </div>
 
-      <h2>Section 3: Building the FastAPI Inference Service</h2>
-      <p>FastAPI was the right choice here for three reasons: native async support, automatic OpenAPI documentation generation, and Pydantic validation built in. The service exposes three key endpoints: /predict for inference, /health for Kubernetes liveness/readiness probes, and /metrics for Prometheus scraping.</p>
+      <h2>The FastAPI Service</h2>
+      <p>I picked FastAPI over Flask pretty early on. The auto-generated docs alone save a ton of time when someone else needs to figure out your API. Plus Pydantic catches bad input before it ever reaches the model, which means fewer cryptic numpy errors in production. The service has three endpoints: /predict does the actual inference, /health tells Kubernetes the pod is alive, and /metrics feeds Prometheus.</p>
 
       <div class="code-block">
 from fastapi import FastAPI
@@ -136,20 +136,20 @@ async def health():
     return {"status": "healthy"}
       </div>
 
-      <h2>Section 4: Containerising with Docker</h2>
-      <p>The Dockerfile follows production best practices: multi-stage build to keep the image lean, non-root user for security, health check instruction for orchestrator integration, and pinned dependency versions for reproducibility.</p>
+      <h2>Packaging It Up with Docker</h2>
+      <p>I spent an embarrassing amount of time debugging "works on my machine" issues before I committed to doing Docker properly. Multi-stage builds, non-root user, pinned versions — the usual stuff. But honestly, getting the health check right was the part that tripped me up. The orchestrator needs to know when your container is actually ready, not just running.</p>
 
-      <h2>Section 5: Kubernetes Deployment</h2>
-      <p>Even on Minikube, using Kubernetes manifests forces you to think in production terms: resource limits, readiness probes, rolling updates, and service exposure. The manifests work on any cluster — cloud or local.</p>
+      <h2>Deploying on Kubernetes</h2>
+      <p>Yes, Kubernetes for a personal project is overkill. I know. But the point was to prove that the manifests work in a real orchestration environment. I ran everything on Minikube locally, and the same YAML files would work on any cloud cluster without changes. Resource limits, readiness probes, rolling updates — all of it. It forced me to think about failure modes I would have ignored otherwise.</p>
 
-      <h2>Section 6: Observability with Prometheus & Grafana</h2>
-      <p>Observability isn't optional in production. If you don't know your model's inference latency, error rate, and request volume, you're flying blind. Prometheus scrapes metrics from the /metrics endpoint every 15 seconds. Grafana visualises them. I track p50/p95/p99 inference latency, prediction distribution drift, error rate, and requests per second.</p>
+      <h2>Monitoring with Prometheus & Grafana</h2>
+      <p>This was the layer I almost skipped, and I'm glad I didn't. The first time I saw my p95 latency spike on the Grafana dashboard during a load test, I caught a memory leak in the inference code that I never would have found through regular testing. Prometheus scrapes the /metrics endpoint every 15 seconds. I track latency percentiles, prediction distribution (for drift), error rates, and throughput.</p>
 
-      <h2>Section 7: CI/CD with GitHub Actions</h2>
-      <p>Every push to main triggers the pipeline: lint → test → build Docker image → push to registry → deploy to Kubernetes. No manual steps. If a test fails, the deployment doesn't happen. This is table stakes for production engineering.</p>
+      <h2>CI/CD with GitHub Actions</h2>
+      <p>Push to main, and the pipeline takes over: lint, test, build the Docker image, push to registry, deploy to Kubernetes. No SSH-ing into servers, no manual deploys. If something breaks in the test suite, the deployment just doesn't happen. It took a full afternoon to get the workflow right, but now I don't think about it at all.</p>
 
-      <h2>What I Learned</h2>
-      <p>The hardest part wasn't any individual component — it was wiring them together reliably. The most important lesson: observability is a first-class engineering concern, not an afterthought. And the second: reproducibility in experiment tracking saves enormous debugging time when a deployed model starts behaving unexpectedly.</p>
+      <h2>What Actually Surprised Me</h2>
+      <p>The individual pieces weren't that hard. What caught me off guard was getting them to play nicely together. A misconfigured health check that made Kubernetes restart my pod in a loop. A Prometheus scrape interval that was too aggressive for a cold-start service. The lessons that stuck: treat observability as a first-class concern from day one, and invest in experiment tracking early — it pays off the moment a deployed model starts acting weird.</p>
 
       <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
         <a href="index.html" class="btn btn-outline btn-sm">← Back to Blog</a>
@@ -164,7 +164,7 @@ async def health():
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-logo">AG<span>.</span> Amulya Gupta</div>
-    <p class="footer-copy">© 2026 Amulya Gupta · MLOps & Python AI Engineer · BITS Pilani</p>
+    <p class="footer-copy">© 2026 Amulya Gupta · AI Systems Engineer · BITS Pilani</p>
     <div class="footer-links">
       <a href="../sitemap.xml">Sitemap</a>
       <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>

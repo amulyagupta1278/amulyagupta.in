@@ -43,10 +43,11 @@ gtag('config', 'G-M678E1N87E');
   const el = document.getElementById('typing-text');
   if (!el) return;
   const phrases = [
-    'MLOps & Python AI Engineer',
-    'Production ML Systems Builder',
-    'FastAPI + Kubernetes Developer',
-    'End-to-End MLOps Specialist',
+    'AI Systems Engineer',
+    'Building Agentic AI Workflows',
+    'LLM Pipelines & RAG Systems',
+    'Production ML Infrastructure',
+    'Scalable AI Backend Architecture',
   ];
   let i = 0, j = 0, deleting = false;
   function type(){
@@ -121,4 +122,4 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
-console.log('%c Amulya Gupta Portfolio ', 'background:#1A73E8;color:#fff;padding:6px 12px;border-radius:6px;font-weight:bold;', '\nMLOps & Python AI Engineer | BITS Pilani');
+console.log('%c Amulya Gupta Portfolio ', 'background:#1A73E8;color:#fff;padding:6px 12px;border-radius:6px;font-weight:bold;', '\nAI Systems Engineer | Agentic AI | LLM | MLOps');
