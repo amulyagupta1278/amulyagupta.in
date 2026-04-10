@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building a RAG Pipeline from Scratch — What Actually Matters | Amulya Gupta</title>
+  <meta name="description" content="A hands-on guide to building a production-grade RAG pipeline. Chunking strategies, embedding choices, vector stores, retrieval tuning, and the gotchas nobody warns you about." />
+  <meta property="og:title" content="Building a RAG Pipeline from Scratch — What Actually Matters" />
+  <meta property="og:description" content="Moving beyond the toy demo. How to build a RAG system that handles real documents and real queries, by Amulya Gupta." />
+  <meta property="og:url" content="https://amulyagupta.in/blog/post-3-rag-pipeline.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="https://amulyagupta.in/assets/img/og-image.png" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Building a RAG Pipeline from Scratch — What Actually Matters" />
+  <meta name="twitter:description" content="Moving beyond the toy demo. How to build a RAG system that handles real documents and real queries, by Amulya Gupta." />
+  <meta name="twitter:image" content="https://amulyagupta.in/assets/img/og-image.png" />
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M678E1N87E"></script>
+  <script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-M678E1N87E');
+  </script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="canonical" href="https://amulyagupta.in/blog/post-3-rag-pipeline.html" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo">AG<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../about.html">About</a></li>
+      <li><a href="../projects.html">Projects</a></li>
+      <li><a href="../experience.html">Experience</a></li>
+      <li><a href="index.html">Blog</a></li>
+      <li><a href="../contact.html" class="btn-nav">Contact</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-mobile" id="nav-mobile">
+    <a href="../index.html">Home</a>
+    <a href="../about.html">About</a>
+    <a href="../projects.html">Projects</a>
+    <a href="../experience.html">Experience</a>
+    <a href="index.html">Blog</a>
+    <a href="../contact.html">Contact</a>
+  </div>
+</nav>
+
+<header class="post-header">
+  <div class="bg-grid"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="container" style="position:relative;z-index:1;max-width:860px;">
+    <div class="post-tags">
+      <span class="post-tag">GenAI</span>
+      <span class="post-tag">· RAG</span>
+      <span class="post-tag">· Python</span>
+      <span class="post-tag">· LLMs</span>
+    </div>
+    <h1 style="font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:16px;">Building a RAG Pipeline from Scratch — What Actually Matters</h1>
+    <div style="display:flex;align-items:center;gap:20px;color:var(--muted);font-size:0.88rem;flex-wrap:wrap;">
+      <span>By <strong style="color:var(--white);">Amulya Gupta</strong></span>
+      <span>10 min read</span>
+      <a href="index.html" style="color:var(--blue-light);">← Back to Blog</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="section" style="padding-top:48px;">
+  <div class="container" style="max-width:760px;">
+    <div class="post-body">
+
+      <p>Every RAG tutorial starts the same way: load a PDF, chunk it, embed it, throw it in a vector store, and ask a question. It works great on the demo. Then you try it on your own documents and the answers are garbage. I spent a few weeks figuring out why, and it turns out most of the important decisions happen in places these tutorials skip over entirely.</p>
+
+      <h2>Why the Demo Always Works (and Your Version Doesn't)</h2>
+      <p>Demo datasets are clean. They're short. The questions are designed to match the content almost word-for-word. Real documents are messy — they have tables, headers that break mid-sentence, footnotes, legal jargon, and paragraphs that only make sense if you read the three paragraphs before them. The moment your chunking strategy doesn't account for this, your retrieval falls apart, and the LLM confidently generates nonsense from irrelevant context.</p>
+
+      <h2>Chunking Is Where Most Pipelines Break</h2>
+      <p>I tried fixed-size chunks first, because that's what every tutorial shows. 500 tokens, 100-token overlap, done. It works okay for blog posts. It's terrible for technical documentation where a concept spans multiple paragraphs, or where a table sits in the middle of an explanation.</p>
+      <p>What worked better: recursive splitting that respects document structure. Split on headings first, then paragraphs, then sentences. Keep semantically related content together. It sounds obvious in hindsight, but I wasted a solid week on fixed-size chunks before I figured this out.</p>
+
+      <div class="code-block">
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=800,
+    chunk_overlap=200,
+    separators=["\n## ", "\n### ", "\n\n", "\n", ". ", " "]
+)
+
+chunks = splitter.split_documents(documents)
+      </div>
+
+      <p>The separator order matters more than the chunk size. Starting with heading-level splits means your chunks usually correspond to actual sections of the document, not arbitrary slices.</p>
+
+      <h2>Embeddings: The Boring Part That Matters a Lot</h2>
+      <p>I started with OpenAI's text-embedding-ada-002 because it was convenient. It's fine for general-purpose content. But when I switched to domain-specific documents — internal tech docs with lots of acronyms and jargon — the retrieval quality dropped noticeably.</p>
+      <p>Two things that helped: first, trying a few different embedding models (I ended up preferring sentence-transformers for offline workloads where I didn't want API dependencies). Second, and this was the bigger win, adding metadata to chunks before embedding. Prepending the section title to each chunk gave the embeddings much better context about what the chunk was actually about.</p>
+
+      <div class="code-block">
+# Prepend section context to each chunk before embedding
+for chunk in chunks:
+    section_title = chunk.metadata.get("heading", "")
+    chunk.page_content = f"{section_title}\n{chunk.page_content}"
+      </div>
+
+      <h2>Vector Store: Pick One and Move On</h2>
+      <p>I spent too long comparing vector databases. Pinecone, Weaviate, Qdrant, Chroma, FAISS — they all work. For a project that's not serving millions of queries, the differences are marginal. I use ChromaDB for local development because it's zero-config and runs in-process. For anything production-facing, I'd go with Qdrant or Pinecone depending on whether I want self-hosted or managed.</p>
+      <p>The real lesson: your retrieval quality is 80% chunking and embeddings, 20% vector store. Don't optimise the wrong thing.</p>
+
+      <h2>Retrieval: Where I Spent Most of My Time</h2>
+      <p>Basic similarity search gets you surprisingly far. But I hit a wall with queries that were phrased differently from how the source material was written. A user asks "how do I reset my password" and the docs say "credential recovery process." Same concept, different words, and cosine similarity doesn't always bridge that gap.</p>
+      <p>What helped:</p>
+      <div class="callout"><strong>Hybrid search:</strong> Combining dense vector search with sparse keyword search (BM25). This catches both semantic matches and exact keyword matches. For technical docs, this was a massive improvement.</div>
+      <div class="callout"><strong>Re-ranking:</strong> Using a cross-encoder to re-score the top-k results after initial retrieval. It's slower, but the relevance improvement was worth it. I use a lightweight cross-encoder model that adds maybe 200ms per query.</div>
+      <div class="callout"><strong>Query expansion:</strong> Having the LLM rephrase the user's question into 2-3 variations before searching. This catches cases where the original phrasing just doesn't match the document language.</div>
+
+      <h2>The Prompt Template Matters More Than You Think</h2>
+      <p>I was stuffing all retrieved chunks into a single prompt and hoping for the best. The LLM would sometimes latch onto irrelevant chunks and ignore the good ones. Two changes fixed this:</p>
+      <p>First, I ordered chunks by relevance score and told the model explicitly that earlier chunks were more likely to contain the answer. Second, I added a simple instruction: "If the provided context doesn't contain enough information to answer the question, say so instead of guessing." That one line eliminated most of the hallucination issues I was seeing.</p>
+
+      <div class="code-block">
+prompt_template = """Use the following context to answer the question.
+The context is ordered by relevance — earlier passages are more likely
+to contain the answer.
+
+If the context doesn't contain enough information, say "I don't have
+enough information to answer that" instead of guessing.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer:"""
+      </div>
+
+      <h2>Evaluation: The Step Everyone Skips</h2>
+      <p>This is the part I wish I'd done earlier. I was tweaking chunk sizes and retrieval parameters based on vibes — "this answer looks better than yesterday's." That's not engineering, that's guessing.</p>
+      <p>I put together a small evaluation set: 30 question-answer pairs written against my document corpus. For each question, I tracked retrieval recall (did the right chunks show up in top-5?), answer correctness (judged by GPT-4 against the reference answer), and hallucination rate (did the model claim something not in the context?). Having actual numbers made it obvious which changes helped and which were noise.</p>
+
+      <h2>What I'd Do Differently Next Time</h2>
+      <p>Start with evaluation. Before writing any retrieval code, write 20-30 test questions with expected answers. Every architectural decision after that becomes measurable instead of subjective. Also, spend less time on vector store selection and more time on chunking. Chunking is where 80% of your retrieval quality comes from, and it's the part most tutorials cover in one paragraph.</p>
+
+      <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <a href="index.html" class="btn btn-outline btn-sm">← Back to Blog</a>
+        <a href="post-2-rag-system.html" class="btn btn-primary btn-sm">Read: MLOps Stack Post →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">AG<span>.</span> Amulya Gupta</div>
+    <p class="footer-copy">© 2026 Amulya Gupta · AI Systems Engineer · BITS Pilani</p>
+    <div class="footer-links">
+      <a href="../sitemap.xml">Sitemap</a>
+      <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/amulya-gupta-bits-pilani" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
