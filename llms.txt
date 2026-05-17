@@ -1,0 +1,28 @@
+# Amulya Gupta — AI Systems Engineer
+
+> Senior Software Engineer at HCLTech building agentic AI workflows, LLM pipelines,
+> and production ML infrastructure. M.Tech AI/ML candidate at BITS Pilani. 3+ years
+> shipping systems at scale: 20M+ user campaign platform, 60% RAG response time reduction.
+
+## Professional Profile
+- [Full Profile](https://amulyagupta.in/amulya-gupta.html)
+- [About](https://amulyagupta.in/about.html): Background, skills, education
+- [Projects](https://amulyagupta.in/projects.html): MLOps pipeline, RAG system, multi-agent AI
+- [Experience](https://amulyagupta.in/experience.html): HCLTech, Classplus work history
+- [Contact](https://amulyagupta.in/contact.html): Email, LinkedIn, GitHub
+
+## Technical Blog
+- [Blog](https://amulyagupta.in/blog/index.html)
+- [Building a Production MLOps Pipeline](https://amulyagupta.in/blog/post-1-mlops-pipeline.html): MLflow, FastAPI, Docker, K8s
+- [MLOps Stack 2025: What I Actually Use](https://amulyagupta.in/blog/post-2-rag-system.html): Prefect, MLflow, FastAPI
+- [AI/ML Roadmap 2026](https://amulyagupta.in/blog/ai-ml-guide-2026.html): Career guide, 6 phases, ₹12-16k budget
+
+## Key Skills
+Agentic AI, LangChain, LangGraph, RAG Pipelines, Vector Databases (Chroma/FAISS),
+PyTorch, TensorFlow, FastAPI, Docker, Kubernetes, MLflow, Prefect, Prometheus/Grafana,
+Python, AWS, GitHub Actions, Prompt Engineering
+
+## Contact
+- GitHub: https://github.com/amulyagupta1278
+- LinkedIn: https://linkedin.com/in/amulya-gupta-bits-pilani
+- Email: amulyagupta2001@gmail.com

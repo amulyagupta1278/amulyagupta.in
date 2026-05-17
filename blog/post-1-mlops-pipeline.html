@@ -109,6 +109,17 @@
 
       <p>I kept running into the same frustration — every ML tutorial ends at model.fit(). You get a nice accuracy score, maybe a confusion matrix, and that's supposed to be the finish line. But when I tried to actually get a model running somewhere a teammate could hit it with a request, everything fell apart. So I decided to build the whole thing, soup to nuts, and figure out where the real headaches are.</p>
 
+      <div style="background:rgba(56,189,248,0.08);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:16px 20px;margin:24px 0;">
+        <div style="font-family:var(--font-mono);font-size:0.68rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">TL;DR</div>
+        <ul style="list-style:none;margin:0;padding:0;">
+          <li style="padding:4px 0;color:rgba(240,246,255,0.82);font-size:0.92rem;">▸ Training is ~20% of the work — reproducibility, serving, and monitoring are the real engineering</li>
+          <li style="padding:4px 0;color:rgba(240,246,255,0.82);font-size:0.92rem;">▸ MLflow for experiment tracking from day one — losing reproducibility is painful to fix retroactively</li>
+          <li style="padding:4px 0;color:rgba(240,246,255,0.82);font-size:0.92rem;">▸ FastAPI over Flask: Pydantic validation + auto-docs saves hours when teammates hit your endpoint</li>
+          <li style="padding:4px 0;color:rgba(240,246,255,0.82);font-size:0.92rem;">▸ Kubernetes Minikube manifests work identically on any cloud cluster — worth the initial YAML overhead</li>
+          <li style="padding:4px 0;color:rgba(240,246,255,0.82);font-size:0.92rem;">▸ Prometheus/Grafana caught a memory leak in inference that no test suite would have found</li>
+        </ul>
+      </div>
+
       <h2>The Gap Nobody Talks About</h2>
       <p>Training a model is maybe 20% of the work. The rest is all the unglamorous stuff: making sure you can reproduce an experiment six months later, keeping the service up when traffic spikes, knowing when predictions start drifting before someone files a bug report. I wanted to build every one of those layers myself, not just read about them.</p>
 
@@ -178,7 +189,43 @@ async def health():
       <h2>What Actually Surprised Me</h2>
       <p>The individual pieces weren't that hard. What caught me off guard was getting them to play nicely together. A misconfigured health check that made Kubernetes restart my pod in a loop. A Prometheus scrape interval that was too aggressive for a cold-start service. The lessons that stuck: treat observability as a first-class concern from day one, and invest in experiment tracking early — it pays off the moment a deployed model starts acting weird.</p>
 
-      <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div style="margin-top:48px;padding-top:32px;border-top:1px solid var(--border);">
+        <div style="font-size:0.68rem;font-family:var(--font-mono);color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">More From the Blog</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:32px;">
+          <a href="post-2-rag-system.html" style="display:block;padding:18px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;text-decoration:none;" data-ga-event="related_post_click" data-ga-label="mlops-stack">
+            <span style="font-size:0.65rem;font-family:var(--font-mono);color:var(--accent);">MLOps · Opinion</span>
+            <p style="color:var(--white);font-weight:600;margin:8px 0 6px;font-size:0.9rem;line-height:1.4;">MLOps in 2025: The Stack I Actually Use</p>
+            <span style="font-size:0.78rem;color:var(--blue-light);">Read Post →</span>
+          </a>
+          <a href="ai-ml-guide-2026.html" style="display:block;padding:18px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;text-decoration:none;" data-ga-event="related_post_click" data-ga-label="ai-ml-guide">
+            <span style="font-size:0.65rem;font-family:var(--font-mono);color:var(--accent);">Career · Guide</span>
+            <p style="color:var(--white);font-weight:600;margin:8px 0 6px;font-size:0.9rem;line-height:1.4;">AI/ML Roadmap 2026: From Zero to Job-Ready</p>
+            <span style="font-size:0.78rem;color:var(--blue-light);">Read Post →</span>
+          </a>
+          <a href="index.html" style="display:block;padding:18px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;text-decoration:none;" data-ga-event="related_post_click" data-ga-label="blog-index">
+            <span style="font-size:0.65rem;font-family:var(--font-mono);color:var(--accent);">// Blog</span>
+            <p style="color:var(--white);font-weight:600;margin:8px 0 6px;font-size:0.9rem;line-height:1.4;">All Posts</p>
+            <span style="font-size:0.78rem;color:var(--blue-light);">Browse →</span>
+          </a>
+        </div>
+      </div>
+
+      <div style="padding:20px 24px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;display:flex;gap:16px;align-items:flex-start;margin-bottom:40px;">
+        <span style="font-size:2rem;flex-shrink:0;line-height:1;">👨‍💻</span>
+        <div>
+          <div style="font-size:0.65rem;font-family:var(--font-mono);color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">About the Author</div>
+          <strong style="font-size:1rem;color:var(--white);">Amulya Gupta</strong>
+          <p style="font-size:0.82rem;color:var(--muted);margin:3px 0 8px;">AI Systems Engineer at HCLTech · M.Tech AI/ML, BITS Pilani</p>
+          <p style="font-size:0.88rem;color:rgba(240,246,255,0.72);margin:0 0 12px;line-height:1.6;">Building agentic AI systems, LLM pipelines, and production ML infrastructure. 3+ years shipping AI at scale.</p>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;">
+            <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener" style="font-family:var(--font-mono);font-size:0.75rem;color:var(--blue-light);text-decoration:none;">GitHub ↗</a>
+            <a href="https://linkedin.com/in/amulya-gupta-bits-pilani" target="_blank" rel="noopener" style="font-family:var(--font-mono);font-size:0.75rem;color:var(--blue-light);text-decoration:none;">LinkedIn ↗</a>
+            <a href="../about.html" style="font-family:var(--font-mono);font-size:0.75rem;color:var(--blue-light);text-decoration:none;">About Me ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
         <a href="index.html" class="btn btn-outline btn-sm">← Back to Blog</a>
         <a href="../projects.html#heart-disease" class="btn btn-primary btn-sm">View Full Project →</a>
       </div>
