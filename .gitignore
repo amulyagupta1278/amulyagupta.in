@@ -1,5 +1,15 @@
 
 Readme.md
 assets/.DS_Store
-assets/.DS_Store
 updated_index.html
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.env
+
