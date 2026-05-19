@@ -475,6 +475,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.9em; }
 /* ======= TECH STACK TABLE ======= */
 .stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .stack-category { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; }
+.stack-category h3,
 .stack-category h4 { font-size: 0.82rem; color: var(--blue-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; font-family: var(--font-mono); }
 .stack-category ul { list-style: none; }
 .stack-category ul li { color: rgba(240,246,255,0.78); font-size: 0.9rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
@@ -490,6 +491,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.9em; }
 }
 .cert-card:hover { border-color: rgba(26,115,232,0.3); transform: translateY(-2px); }
 .cert-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
+.cert-card h3,
 .cert-card h4 { font-size: 0.95rem; margin-bottom: 4px; }
 .cert-card p { font-size: 0.83rem; color: var(--muted); line-height: 1.5; }
 

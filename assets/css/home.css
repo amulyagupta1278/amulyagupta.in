@@ -65,7 +65,7 @@
   margin-right: auto;
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: rgba(240, 246, 255, 0.35);
+  color: rgba(240, 246, 255, 0.55);
   letter-spacing: 0.5px;
 }
 
@@ -84,7 +84,7 @@
 .t-key    { color: #38BDF8; }
 .t-val    { color: #4ade80; }
 .t-str    { color: #f59e0b; }
-.t-hash   { color: #7c3aed; }
+.t-hash   { color: #a78bfa; }
 .t-msg    { color: rgba(240, 246, 255, 0.65); }
 .t-blank  { display: block; height: 0.5em; }
 .t-cursor {

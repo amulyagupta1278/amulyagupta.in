@@ -17,14 +17,19 @@
   <meta name="twitter:image" content="https://github.com/amulyagupta1278.png" />
   <!-- Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-M678E1N87E"></script>
+  <!-- GA4 — lazy loaded after page is interactive to avoid LCP impact -->
   <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js',new Date());
-  gtag('config','G-M678E1N87E');
+  window.addEventListener('load',function(){
+    var s=document.createElement('script');
+    s.src='https://www.googletagmanager.com/gtag/js?id=G-M678E1N87E';
+    s.async=true;
+    document.head.appendChild(s);
+    gtag('js',new Date());
+    gtag('config','G-M678E1N87E');
+  });
   </script>
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="canonical" href="https://amulyagupta.in/about.html" />
@@ -128,7 +133,7 @@
     </div>
     <div class="stack-grid fade-in">
       <div class="stack-category">
-        <h4>AI / ML</h4>
+        <h3>AI / ML</h3>
         <ul>
           <li>PyTorch</li>
           <li>TensorFlow</li>
@@ -137,7 +142,7 @@
         </ul>
       </div>
       <div class="stack-category">
-        <h4>LLM / Agentic AI</h4>
+        <h3>LLM / Agentic AI</h3>
         <ul>
           <li>LangChain / LangGraph</li>
           <li>RAG Pipelines</li>
@@ -147,7 +152,7 @@
         </ul>
       </div>
       <div class="stack-category">
-        <h4>Backend / API</h4>
+        <h3>Backend / API</h3>
         <ul>
           <li>Python</li>
           <li>FastAPI</li>
@@ -157,7 +162,7 @@
         </ul>
       </div>
       <div class="stack-category">
-        <h4>MLOps / Infra</h4>
+        <h3>MLOps / Infra</h3>
         <ul>
           <li>Docker / Kubernetes</li>
           <li>MLflow</li>
@@ -167,7 +172,7 @@
         </ul>
       </div>
       <div class="stack-category">
-        <h4>Cloud / Data</h4>
+        <h3>Cloud / Data</h3>
         <ul>
           <li>AWS (EC2, S3)</li>
           <li>PostgreSQL / MySQL</li>
@@ -217,21 +222,21 @@
       <div class="cert-card">
         <div class="cert-icon">🎓</div>
         <div>
-          <h4>Prompt Engineering Level 3</h4>
+          <h3>Prompt Engineering Level 3</h3>
           <p>Percipio · Advanced prompting patterns, multi-step reasoning, constraints, safety & evaluation</p>
         </div>
       </div>
       <div class="cert-card">
         <div class="cert-icon">🤖</div>
         <div>
-          <h4>Generative AI Fundamentals</h4>
+          <h3>Generative AI Fundamentals</h3>
           <p>Percipio · LLMs, embeddings, tokenization, context windows, evaluation basics</p>
         </div>
       </div>
       <div class="cert-card">
         <div class="cert-icon">☁️</div>
         <div>
-          <h4>AWS Cloud Practitioner</h4>
+          <h3>AWS Cloud Practitioner</h3>
           <p>Percipio · IAM, EC2, S3, CloudWatch, Billing Explorer — Training completed, exam in progress</p>
         </div>
       </div>
