@@ -44,6 +44,21 @@
     ]
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Amulya Gupta",
+    "jobTitle": "AI Systems Engineer",
+    "url": "https://amulyagupta.in",
+    "sameAs": [
+      "https://github.com/amulyagupta1278",
+      "https://linkedin.com/in/amulya-gupta-bits-pilani"
+    ],
+    "worksFor": {"@type": "Organization", "name": "HCLTech"},
+    "alumniOf": {"@type": "CollegeOrUniversity", "name": "BITS Pilani"}
+  }
+  </script>
 </head>
 <body>
 
@@ -86,6 +101,8 @@
 <section class="section">
   <div class="container" style="max-width:860px;">
 
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:40px;">Last updated: May 2026</p>
+
     <!-- Work Experience -->
     <div class="section-header fade-in">
       <div class="section-tag">// Work History</div>
@@ -101,11 +118,13 @@
         <h3>Senior Software Engineer</h3>
         <p style="color:var(--blue-light);font-weight:600;margin:4px 0 12px;font-size:1rem;">HCLTech</p>
         <ul>
-          <li>Ran 40+ in-app campaigns through Adobe Journey Optimizer during Black Friday and Cyber Monday — these hit 20M+ users and nothing broke</li>
-          <li>Bumped click-through rates and purchase completion by 10-15% by actually testing different audience segments and creative variations instead of guessing</li>
-          <li>Owned the production readiness side of things: coordinating QA, validating how experiences render, making sure releases go out clean</li>
-          <li>Built data pipelines that feed the personalisation engine — ingestion, transformation, the plumbing that makes targeted campaigns possible</li>
-          <li>Worked across engineering, QA, and product teams to tighten up our release process and cut down on last-minute surprises</li>
+          <li>Ran 40+ in-app campaigns through Adobe Journey Optimizer during Black Friday and Cyber Monday, reaching 20M+ users with zero critical failures — outcomes that required careful audience filter validation and staged rollouts, not just hitting publish</li>
+          <li>Drove 10-15% improvement in CTR and purchase completion through structured A/B testing: each test varied one dimension at a time (subject line length, CTA copy, send timing, segment definition) so the signal was clean and the learnings carried forward to the next campaign</li>
+          <li>Built the data pipelines that feed the personalisation engine: raw event ingestion from multiple upstream sources, transformation layer to normalise schemas, and a delivery layer that populates campaign attributes in near real-time — all orchestrated so a failed upstream event doesn't silently corrupt downstream targeting</li>
+          <li>Designed the production readiness process for each campaign release: pre-flight checklists covering audience filter accuracy, experience rendering across device types, and content slot population per locale; every release went through a staging smoke test before promotion to production</li>
+          <li>Debugged silent failures in personalisation rules — cases where a rule evaluated correctly in isolation but produced wrong results against live audience data due to stale segment membership caches; traced these through pipeline logs and fixed the invalidation logic</li>
+          <li>Worked across engineering, QA, and product to formalise the release checklist into a repeatable process, which cut last-minute campaign holds from a regular occurrence to rare exceptions</li>
+          <li>Wrote internal documentation on campaign pipeline architecture and failure modes so the process wasn't dependent on any one person — useful when onboarding new team members during peak season prep</li>
         </ul>
         <div class="badges" style="margin-top:16px;">
           <span class="badge">Adobe Journey Optimizer</span>
@@ -123,11 +142,14 @@
         <h3>Software Engineer I</h3>
         <p style="color:var(--blue-light);font-weight:600;margin:4px 0 12px;font-size:1rem;">Classplus</p>
         <ul>
-          <li>Helped break apart the monolith into microservices — it was messy, but we ended up with much better fault isolation and faster deploys</li>
-          <li>Wrote backend services in Python and Node.js for analytics workloads. Learned a lot about when to use which</li>
-          <li>Built ETL pipelines on MySQL and PostgreSQL that powered the dashboards the ops team actually lived in every day</li>
-          <li>Connected REST APIs to frontend reporting so teachers and admins could see near real-time student performance data</li>
-          <li>Got comfortable debugging production issues by digging through logs and tracing requests end-to-end</li>
+          <li>Worked on decomposing a monolithic backend into independently deployable microservices — the actual work involved mapping inter-service dependencies, deciding ownership boundaries for shared data, and writing migration scripts that kept both the old and new code paths functional during the cutover period</li>
+          <li>Chose service boundaries based on team ownership and data coupling, not just technical convenience; services that shared a database table stayed together until we had time to split the schema properly rather than creating distributed monolith anti-patterns</li>
+          <li>Built ETL pipelines on MySQL and PostgreSQL processing daily student activity, assignment completion, and engagement data for the ops team's dashboards — pipelines that ran on a schedule, handled partial failures gracefully, and logged row-level errors so bad records could be investigated without rerunning the whole job</li>
+          <li>Dashboard query performance improved significantly after adding materialised summary tables updated incrementally by the ETL jobs — queries that previously timed out on large cohorts completed in under 3 seconds on equivalent data volumes</li>
+          <li>Wrote backend services in Python and Node.js, picking the language based on the workload: Python for data-heavy analytics endpoints where pandas integration saved time, Node.js for high-concurrency event-driven routes where async I/O mattered more</li>
+          <li>Connected REST APIs to frontend reporting views so teachers and school admins could see near real-time student performance data — built the pagination and filtering logic on the API layer so the frontend didn't have to pull full datasets and slice them client-side</li>
+          <li>Debugged production data inconsistencies by tracing requests end-to-end through logs, identifying cases where out-of-order event writes caused incorrect aggregation in the reporting layer, and fixing the write ordering guarantees upstream</li>
+          <li>Got comfortable with the full cycle of shipping backend features: spec, implement, write integration tests against a test database, deploy to staging, verify with the ops team, promote to production</li>
         </ul>
         <div class="badges" style="margin-top:16px;">
           <span class="badge">Python</span>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About | Amulya Gupta — AI Systems Engineer</title>
-  <meta name="description" content="Senior Software Engineer at HCLTech with 3+ years shipping agentic AI, LLM pipelines, and MLOps systems at scale. M.Tech AI/ML candidate at BITS Pilani." />
+  <meta name="description" content="AI Systems Engineer at HCLTech with 3+ years shipping agentic AI, LLM pipelines, and MLOps systems at scale. M.Tech AI/ML candidate at BITS Pilani." />
   <meta property="og:title" content="About Amulya Gupta | AI Systems Engineer" />
   <meta property="og:description" content="AI Systems Engineer building agentic AI, LLM pipelines, and production ML infrastructure." />
   <meta property="og:url" content="https://amulyagupta.in/about.html" />
@@ -42,6 +42,21 @@
       {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://amulyagupta.in/"},
       {"@type": "ListItem", "position": 2, "name": "About"}
     ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Amulya Gupta",
+    "jobTitle": "AI Systems Engineer",
+    "url": "https://amulyagupta.in",
+    "sameAs": [
+      "https://github.com/amulyagupta1278",
+      "https://linkedin.com/in/amulya-gupta-bits-pilani"
+    ],
+    "worksFor": {"@type": "Organization", "name": "HCLTech"},
+    "alumniOf": {"@type": "CollegeOrUniversity", "name": "BITS Pilani"}
   }
   </script>
 </head>
@@ -114,6 +129,12 @@
         <p>I'm doing my M.Tech in AI/ML at BITS Pilani alongside full-time work. The coursework in distributed systems and deep learning has been directly useful — understanding how these systems behave at scale changes how you design them. On my own time, I build everything end-to-end: from model training through FastAPI inference to Kubernetes deployment with Prometheus dashboards watching every request.</p>
 
         <p>I'm looking for a role where I can own the architecture of AI systems, not just one layer of the stack. If you're building something with LLMs, agents, or production ML and need someone who thinks in systems, let's talk.</p>
+
+        <p>Running campaign infrastructure at HCLTech taught me things about personalisation at scale that you can't learn from a tutorial. When you're targeting 20M users across dozens of campaign variants, the failure modes are subtle — an audience filter that works in staging silently excludes 15% of your intended segment in production, or a personalisation rule fires correctly but the downstream content slot hasn't been populated yet for a specific locale. I got good at designing pre-flight checklists and building observable pipelines so those failures surface before launch, not during. The 10-15% CTR improvement from A/B testing wasn't one big win — it was accumulated from testing subject line length, call-to-action placement, and timing windows across dozens of campaigns. The numbers moved because we were systematic, not because we found a magic formula.</p>
+
+        <p>For my next role, I want to work on a team that's actually building the AI system, not integrating a vendor product. I'm most interested in companies at the Series A to Series C stage where the architecture decisions still matter and haven't been ossified by five years of legacy constraints. Team size matters too — I work best when I can see the whole system, which usually means a product or platform team of 5-15 engineers rather than a 200-person org where I own one microservice in isolation. The specific domain is less important to me than the engineering depth: if you're building agents that make real decisions, RAG systems that need to be factually reliable, or MLOps tooling that other engineers depend on, I'm interested.</p>
+
+        <p>Outside of work, most of my time goes into the M.Tech coursework at BITS — assignments that involve implementing distributed consensus algorithms or training transformer variants from scratch, not just calling APIs. I also build personal projects end-to-end on purpose. It's easy to skip the deployment step when you're learning, but I've found that the gap between a working notebook and a working service is where most of the real engineering decisions live. Running my own Kubernetes cluster on EC2, wiring up MLflow for experiment tracking, and watching Grafana dashboards for a project nobody else will ever use has made me a significantly better engineer than any course alone.</p>
 
         <div style="margin-top:28px;">
           <a href="contact.html" class="btn btn-primary" data-ga-event="about_contact_click">Get In Touch →</a>
