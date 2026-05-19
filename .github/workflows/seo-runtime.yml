@@ -1,16 +1,35 @@
 name: SEO Autonomous Runtime
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Phased rollout — advance ENABLED_SKILL_GROUP as each phase stabilises:
+# Mandatory governance — 7 Hard Stops enforced at every execution:
 #
+#   HS1  CLAUDE_SEO_SKILL_EXECUTION_ONLY
+#        Exactly ONE skill per day, sequential 23-day rotation, no batching.
+#
+#   HS2  NO_AUTO_MERGE_OR_DIRECT_PUSH
+#        Runtime never merges PRs, never pushes to main, never self-approves.
+#        All remediation: Runtime → PR → Human Review → Manual Merge.
+#
+#   HS3  DASHBOARD_AND_OBSERVABILITY_REQUIRED
+#        Local JSON + Google Sheets persistence; dashboard auto-refreshes.
+#
+#   HS4  RUNTIME_VALIDATION_REQUIRED
+#        Pre-execution context validation; no skill runs on invalid state.
+#
+#   HS5  GOOGLE_SHEETS_PERSISTENT_MEMORY
+#        All history sheets are append-only; no clear/overwrite operations.
+#
+#   HS6  EXPERIMENTAL_BRANCH_ISOLATION
+#        Only validated infrastructure on seo-runtime-stable or main.
+#
+#   HS7  CAVEMAN_CREDIT_OPTIMIZATION
+#        Execution mode suppresses verbose context; Humaniser (emailer)
+#        runs post-execution only.
+#
+# Phased rollout — advance ENABLED_SKILL_GROUP as each phase stabilises:
 #   Phase 1 (Group 1)  — Robots/Sitemap, Meta/OG, Internal Linking, Headings
 #   Phase 2 (Group 2)  — Crawl Audit, Schema, CWV, Images, Mobile, Page Speed
 #   Phase 3 (Group 3)  — All 23 skills active
-#
-# Safety rules:
-#   • Exactly ONE skill runs per execution — strict rotational model
-#   • All site fixes are proposed via PR only — never auto-merged
-#   • Runtime will not push to main under any circumstance
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -80,11 +99,18 @@ jobs:
           PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: python runtime.py
 
       - name: Commit dashboard data
         if: always()
         run: |
+          # Hard Stop 2 — never push to main under any circumstance
+          if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "master" ]]; then
+            echo "HARD STOP 2: Refusing to push data commit to protected branch '${{ github.ref_name }}'."
+            exit 1
+          fi
           git config user.name "SEO Runtime Bot"
           git config user.email "seo-bot@amulyagupta.in"
           git add seo/data/ 2>/dev/null || true

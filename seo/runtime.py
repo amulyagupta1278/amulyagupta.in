@@ -8,8 +8,9 @@ Execution model:
   - Skills rotate sequentially; cycle restarts after all enabled skills complete
   - All site fixes are proposed via PR only — never auto-merged
 
-Safety controls:
-  - Runtime validation before every execution
+Governance:
+  - 7 mandatory Hard Stops enforced on every run (see governance.py)
+  - Runtime validation layer before every skill execution
   - Graceful failure handler with operator email alert
   - State preserved on partial failure
   - No direct commits to main; no auto-merge authority
@@ -29,7 +30,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import config
 import crawler
 import emailer
+import governance
 import memory
+from governance import HardStopViolation
 from sheets import SheetsClient
 
 logging.basicConfig(
@@ -186,10 +189,28 @@ def run() -> None:
         log.error("No skills enabled — set ENABLED_SKILL_GROUP ≥ 1")
         sys.exit(1)
 
+    # ── Hard Stop 2 + 6: branch protection checks at startup ─────────────────
+    # These run before any work begins — if we're on main, abort immediately.
+    try:
+        governance.enforce_no_direct_push(config.GITHUB_REF)
+        governance.assert_no_auto_merge_authority()
+        governance.enforce_branch_isolation(config.GITHUB_REF, config.ENABLED_SKILL_GROUP)
+    except HardStopViolation as exc:
+        log.critical(str(exc))
+        sys.exit(1)
+
     # ── Init Sheets ──────────────────────────────────────────────────────────
     sheets = SheetsClient()
     if not sheets.available:
         log.warning("Google Sheets unavailable — running without persistence")
+
+    # ── Hard Stop 3: verify at least one persistence layer is available ───────
+    try:
+        governance.enforce_observability(config.DATA_DIR, sheets.available)
+    except HardStopViolation as exc:
+        handle_failure(sheets, run_id, 0, str(exc), phase="governance-hs3")
+        log.critical(str(exc))
+        sys.exit(1)
 
     # ── Determine skill ID ───────────────────────────────────────────────────
     override = config.SKILL_OVERRIDE.strip().lower()
@@ -200,12 +221,31 @@ def run() -> None:
         skill_id = memory.get_next_skill(sheets, enabled_skills)
         log.info("Next scheduled skill: %d", skill_id)
 
-    # ── Validate skill selection ─────────────────────────────────────────────
+    # ── Hard Stop 1a: one skill per day (auto-rotation only) ─────────────────
+    state = memory.load_json("state.json")
+    try:
+        governance.enforce_one_skill_per_day(
+            last_run_date=state.get("last_run_date"),
+            is_manual_dispatch=config.IS_MANUAL_DISPATCH,
+        )
+    except HardStopViolation as exc:
+        handle_failure(sheets, run_id, skill_id, str(exc), phase="governance-hs1")
+        log.critical(str(exc))
+        sys.exit(1)
+
+    # ── Validate skill selection (existing layer + Hard Stop 1b) ─────────────
     id_errors = validate_skill_id(skill_id, enabled_skills)
     if id_errors:
         msg = "; ".join(id_errors)
         handle_failure(sheets, run_id, skill_id, msg, phase="validation")
         log.error("Validation failed: %s", msg)
+        sys.exit(1)
+
+    try:
+        governance.enforce_sequential_rotation(skill_id, enabled_skills)
+    except HardStopViolation as exc:
+        handle_failure(sheets, run_id, skill_id, str(exc), phase="governance-hs1b")
+        log.critical(str(exc))
         sys.exit(1)
 
     skill_name = config.SKILL_NAMES[skill_id - 1]
@@ -231,7 +271,27 @@ def run() -> None:
     healthy = sum(1 for p in pages if p.get("status") == 200)
     log.info("Crawl complete — %d/%d pages healthy", healthy, len(pages))
 
-    # ── Load and execute skill ───────────────────────────────────────────────
+    # ── Governance Gate — all 7 Hard Stops in sequence ───────────────────────
+    try:
+        governance.run_all(
+            skill_id=skill_id,
+            enabled_skills=enabled_skills,
+            site_url=config.SITE_URL,
+            pages=pages,
+            min_healthy=MIN_HEALTHY_PAGES,
+            data_dir=config.DATA_DIR,
+            sheets_available=sheets.available,
+            github_ref=config.GITHUB_REF,
+            enabled_skill_group=config.ENABLED_SKILL_GROUP,
+            last_run_date=state.get("last_run_date"),
+            is_manual_dispatch=config.IS_MANUAL_DISPATCH,
+        )
+    except HardStopViolation as exc:
+        handle_failure(sheets, run_id, skill_id, str(exc), phase=f"governance-hs{exc.stop_id}")
+        log.critical(str(exc))
+        sys.exit(1)
+
+    # ── Load skill ───────────────────────────────────────────────────────────
     try:
         from skills import SKILL_REGISTRY
         skill_cls = SKILL_REGISTRY[skill_id]
@@ -239,12 +299,19 @@ def run() -> None:
         handle_failure(sheets, run_id, skill_id, f"Skill {skill_id} not in registry", phase="load")
         sys.exit(1)
 
+    # ── Hard Stop 7: enter execution mode (Caveman — suppress verbose context) ─
+    governance.enter_execution_mode()
+
     try:
         result = skill_cls().run(pages)
     except Exception as exc:
+        governance.exit_execution_mode()
         msg = f"Skill execution error: {exc}\n{traceback.format_exc()}"
         handle_failure(sheets, run_id, skill_id, msg, phase="execution")
         sys.exit(1)
+
+    # ── Hard Stop 7: exit execution mode — Humaniser (reporting) now active ───
+    governance.exit_execution_mode()
 
     # ── Validate skill output ────────────────────────────────────────────────
     result_errors = validate_skill_result(result)
@@ -325,7 +392,8 @@ def run() -> None:
     memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
     log.info("Dashboard snapshot written")
 
-    # ── Email report ─────────────────────────────────────────────────────────
+    # ── Email report — Humaniser layer (post-execution only) ─────────────────
+    governance.assert_humaniser_scope("emailer.build_morning_brief")
     html, text = emailer.build_morning_brief(run_record, findings_dicts, skill_name, result.score)
     subject = (
         f"[SEO] Group {config.ENABLED_SKILL_GROUP} | "

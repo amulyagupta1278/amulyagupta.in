@@ -75,7 +75,33 @@ def build_morning_brief(run_data: dict, findings: list[dict], skill_name: str, s
     recs_html = ""
     for f in findings:
         if f.get("recommendation"):
-            recs_html += f"<li style='margin:4px 0;font-size:13px;'>{f['recommendation']}</li>"
+            recs_html += "<li style='margin:4px 0;font-size:13px;'>" + f["recommendation"] + "</li>"
+
+    # Pre-build conditional blocks (Python 3.11 prohibits backslashes in f-string expressions)
+    critical_block = ""
+    if critical:
+        critical_items = "".join(
+            "<p style='margin:4px 0;font-size:13px;'>• "
+            + c.get("title", "") + ": " + c.get("description", "")[:150]
+            + "</p>"
+            for c in critical
+        )
+        critical_block = (
+            '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;'
+            'padding:20px;margin-bottom:16px;">'
+            '<h3 style="margin:0 0 8px;color:#dc2626;font-size:15px;">'
+            "CRITICAL — IMMEDIATE SEO INTERVENTION REQUIRED</h3>"
+            + critical_items + "</div>"
+        )
+
+    recs_block = ""
+    if recs_html:
+        recs_block = (
+            '<div style="background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;'
+            'border:1px solid #e5e7eb;">'
+            '<h2 style="margin:0 0 12px;font-size:18px;color:#1e293b;">Recommendations</h2>'
+            '<ul style="margin:0;padding-left:20px;">' + recs_html + "</ul></div>"
+        )
 
     html = f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head>
@@ -110,7 +136,7 @@ def build_morning_brief(run_data: dict, findings: list[dict], skill_name: str, s
     </div>
   </div>
 
-  {'<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:20px;margin-bottom:16px;"><h3 style="margin:0 0 8px;color:#dc2626;font-size:15px;">CRITICAL — IMMEDIATE SEO INTERVENTION REQUIRED</h3>' + ''.join(f"<p style='margin:4px 0;font-size:13px;'>• {f.get(\"title\",\"\")}: {f.get(\"description\",\"\")[:150]}</p>" for f in critical) + '</div>' if critical else ""}
+  {critical_block}
 
   <div style="background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;border:1px solid #e5e7eb;">
     <h2 style="margin:0 0 16px;font-size:18px;color:#1e293b;">Findings ({len(findings)} total)</h2>
@@ -124,7 +150,7 @@ def build_morning_brief(run_data: dict, findings: list[dict], skill_name: str, s
     </table>
   </div>
 
-  {'<div style="background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;border:1px solid #e5e7eb;"><h2 style="margin:0 0 12px;font-size:18px;color:#1e293b;">Recommendations</h2><ul style="margin:0;padding-left:20px;">' + recs_html + '</ul></div>' if recs_html else ""}
+  {recs_block}
 
   <div style="text-align:center;padding:16px;color:#94a3b8;font-size:11px;">
     SEO Runtime Bot · amulyagupta.in · Auto-generated report · Do not reply
