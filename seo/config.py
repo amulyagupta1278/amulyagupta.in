@@ -76,3 +76,36 @@ CWV_THRESHOLDS = {
     "inp": {"good": 200, "poor": 500},
     "ttfb": {"good": 800, "poor": 1800},
 }
+
+# ---------------------------------------------------------------------------
+# Incremental Skill Rollout — Phase-gated activation
+#
+# Group 1 — Safe Foundational (deploy first, validate before advancing)
+#   Robots/Sitemap, Meta/OG, Internal Linking, Heading Hierarchy
+#
+# Group 2 — Technical SEO (deploy after Group 1 is stable)
+#   Crawl Audit, Schema, Core Web Vitals, Images, Mobile, Page Speed
+#
+# Group 3 — Advanced Intelligence (deploy last)
+#   Canonicals, Content Quality, Duplicate Content, Keywords, AI Readiness,
+#   Indexation, Backlinks, Search Console, Analytics, Competitors,
+#   Semantic Coverage, Anchor Text, AI Citations
+#
+# Set ENABLED_SKILL_GROUP env var to control which groups are active.
+# All groups ≤ the configured number are activated cumulatively.
+# ---------------------------------------------------------------------------
+SKILL_GROUPS: dict[int, list[int]] = {
+    1: [2, 6, 7, 12],                                   # Foundational
+    2: [1, 4, 5, 13, 14, 15],                           # Technical SEO
+    3: [3, 8, 9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23],  # Advanced
+}
+
+ENABLED_SKILL_GROUP = int(os.environ.get("ENABLED_SKILL_GROUP", "1"))
+
+
+def get_enabled_skills() -> list[int]:
+    """Return sorted skill IDs for all groups up to ENABLED_SKILL_GROUP."""
+    enabled: list[int] = []
+    for g in range(1, ENABLED_SKILL_GROUP + 1):
+        enabled.extend(SKILL_GROUPS.get(g, []))
+    return sorted(enabled)

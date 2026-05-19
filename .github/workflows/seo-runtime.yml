@@ -1,5 +1,18 @@
 name: SEO Autonomous Runtime
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Phased rollout — advance ENABLED_SKILL_GROUP as each phase stabilises:
+#
+#   Phase 1 (Group 1)  — Robots/Sitemap, Meta/OG, Internal Linking, Headings
+#   Phase 2 (Group 2)  — Crawl Audit, Schema, CWV, Images, Mobile, Page Speed
+#   Phase 3 (Group 3)  — All 23 skills active
+#
+# Safety rules:
+#   • Exactly ONE skill runs per execution — strict rotational model
+#   • All site fixes are proposed via PR only — never auto-merged
+#   • Runtime will not push to main under any circumstance
+# ─────────────────────────────────────────────────────────────────────────────
+
 on:
   schedule:
     # 23:00 UTC = 04:30 AM IST (UTC+5:30)
@@ -7,11 +20,15 @@ on:
   workflow_dispatch:
     inputs:
       skill_override:
-        description: 'Force-run a specific skill (1–23) or leave blank for auto'
+        description: 'Force a specific skill (1–23) or leave blank for auto-rotation'
         required: false
         default: 'auto'
+      enabled_skill_group:
+        description: 'Skill group to activate: 1=Foundational, 2=+Technical, 3=+Advanced'
+        required: false
+        default: '1'
       force_init:
-        description: 'Force re-initialization of Sheets structure'
+        description: 'Force re-initialise Sheets structure (use only on first deploy)'
         required: false
         type: boolean
         default: false
@@ -26,7 +43,7 @@ concurrency:
 
 jobs:
   seo-runtime:
-    name: Daily SEO Skill Execution
+    name: "SEO Skill Runtime (Group ${{ github.event.inputs.enabled_skill_group || '1' }})"
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -53,6 +70,7 @@ jobs:
           SITE_URL: https://amulyagupta.in
           REPORT_EMAIL: amulagupta2001@gmail.com
           SKILL_OVERRIDE: ${{ github.event.inputs.skill_override || 'auto' }}
+          ENABLED_SKILL_GROUP: ${{ github.event.inputs.enabled_skill_group || '1' }}
           FORCE_INIT: ${{ github.event.inputs.force_init || 'false' }}
           GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
@@ -74,7 +92,8 @@ jobs:
             echo "No data changes to commit."
           else
             git commit -m "chore(seo): update dashboard data [skip ci]"
-            git push origin ${{ github.ref_name }} || echo "Push failed — will retry next run"
+            git push origin ${{ github.ref_name }} \
+              || echo "Push failed — data preserved in artifact"
           fi
 
       - name: Upload run artifacts
