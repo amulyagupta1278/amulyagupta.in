@@ -14,3 +14,6 @@ User-agent: PerplexityBot
 Allow: /
 
 Sitemap: https://amulyagupta.in/sitemap.xml
+
+User-agent: Googlebot
+Allow: /
