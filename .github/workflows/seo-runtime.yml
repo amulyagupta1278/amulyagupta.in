@@ -1,0 +1,86 @@
+name: SEO Autonomous Runtime
+
+on:
+  schedule:
+    # 23:00 UTC = 04:30 AM IST (UTC+5:30)
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+    inputs:
+      skill_override:
+        description: 'Force-run a specific skill (1–23) or leave blank for auto'
+        required: false
+        default: 'auto'
+      force_init:
+        description: 'Force re-initialization of Sheets structure'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: seo-runtime
+  cancel-in-progress: false
+
+jobs:
+  seo-runtime:
+    name: Daily SEO Skill Execution
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: seo/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r seo/requirements.txt
+
+      - name: Run SEO Runtime
+        working-directory: seo
+        env:
+          SITE_URL: https://amulyagupta.in
+          REPORT_EMAIL: amulagupta2001@gmail.com
+          SKILL_OVERRIDE: ${{ github.event.inputs.skill_override || 'auto' }}
+          FORCE_INIT: ${{ github.event.inputs.force_init || 'false' }}
+          GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python runtime.py
+
+      - name: Commit dashboard data
+        if: always()
+        run: |
+          git config user.name "SEO Runtime Bot"
+          git config user.email "seo-bot@amulyagupta.in"
+          git add seo/data/ 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No data changes to commit."
+          else
+            git commit -m "chore(seo): update dashboard data [skip ci]"
+            git push origin ${{ github.ref_name }} || echo "Push failed — will retry next run"
+          fi
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-run-${{ github.run_number }}
+          path: seo/data/
+          retention-days: 90
