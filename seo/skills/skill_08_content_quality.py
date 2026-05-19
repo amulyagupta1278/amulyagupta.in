@@ -1,6 +1,6 @@
 import re
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 THIN_CONTENT_THRESHOLD = 300
@@ -47,7 +47,6 @@ class Skill08ContentQuality(BaseSEOSkill):
     SKILL_NAME = "Content Quality Audit"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         page_scores = []
 
@@ -58,9 +57,7 @@ class Skill08ContentQuality(BaseSEOSkill):
             if not soup or page.get("status") != 200:
                 continue
 
-            from copy import copy
-            soup_copy = copy(soup)
-            wc = crawler.word_count(soup_copy)
+            wc = crawler.word_count(soup)
 
             page_score = 100
 

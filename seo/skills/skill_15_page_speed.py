@@ -1,6 +1,6 @@
 import requests
 import logging
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL, PAGESPEED_API_KEY
 
 log = logging.getLogger(__name__)
@@ -42,7 +42,6 @@ class Skill15PageSpeed(BaseSEOSkill):
     SKILL_NAME = "Page Speed Deep Dive"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
 
         if not PAGESPEED_API_KEY:

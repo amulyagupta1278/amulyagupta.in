@@ -1,6 +1,6 @@
 import json
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 EXPECTED_SCHEMAS = {
@@ -41,7 +41,6 @@ class Skill04StructuredData(BaseSEOSkill):
     SKILL_NAME = "Structured Data Audit"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         pages_with_schema = 0
         schema_errors = 0

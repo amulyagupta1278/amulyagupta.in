@@ -1,5 +1,5 @@
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL, SITE_PAGES
 
 INTENTIONALLY_NOINDEX = ["/privacy.html"]
@@ -10,10 +10,13 @@ class Skill16Indexation(BaseSEOSkill):
     SKILL_NAME = "Indexation Coverage Audit"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         indexable = 0
         total = 0
+
+        # Fetch sitemap once, reuse across all page checks
+        sm_result = crawler.fetch(f"{SITE_URL}/sitemap.xml")
+        sitemap_content = sm_result.get("html", "") if sm_result["status"] == 200 else ""
 
         for page in pages:
             url = page["url"]
@@ -80,9 +83,8 @@ class Skill16Indexation(BaseSEOSkill):
                 ))
 
             # Check sitemap inclusion
-            sm_result = crawler.fetch(f"{SITE_URL}/sitemap.xml")
-            if sm_result["status"] == 200 and is_indexable:
-                if url not in sm_result.get("html", ""):
+            if sitemap_content and is_indexable:
+                if url not in sitemap_content:
                     findings.append(Finding(
                         title=f"Indexable page missing from sitemap: {path}",
                         description="This page should be indexed but is not in sitemap.xml.",

@@ -1,6 +1,6 @@
 from collections import defaultdict
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 GENERIC_ANCHORS = {
@@ -15,7 +15,6 @@ class Skill22AnchorText(BaseSEOSkill):
     SKILL_NAME = "Anchor Text Optimization"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
 
         anchor_to_urls = defaultdict(list)

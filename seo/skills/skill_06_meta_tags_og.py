@@ -1,5 +1,5 @@
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 TITLE_MIN, TITLE_MAX = 30, 60
@@ -11,7 +11,6 @@ class Skill06MetaTagsOG(BaseSEOSkill):
     SKILL_NAME = "Meta Tags & Open Graph Audit"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         seen_titles = {}
         seen_descs = {}

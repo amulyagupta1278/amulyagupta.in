@@ -1,5 +1,6 @@
 import logging
-from base import BaseSEOSkill, Finding
+import crawler
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 log = logging.getLogger(__name__)
@@ -10,7 +11,6 @@ class Skill18SearchConsole(BaseSEOSkill):
     SKILL_NAME = "Search Console Intelligence"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
 
         findings.append(Finding(
@@ -51,7 +51,6 @@ class Skill18SearchConsole(BaseSEOSkill):
                 ))
 
         # Check if sitemap is submitted (we can infer from sitemap existence)
-        import crawler
         sm = crawler.fetch(f"{SITE_URL}/sitemap.xml")
         if sm["status"] == 200:
             findings.append(Finding(

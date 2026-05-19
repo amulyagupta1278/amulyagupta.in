@@ -1,6 +1,6 @@
 import re
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 PAGE_KEYWORDS = {
@@ -22,7 +22,6 @@ class Skill10KeywordOptimization(BaseSEOSkill):
     SKILL_NAME = "Keyword Optimization Audit"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         scores = []
 

@@ -3,7 +3,6 @@ import os
 import logging
 from datetime import datetime
 import gspread
-from google.oauth2.service_account import Credentials
 from config import (
     GOOGLE_SERVICE_ACCOUNT_JSON,
     GOOGLE_SHEETS_SPREADSHEET_ID,
@@ -50,8 +49,7 @@ class SheetsClient:
             return
         try:
             creds_data = json.loads(GOOGLE_SERVICE_ACCOUNT_JSON)
-            creds = Credentials.from_service_account_info(creds_data, scopes=SCOPES)
-            self._gc = gspread.authorize(creds)
+            self._gc = gspread.service_account_from_dict(creds_data, scopes=SCOPES)
             self._spreadsheet = self._gc.open_by_key(GOOGLE_SHEETS_SPREADSHEET_ID)
             self._available = True
             log.info("Google Sheets connected: %s", GOOGLE_SHEETS_SPREADSHEET_ID)

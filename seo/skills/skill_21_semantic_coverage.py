@@ -1,6 +1,6 @@
 import re
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 CORE_TOPICS = {
@@ -29,7 +29,6 @@ class Skill21SemanticCoverage(BaseSEOSkill):
     SKILL_NAME = "Semantic Coverage Audit"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
 
         all_text = ""
