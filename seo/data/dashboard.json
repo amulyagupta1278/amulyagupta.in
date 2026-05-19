@@ -7,10 +7,30 @@
     "active_issues": 0,
     "critical_issues": 0,
     "warning_issues": 0,
-    "total_runs": 0
+    "total_runs": 0,
+    "ai_visibility_score": 0,
+    "runtime_health_pct": 100,
+    "cycle_completion_pct": 0,
+    "skills_run": 0,
+    "score_delta": 0,
+    "prev_score": null
   },
   "recent_runs": [],
   "latest_findings": [],
   "score_history": [],
-  "active_issues_list": []
+  "active_issues_list": [],
+  "ai_visibility": {
+    "score": 0,
+    "findings": [],
+    "critical": 0,
+    "warnings": 0
+  },
+  "skill_progression": [],
+  "historical_comparison": {
+    "current_skill_id": 0,
+    "current_score": 0,
+    "prev_score": null,
+    "delta": 0,
+    "same_skill_history": []
+  }
 }

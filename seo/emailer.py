@@ -47,7 +47,97 @@ def send_report(subject: str, html_body: str, text_body: str = "", attachments: 
         return False
 
 
-def build_morning_brief(run_data: dict, findings: list[dict], skill_name: str, score: int) -> tuple[str, str]:
+def _trend_label(delta: float) -> str:
+    if delta > 5:
+        return "&#x2191; Improving"
+    if delta < -5:
+        return "&#x2193; Declining"
+    return "&#x2192; Stable"
+
+
+def _build_historical_block(skill_id: int, score: int, scores_history: list) -> str:
+    """Build HTML block comparing current score against previous runs of the same skill."""
+    same_skill = [s for s in scores_history if s.get("skill_id") == skill_id]
+    if not same_skill:
+        return ""
+
+    prev = same_skill[-1]
+    prev_score = prev.get("score", score)
+    delta = score - prev_score
+    delta_color = "#22c55e" if delta >= 0 else "#ef4444"
+    delta_sign = "+" if delta >= 0 else ""
+
+    # Last 5 runs for mini-trend
+    last_5 = same_skill[-5:]
+    trend_cells = "".join(
+        f'<td style="padding:4px 8px;text-align:center;'
+        f'color:{"#22c55e" if s.get("score",0)>=80 else "#f59e0b" if s.get("score",0)>=50 else "#ef4444"};'
+        f'font-weight:600">{s.get("score","—")}</td>'
+        for s in last_5
+    )
+
+    # Linear trend prediction
+    if len(last_5) >= 2:
+        deltas = [last_5[i]["score"] - last_5[i-1]["score"] for i in range(1, len(last_5))]
+        avg_delta = sum(deltas) / len(deltas)
+        predicted = max(0, min(100, round(score + avg_delta)))
+        pred_color = "#22c55e" if avg_delta >= 0 else "#ef4444"
+        prediction_html = (
+            f'<div style="margin-top:8px;font-size:12px;color:{pred_color}">'
+            f'Predicted next run: ~{predicted}/100 ({_trend_label(avg_delta)})</div>'
+        )
+    else:
+        prediction_html = ""
+
+    return f"""
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-bottom:16px;">
+      <h2 style="margin:0 0 12px;font-size:18px;color:#1e293b;">Historical Comparison — Skill {skill_id}</h2>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:12px;">
+        <div>
+          <div style="font-size:11px;color:#6b7280">Current Score</div>
+          <div style="font-size:28px;font-weight:700;color:#1e293b">{score}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#6b7280">Previous Score</div>
+          <div style="font-size:28px;font-weight:700;color:#64748b">{prev_score}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#6b7280">Delta</div>
+          <div style="font-size:28px;font-weight:700;color:{delta_color}">{delta_sign}{delta}</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:6px">Last {len(last_5)} runs:</div>
+      <table style="border-collapse:collapse"><tr>{trend_cells}</tr></table>
+      {prediction_html}
+    </div>"""
+
+
+def _build_strategic_block(findings: list[dict]) -> str:
+    """Build HTML block with top strategic recommendations."""
+    recs = [
+        f for f in findings
+        if f.get("recommendation") and f.get("severity") in ("critical", "warning")
+    ][:5]
+    if not recs:
+        return ""
+
+    items = "".join(
+        f'<li style="margin:6px 0;font-size:13px;">'
+        f'<span style="color:{"#ef4444" if r["severity"]=="critical" else "#f59e0b"}">'
+        f'[{r["severity"].upper()}]</span> {r["recommendation"]}</li>'
+        for r in recs
+    )
+    return f"""
+    <div style="background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;border:1px solid #e5e7eb;">
+      <h2 style="margin:0 0 12px;font-size:18px;color:#1e293b;">Strategic Recommendations</h2>
+      <ul style="margin:0;padding-left:20px;">{items}</ul>
+    </div>"""
+
+
+def build_morning_brief(
+    run_data: dict, findings: list[dict], skill_name: str, score: int,
+    scores_history: list | None = None,
+) -> tuple[str, str]:
     date_str = datetime.utcnow().strftime("%B %d, %Y")
     score_color = "#22c55e" if score >= 80 else "#f59e0b" if score >= 50 else "#ef4444"
     score_label = "GOOD" if score >= 80 else "NEEDS WORK" if score >= 50 else "CRITICAL"
@@ -72,10 +162,10 @@ def build_morning_brief(run_data: dict, findings: list[dict], skill_name: str, s
           <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#6b7280;">{f.get('url','—')}</td>
         </tr>"""
 
-    recs_html = ""
-    for f in findings:
-        if f.get("recommendation"):
-            recs_html += "<li style='margin:4px 0;font-size:13px;'>" + f["recommendation"] + "</li>"
+    # Historical comparison and strategic blocks
+    skill_id = run_data.get("skill_id", 0)
+    historical_block = _build_historical_block(skill_id, score, scores_history or [])
+    strategic_block = _build_strategic_block(findings)
 
     # Pre-build conditional blocks (Python 3.11 prohibits backslashes in f-string expressions)
     critical_block = ""
@@ -92,15 +182,6 @@ def build_morning_brief(run_data: dict, findings: list[dict], skill_name: str, s
             '<h3 style="margin:0 0 8px;color:#dc2626;font-size:15px;">'
             "CRITICAL — IMMEDIATE SEO INTERVENTION REQUIRED</h3>"
             + critical_items + "</div>"
-        )
-
-    recs_block = ""
-    if recs_html:
-        recs_block = (
-            '<div style="background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;'
-            'border:1px solid #e5e7eb;">'
-            '<h2 style="margin:0 0 12px;font-size:18px;color:#1e293b;">Recommendations</h2>'
-            '<ul style="margin:0;padding-left:20px;">' + recs_html + "</ul></div>"
         )
 
     html = f"""<!DOCTYPE html>
@@ -138,6 +219,10 @@ def build_morning_brief(run_data: dict, findings: list[dict], skill_name: str, s
 
   {critical_block}
 
+  {historical_block}
+
+  {strategic_block}
+
   <div style="background:#fff;border-radius:12px;padding:24px;margin-bottom:16px;border:1px solid #e5e7eb;">
     <h2 style="margin:0 0 16px;font-size:18px;color:#1e293b;">Findings ({len(findings)} total)</h2>
     <table style="width:100%;border-collapse:collapse;">
@@ -149,8 +234,6 @@ def build_morning_brief(run_data: dict, findings: list[dict], skill_name: str, s
       <tbody>{issues_html}</tbody>
     </table>
   </div>
-
-  {recs_block}
 
   <div style="text-align:center;padding:16px;color:#94a3b8;font-size:11px;">
     SEO Runtime Bot · amulyagupta.in · Auto-generated report · Do not reply

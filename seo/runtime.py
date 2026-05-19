@@ -392,9 +392,29 @@ def run() -> None:
     memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
     log.info("Dashboard snapshot written")
 
+    # ── Specialty tracking — competitor intelligence (skill 20) ──────────────
+    if skill_id == 20:
+        for f in findings_dicts:
+            if f.get("category") == "competitive":
+                try:
+                    sheets.append("seo_competitors", [
+                        now.isoformat(),
+                        "benchmark",
+                        f.get("title", "")[:100],
+                        f.get("severity", ""),
+                        "",
+                        "",
+                        f.get("recommendation", "")[:200],
+                        run_id,
+                    ])
+                except Exception as e:
+                    log.warning("Failed to log competitor data: %s", e)
+
     # ── Email report — Humaniser layer (post-execution only) ─────────────────
     governance.assert_humaniser_scope("emailer.build_morning_brief")
-    html, text = emailer.build_morning_brief(run_record, findings_dicts, skill_name, result.score)
+    html, text = emailer.build_morning_brief(
+        run_record, findings_dicts, skill_name, result.score, scores
+    )
     subject = (
         f"[SEO] Group {config.ENABLED_SKILL_GROUP} | "
         f"Skill {skill_id}/23 — {skill_name} | "
@@ -407,6 +427,26 @@ def run() -> None:
         "" if email_ok else "Check GMAIL credentials",
         run_id,
     ])
+
+    # ── Archive report entry ─────────────────────────────────────────────────
+    try:
+        sheets.append("seo_reports", [
+            str(uuid.uuid4())[:8],
+            now.isoformat(),
+            skill_id,
+            "morning_brief",
+            f"Morning Brief — {skill_name}",
+            (
+                f"Score {result.score}/100 | "
+                f"{len(findings_dicts)} findings | "
+                f"{result.critical_count} critical | "
+                f"{result.warning_count} warnings"
+            ),
+            "",
+            run_id,
+        ])
+    except Exception as e:
+        log.warning("Failed to archive report entry: %s", e)
 
     # ── Save state ───────────────────────────────────────────────────────────
     memory.save_run_state(skill_id, run_id)

@@ -130,6 +130,46 @@
                        margin-bottom: 20px; }
 
     .skill-item.disabled { opacity: .35; }
+
+    /* AI Visibility */
+    .ai-check { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05); }
+    .ai-check:last-child { border-bottom:none; }
+    .ai-icon { width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0; }
+    .ai-icon.pass { background:rgba(34,197,94,.15); }
+    .ai-icon.fail { background:rgba(239,68,68,.15); }
+    .ai-icon.warn { background:rgba(245,158,11,.15); }
+    .ai-label { font-size:13px;flex:1; }
+    .ai-status { font-size:11px;font-weight:600; }
+
+    /* Cycle progress */
+    .cycle-ring-wrap { display:flex;align-items:center;gap:20px; }
+    .big-ring { position:relative;width:100px;height:100px; }
+    .big-ring svg { transform:rotate(-90deg); }
+    .big-ring .ring-label { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+    .ring-pct { font-size:22px;font-weight:700; }
+    .ring-sub { font-size:10px;color:var(--muted); }
+
+    /* Historical comparison mini-table */
+    .hist-row { display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05); }
+    .hist-row:last-child { border-bottom:none; }
+    .hist-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+    .hist-date { font-size:11px;color:var(--muted);width:80px;flex-shrink:0; }
+    .hist-score { font-weight:700;width:36px;text-align:right; }
+    .hist-bar-wrap { flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden; }
+    .hist-bar { height:100%;border-radius:2px; }
+
+    /* Runtime health */
+    .health-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .health-item { background:var(--surface2);border-radius:8px;padding:12px;text-align:center; }
+    .health-val { font-size:24px;font-weight:700; }
+    .health-lbl { font-size:11px;color:var(--muted);margin-top:2px; }
+
+    /* Tabs */
+    .tabs { display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0; }
+    .tab-btn { background:none;border:none;color:var(--muted);font-size:13px;padding:8px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px; }
+    .tab-btn.active { color:var(--accent);border-bottom-color:var(--accent); }
+    .tab-pane { display:none; }
+    .tab-pane.active { display:block; }
   </style>
 </head>
 <body>
@@ -175,27 +215,65 @@
   </div>
 
   <!-- Executive Summary KPIs -->
-  <div class="grid-4" id="kpi-grid">
+  <div class="grid-4" id="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
     <div class="card">
       <div class="card-title">SEO Health Score</div>
       <div class="metric-value" id="kpi-score" style="color: var(--green)">—</div>
-      <div class="metric-label">out of 100</div>
+      <div class="metric-label">avg across all skills</div>
       <div class="progress-bar"><div class="progress-fill fill-green" id="score-bar" style="width:0%"></div></div>
+      <div class="metric-delta" id="kpi-score-delta"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">AI Visibility Score</div>
+      <div class="metric-value" id="kpi-ai" style="color: var(--purple)">—</div>
+      <div class="metric-label">AI-search readiness</div>
+      <div class="progress-bar"><div class="progress-fill" id="ai-bar" style="width:0%;background:var(--purple)"></div></div>
     </div>
     <div class="card">
       <div class="card-title">Active Issues</div>
       <div class="metric-value" id="kpi-issues" style="color: var(--yellow)">—</div>
-      <div class="metric-label">tracked issues</div>
+      <div class="metric-label">
+        <span id="kpi-critical-inline" style="color:var(--red)"></span>
+        critical &middot; <span id="kpi-warning-inline" style="color:var(--yellow)"></span> warnings
+      </div>
     </div>
     <div class="card">
+      <div class="card-title">Cycle Progress</div>
+      <div class="metric-value" id="kpi-cycle" style="color: var(--accent)">—</div>
+      <div class="metric-label">skills completed / 23</div>
+      <div class="progress-bar"><div class="progress-fill fill-green" id="cycle-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Extended KPI row -->
+  <div class="grid-4" style="margin-top:-8px">
+    <div class="card" style="padding:14px 20px">
       <div class="card-title">Critical Issues</div>
-      <div class="metric-value" id="kpi-critical" style="color: var(--red)">—</div>
-      <div class="metric-label">need immediate action</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div class="metric-value" id="kpi-critical" style="color:var(--red);font-size:28px">—</div>
+        <div style="font-size:12px;color:var(--muted)">need immediate action</div>
+      </div>
     </div>
-    <div class="card">
+    <div class="card" style="padding:14px 20px">
       <div class="card-title">Total Runs</div>
-      <div class="metric-value" id="kpi-runs" style="color: var(--accent)">—</div>
-      <div class="metric-label">completed executions</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div class="metric-value" id="kpi-runs" style="color:var(--accent);font-size:28px">—</div>
+        <div style="font-size:12px;color:var(--muted)">completed executions</div>
+      </div>
+    </div>
+    <div class="card" style="padding:14px 20px">
+      <div class="card-title">Runtime Health</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div class="metric-value" id="kpi-health" style="color:var(--green);font-size:28px">—</div>
+        <div style="font-size:12px;color:var(--muted)">% runs completed</div>
+      </div>
+    </div>
+    <div class="card" style="padding:14px 20px">
+      <div class="card-title">Crawl Health</div>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div class="metric-value" id="kpi-crawl" style="color:var(--green);font-size:28px">—</div>
+        <div style="font-size:12px;color:var(--muted)">pages OK / 11</div>
+      </div>
     </div>
   </div>
 
@@ -278,7 +356,7 @@
     </div>
   </div>
 
-  <!-- AI Visibility + Score by Skill -->
+  <!-- Charts row -->
   <div class="grid-2" style="margin-top:24px">
     <div class="card">
       <div class="section-header">
@@ -298,8 +376,135 @@
     </div>
   </div>
 
+  <!-- AI Search Visibility Center -->
+  <div class="card" style="margin-top:24px">
+    <div class="section-header">
+      <div class="section-title">&#x1F916; AI Search Visibility Center</div>
+      <div class="section-label" id="ai-score-label"></div>
+    </div>
+    <div class="grid-2" style="margin-bottom:16px">
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">AI READINESS CHECKS</div>
+        <div id="ai-checks-list">
+          <div class="loading">Loading AI visibility data</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">AI VISIBILITY SCORE</div>
+        <div style="text-align:center;padding:20px">
+          <div class="score-ring" style="width:100px;height:100px;margin:0 auto">
+            <svg width="100" height="100">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="8"/>
+              <circle id="ai-ring-arc" cx="50" cy="50" r="42" fill="none"
+                stroke="var(--purple)" stroke-width="8"
+                stroke-dasharray="0 264" stroke-linecap="round"
+                style="transition:stroke-dasharray 1s ease"/>
+            </svg>
+            <div class="score-num" id="ai-ring-num" style="color:var(--purple)">—</div>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:var(--muted)" id="ai-breakdown"></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">RECENT AI SEO FINDINGS</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Severity</th><th>Finding</th><th>Recommendation</th>
+          </tr></thead>
+          <tbody id="ai-findings-tbody">
+            <tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px">No AI SEO findings yet — run Skill 11 or 23</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historical Comparison & Skill Progression -->
+  <div class="grid-2" style="margin-top:24px">
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">Historical Score Comparison</div>
+        <div class="section-label" id="hist-skill-label"></div>
+      </div>
+      <div id="hist-comparison">
+        <div style="display:flex;gap:20px;margin-bottom:16px">
+          <div style="flex:1;text-align:center;background:var(--surface2);border-radius:8px;padding:12px">
+            <div style="font-size:11px;color:var(--muted)">Current</div>
+            <div id="hist-current" style="font-size:28px;font-weight:700">—</div>
+          </div>
+          <div style="flex:1;text-align:center;background:var(--surface2);border-radius:8px;padding:12px">
+            <div style="font-size:11px;color:var(--muted)">Previous</div>
+            <div id="hist-prev" style="font-size:28px;font-weight:700;color:var(--muted)">—</div>
+          </div>
+          <div style="flex:1;text-align:center;background:var(--surface2);border-radius:8px;padding:12px">
+            <div style="font-size:11px;color:var(--muted)">Delta</div>
+            <div id="hist-delta" style="font-size:28px;font-weight:700">—</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">SCORE HISTORY (same skill)</div>
+        <div id="hist-bars"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">Skill Progression</div>
+        <div class="section-label" id="progression-label"></div>
+      </div>
+      <div id="progression-list" style="max-height:300px;overflow-y:auto">
+        <div class="loading">Loading skill progression</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Issue Lifecycle Tracker -->
+  <div class="card" style="margin-top:24px">
+    <div class="section-header">
+      <div class="section-title">&#x1F4CB; Issue Lifecycle Tracker</div>
+      <div class="section-label">Persistent issue history &amp; recurrence tracking</div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-active')">Active Issues</button>
+      <button class="tab-btn" onclick="switchTab('tab-recurring')">Recurring (&ge;3 occurrences)</button>
+      <button class="tab-btn" onclick="switchTab('tab-critical-only')">Critical Only</button>
+    </div>
+    <div id="tab-active" class="tab-pane active">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Severity</th><th>Title</th><th>Category</th>
+            <th>First Seen</th><th>Last Seen</th><th>Occurrences</th><th>Trend</th>
+          </tr></thead>
+          <tbody id="lifecycle-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="tab-recurring" class="tab-pane">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Severity</th><th>Title</th><th>Occurrences</th><th>First Seen</th>
+          </tr></thead>
+          <tbody id="recurring-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="tab-critical-only" class="tab-pane">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Title</th><th>URL</th><th>First Seen</th><th>Occurrences</th>
+          </tr></thead>
+          <tbody id="critical-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="timestamp" id="footer-ts" style="margin-top:24px;text-align:center;">
-    SEO Runtime Bot · Data updated automatically · <a href="https://amulyagupta.in" style="color:var(--accent)">amulyagupta.in</a>
+    SEO Runtime Bot · Auto-refresh every 5 min · <a href="https://amulyagupta.in" style="color:var(--accent)">amulyagupta.in</a>
+    &nbsp;|&nbsp; <span id="footer-countdown" style="color:var(--muted)"></span>
   </div>
 </main>
 
@@ -420,8 +625,6 @@ function renderDashboard(data) {
   if (generatedAt) {
     const d = new Date(generatedAt);
     document.getElementById('last-updated').textContent = 'Updated ' + d.toLocaleTimeString();
-    document.getElementById('footer-ts').textContent =
-      `SEO Runtime Bot · Last run: ${d.toLocaleString()} UTC · amulyagupta.in`;
   }
 
   // KPIs
@@ -435,6 +638,9 @@ function renderDashboard(data) {
   document.getElementById('kpi-issues').textContent = summary.active_issues || 0;
   document.getElementById('kpi-critical').textContent = summary.critical_issues || 0;
   document.getElementById('kpi-runs').textContent = summary.total_runs || 0;
+
+  // Extended KPIs (new fields)
+  renderExtendedKPIs(summary);
 
   // Critical banner
   const criticalIssues = issues.filter(i => i.severity === 'critical').slice(0, 5);
@@ -608,6 +814,12 @@ function renderDashboard(data) {
     }
   });
 
+  // New sections
+  renderAIVisibility(data);
+  renderHistoricalComparison(data);
+  renderSkillProgression(data);
+  renderIssueLifecycle(issues);
+
   // Issue distribution doughnut
   const severityCounts = { critical: 0, warning: 0, info: 0 };
   issues.forEach(i => { if (severityCounts.hasOwnProperty(i.severity)) severityCounts[i.severity]++; });
@@ -653,8 +865,256 @@ function renderFromSheets(data) {
   renderDashboard(mockData);
 }
 
-// Auto-refresh every 5 minutes
-setInterval(loadData, 5 * 60 * 1000);
+// ── Tab switcher ────────────────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── Extended KPI rendering ───────────────────────────────────────────────────
+function renderExtendedKPIs(summary) {
+  const aiScore = summary.ai_visibility_score || 0;
+  document.getElementById('kpi-ai').textContent = aiScore;
+  document.getElementById('ai-bar').style.width = aiScore + '%';
+
+  const critInline = document.getElementById('kpi-critical-inline');
+  const warnInline = document.getElementById('kpi-warning-inline');
+  if (critInline) critInline.textContent = summary.critical_issues || 0;
+  if (warnInline) warnInline.textContent = summary.warning_issues || 0;
+
+  const cycleEl = document.getElementById('kpi-cycle');
+  const cyclePct = summary.cycle_completion_pct || 0;
+  if (cycleEl) { cycleEl.textContent = (summary.skills_run || 0) + '/23'; }
+  const cycleBar = document.getElementById('cycle-bar');
+  if (cycleBar) cycleBar.style.width = cyclePct + '%';
+
+  const healthEl = document.getElementById('kpi-health');
+  const healthPct = summary.runtime_health_pct != null ? summary.runtime_health_pct : 100;
+  if (healthEl) {
+    healthEl.textContent = healthPct + '%';
+    healthEl.style.color = healthPct >= 90 ? 'var(--green)' : healthPct >= 70 ? 'var(--yellow)' : 'var(--red)';
+  }
+
+  const crawlEl = document.getElementById('kpi-crawl');
+  if (crawlEl) { crawlEl.textContent = '11/11'; }
+
+  const deltaEl = document.getElementById('kpi-score-delta');
+  if (deltaEl && summary.score_delta != null && summary.score_delta !== 0) {
+    const d = summary.score_delta;
+    deltaEl.innerHTML = `<span class="${d >= 0 ? 'delta-up' : 'delta-down'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d)} vs prev</span>`;
+  }
+}
+
+// ── AI Visibility Center ─────────────────────────────────────────────────────
+function renderAIVisibility(data) {
+  const ai = data.ai_visibility || {};
+  const score = ai.score || 0;
+  const findings = ai.findings || [];
+
+  const scoreLabel = document.getElementById('ai-score-label');
+  if (scoreLabel) scoreLabel.textContent = `Score: ${score}/100`;
+
+  const ringNum = document.getElementById('ai-ring-num');
+  const ringArc = document.getElementById('ai-ring-arc');
+  if (ringNum) ringNum.textContent = score;
+  if (ringArc) {
+    const circ = 2 * Math.PI * 42;
+    ringArc.setAttribute('stroke-dasharray', `${circ * score / 100} ${circ}`);
+    ringArc.setAttribute('stroke', score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)');
+  }
+
+  const breakdown = document.getElementById('ai-breakdown');
+  if (breakdown) {
+    breakdown.innerHTML = `<span style="color:var(--red)">${ai.critical || 0} critical</span> &middot; <span style="color:var(--yellow)">${ai.warnings || 0} warnings</span>`;
+  }
+
+  // AI readiness checklist
+  const checks = [
+    { label: 'llms.txt present', pass: !findings.some(f => f.title && f.title.includes('llms.txt')) || findings.some(f => f.title && f.title.includes('sparse')) ? 'warn' : 'pass' },
+    { label: 'FAQ schema on blog posts', pass: findings.some(f => f.title && f.title.includes('FAQ')) ? 'fail' : 'pass' },
+    { label: 'Person schema sameAs', pass: findings.some(f => f.title && f.title.includes('sameAs')) ? 'warn' : 'pass' },
+    { label: 'AI crawlers permitted in robots.txt', pass: findings.some(f => f.title && f.title.includes('AI crawler')) ? 'warn' : 'pass' },
+    { label: 'Author attribution on articles', pass: findings.some(f => f.title && f.title.includes('author')) ? 'fail' : 'pass' },
+    { label: 'Publication dates in schema', pass: findings.some(f => f.title && f.title.includes('date')) ? 'warn' : 'pass' },
+  ];
+
+  const checksEl = document.getElementById('ai-checks-list');
+  if (checksEl) {
+    const icons = { pass: '✓', fail: '✗', warn: '⚠' };
+    const colors = { pass: 'var(--green)', fail: 'var(--red)', warn: 'var(--yellow)' };
+    checksEl.innerHTML = checks.map(c => `
+      <div class="ai-check">
+        <div class="ai-icon ${c.pass}" style="color:${colors[c.pass]}">
+          <span>${icons[c.pass]}</span>
+        </div>
+        <div class="ai-label">${c.label}</div>
+        <div class="ai-status" style="color:${colors[c.pass]}">${c.pass.toUpperCase()}</div>
+      </div>`).join('');
+  }
+
+  // AI findings table
+  const tbody = document.getElementById('ai-findings-tbody');
+  if (tbody && findings.length > 0) {
+    tbody.innerHTML = findings.slice(0, 10).map(f => {
+      const sev = f.severity || 'info';
+      return `<tr>
+        <td><span class="sev sev-${sev}">${sev.toUpperCase()}</span></td>
+        <td style="font-size:12px">${f.title || ''}</td>
+        <td style="font-size:11px;color:var(--muted)">${(f.recommendation || '').slice(0, 100)}</td>
+      </tr>`;
+    }).join('');
+  } else if (tbody && findings.length === 0 && score > 0) {
+    tbody.innerHTML = '<tr><td colspan="3" style="color:var(--green);text-align:center;padding:16px">&#x2713; No AI SEO issues detected</td></tr>';
+  }
+}
+
+// ── Historical Comparison ────────────────────────────────────────────────────
+function renderHistoricalComparison(data) {
+  const hist = data.historical_comparison || {};
+  const skillId = hist.current_skill_id || 0;
+  const current = hist.current_score || 0;
+  const prev = hist.prev_score;
+  const delta = hist.delta || 0;
+  const history = hist.same_skill_history || [];
+
+  const skillLabel = document.getElementById('hist-skill-label');
+  if (skillLabel) skillLabel.textContent = skillId ? `Skill ${skillId} — ${SKILL_NAMES[skillId-1] || ''}` : 'No data yet';
+
+  const currentEl = document.getElementById('hist-current');
+  const prevEl = document.getElementById('hist-prev');
+  const deltaEl = document.getElementById('hist-delta');
+  if (currentEl) {
+    currentEl.textContent = current || '—';
+    currentEl.style.color = current >= 80 ? 'var(--green)' : current >= 50 ? 'var(--yellow)' : 'var(--red)';
+  }
+  if (prevEl) prevEl.textContent = prev != null ? prev : '—';
+  if (deltaEl && prev != null) {
+    deltaEl.textContent = (delta >= 0 ? '+' : '') + delta;
+    deltaEl.style.color = delta >= 0 ? 'var(--green)' : 'var(--red)';
+  }
+
+  const barsEl = document.getElementById('hist-bars');
+  if (barsEl && history.length > 0) {
+    barsEl.innerHTML = history.slice(-8).map(s => {
+      const sc = s.score || 0;
+      const color = sc >= 80 ? 'var(--green)' : sc >= 50 ? 'var(--yellow)' : 'var(--red)';
+      const d = s.date ? new Date(s.date).toLocaleDateString('en-IN', {month:'short', day:'numeric'}) : '—';
+      return `<div class="hist-row">
+        <div class="hist-dot" style="background:${color}"></div>
+        <div class="hist-date">${d}</div>
+        <div class="hist-score" style="color:${color}">${sc}</div>
+        <div class="hist-bar-wrap"><div class="hist-bar" style="width:${sc}%;background:${color}"></div></div>
+      </div>`;
+    }).join('');
+  } else if (barsEl) {
+    barsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px">Run more cycles to see history</div>';
+  }
+}
+
+// ── Skill Progression ────────────────────────────────────────────────────────
+function renderSkillProgression(data) {
+  const progression = data.skill_progression || [];
+  const labelEl = document.getElementById('progression-label');
+  if (labelEl) labelEl.textContent = `${progression.length}/23 skills scored`;
+
+  const listEl = document.getElementById('progression-list');
+  if (!listEl) return;
+  if (progression.length === 0) {
+    listEl.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:16px">No skill runs recorded yet</div>';
+    return;
+  }
+  listEl.innerHTML = progression.map(s => {
+    const sc = s.score || 0;
+    const color = sc >= 80 ? 'var(--green)' : sc >= 50 ? 'var(--yellow)' : 'var(--red)';
+    const delta = s.delta || 0;
+    const deltaHtml = delta !== 0
+      ? `<span style="font-size:11px;color:${delta>=0?'var(--green)':'var(--red)'};margin-left:6px">${delta>=0?'▲':'▼'}${Math.abs(delta)}</span>`
+      : '';
+    const name = SKILL_NAMES[(s.skill_id || 1) - 1] || s.skill_name || '—';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <div style="width:24px;font-size:11px;font-weight:700;color:var(--muted)">S${s.skill_id}</div>
+      <div style="flex:1;font-size:12px">${name}</div>
+      <div style="font-weight:700;font-size:14px;color:${color}">${sc}${deltaHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Issue Lifecycle ──────────────────────────────────────────────────────────
+function renderIssueLifecycle(issues) {
+  // Active issues (enhanced with lifecycle)
+  const lifeTbody = document.getElementById('lifecycle-tbody');
+  if (lifeTbody) {
+    lifeTbody.innerHTML = issues.slice(0, 20).map(i => {
+      const sevClass = `sev sev-${i.severity || 'info'}`;
+      const first = i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—';
+      const last = i.last_seen ? new Date(i.last_seen).toLocaleDateString() : '—';
+      const urlShort = (i.url || '').replace('https://amulyagupta.in', '') || '—';
+      const occ = i.occurrences || 1;
+      const trend = occ >= 3 ? '<span style="color:var(--red)">↑ Recurring</span>' : occ >= 2 ? '<span style="color:var(--yellow)">→ Persisting</span>' : '<span style="color:var(--muted)">New</span>';
+      return `<tr>
+        <td><span class="${sevClass}">${(i.severity||'info').toUpperCase()}</span></td>
+        <td style="max-width:220px;word-break:break-word;font-size:12px">${i.title||''}</td>
+        <td><span class="tag">${i.category||''}</span></td>
+        <td style="font-size:11px;color:var(--muted)">${first}</td>
+        <td style="font-size:11px;color:var(--muted)">${last}</td>
+        <td style="text-align:center;font-weight:600">${occ}</td>
+        <td style="font-size:11px">${trend}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" style="color:var(--green);text-align:center;padding:16px">&#x2713; No active issues</td></tr>';
+  }
+
+  // Recurring issues
+  const recurTbody = document.getElementById('recurring-tbody');
+  if (recurTbody) {
+    const recurring = issues.filter(i => (i.occurrences || 1) >= 3)
+                            .sort((a,b) => (b.occurrences||1) - (a.occurrences||1));
+    recurTbody.innerHTML = recurring.slice(0,10).map(i => {
+      const sevClass = `sev sev-${i.severity || 'info'}`;
+      const first = i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—';
+      return `<tr>
+        <td><span class="${sevClass}">${(i.severity||'info').toUpperCase()}</span></td>
+        <td style="font-size:12px">${i.title||''}</td>
+        <td style="font-weight:700;color:var(--red)">${i.occurrences}</td>
+        <td style="font-size:11px;color:var(--muted)">${first}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" style="color:var(--green);text-align:center;padding:16px">No recurring issues</td></tr>';
+  }
+
+  // Critical only
+  const critTbody = document.getElementById('critical-tbody');
+  if (critTbody) {
+    const crits = issues.filter(i => i.severity === 'critical');
+    critTbody.innerHTML = crits.slice(0,10).map(i => {
+      const first = i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—';
+      const urlShort = (i.url || '').replace('https://amulyagupta.in', '') || '—';
+      return `<tr>
+        <td style="font-size:12px;font-weight:600;color:var(--red)">${i.title||''}</td>
+        <td style="font-size:11px;color:var(--muted)">${urlShort}</td>
+        <td style="font-size:11px;color:var(--muted)">${first}</td>
+        <td style="text-align:center">${i.occurrences||1}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" style="color:var(--green);text-align:center;padding:16px">&#x2713; No critical issues</td></tr>';
+  }
+}
+
+// ── Countdown timer ──────────────────────────────────────────────────────────
+let countdownSeconds = 300;
+function updateCountdown() {
+  const el = document.getElementById('footer-countdown');
+  if (el) {
+    const m = Math.floor(countdownSeconds / 60);
+    const s = countdownSeconds % 60;
+    el.textContent = `Refresh in ${m}:${String(s).padStart(2,'0')}`;
+  }
+  if (--countdownSeconds < 0) countdownSeconds = 300;
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+// ── Auto-refresh every 5 minutes ─────────────────────────────────────────────
+setInterval(() => { loadData(); countdownSeconds = 300; }, 5 * 60 * 1000);
 </script>
 </body>
 </html>

@@ -43,9 +43,9 @@ on:
         required: false
         default: 'auto'
       enabled_skill_group:
-        description: 'Skill group to activate: 1=Foundational, 2=+Technical, 3=+Advanced'
+        description: 'Skill group to activate: 1=Foundational, 2=+Technical, 3=+Advanced (all 23 skills)'
         required: false
-        default: '1'
+        default: '3'
       force_init:
         description: 'Force re-initialise Sheets structure (use only on first deploy)'
         required: false
@@ -62,7 +62,7 @@ concurrency:
 
 jobs:
   seo-runtime:
-    name: "SEO Skill Runtime (Group ${{ github.event.inputs.enabled_skill_group || '1' }})"
+    name: "SEO Skill Runtime (Group ${{ github.event.inputs.enabled_skill_group || '3' }})"
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -89,7 +89,7 @@ jobs:
           SITE_URL: https://amulyagupta.in
           REPORT_EMAIL: amulagupta2001@gmail.com
           SKILL_OVERRIDE: ${{ github.event.inputs.skill_override || 'auto' }}
-          ENABLED_SKILL_GROUP: ${{ github.event.inputs.enabled_skill_group || '1' }}
+          ENABLED_SKILL_GROUP: ${{ github.event.inputs.enabled_skill_group || '3' }}
           FORCE_INIT: ${{ github.event.inputs.force_init || 'false' }}
           GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}

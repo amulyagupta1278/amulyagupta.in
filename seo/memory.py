@@ -156,6 +156,38 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
 
     avg_score = sum(s["score"] for s in scores[-23:]) / len(scores[-23:]) if scores else 0
 
+    # AI visibility: findings from skills 11 and 23 or category ai-seo/citation
+    ai_findings = [
+        f for f in findings
+        if f.get("category") in ("ai-seo", "citation")
+    ]
+    ai_score = 100 - (
+        sum(15 for f in ai_findings if f.get("severity") == "critical") +
+        sum(5 for f in ai_findings if f.get("severity") == "warning")
+    )
+
+    # Score progression: per-skill last score
+    skill_scores: dict[int, dict] = {}
+    for s in scores:
+        sid = s.get("skill_id")
+        if sid:
+            skill_scores[sid] = s
+    skill_progression = sorted(skill_scores.values(), key=lambda x: x.get("skill_id", 0))
+
+    # Historical comparison: score delta for current skill vs previous run
+    current_skill_id = run.get("skill_id", 0)
+    same_skill_scores = [s for s in scores if s.get("skill_id") == current_skill_id]
+    prev_score = same_skill_scores[-2]["score"] if len(same_skill_scores) >= 2 else None
+    score_delta = (run.get("score", 0) - prev_score) if prev_score is not None else 0
+
+    # Runtime health: based on recent runs success
+    completed_runs = [r for r in recent_runs if r.get("status") == "completed"]
+    runtime_health_pct = round(len(completed_runs) / len(recent_runs) * 100) if recent_runs else 100
+
+    # Cycle tracking: how many of the 23 skills have been run at least once
+    skills_run = len(skill_scores)
+    cycle_completion_pct = round(skills_run / 23 * 100)
+
     snapshot = {
         "generated_at": now,
         "site_url": "https://amulyagupta.in",
@@ -166,11 +198,37 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
             "critical_issues": len(critical_issues),
             "warning_issues": len(warning_issues),
             "total_runs": len(recent_runs),
+            "ai_visibility_score": max(0, min(100, ai_score)),
+            "runtime_health_pct": runtime_health_pct,
+            "cycle_completion_pct": cycle_completion_pct,
+            "skills_run": skills_run,
+            "score_delta": score_delta,
+            "prev_score": prev_score,
         },
         "recent_runs": recent_runs,
         "latest_findings": findings[:50],
         "score_history": scores[-46:],
-        "active_issues_list": sorted(active_issues, key=lambda x: x.get("severity", ""), reverse=True)[:50],
+        "active_issues_list": sorted(
+            active_issues,
+            key=lambda x: (
+                {"critical": 0, "warning": 1, "info": 2}.get(x.get("severity", "info"), 2),
+                -x.get("occurrences", 1),
+            ),
+        )[:50],
+        "ai_visibility": {
+            "score": max(0, min(100, ai_score)),
+            "findings": ai_findings[:20],
+            "critical": sum(1 for f in ai_findings if f.get("severity") == "critical"),
+            "warnings": sum(1 for f in ai_findings if f.get("severity") == "warning"),
+        },
+        "skill_progression": skill_progression,
+        "historical_comparison": {
+            "current_skill_id": current_skill_id,
+            "current_score": run.get("score", 0),
+            "prev_score": prev_score,
+            "delta": score_delta,
+            "same_skill_history": same_skill_scores[-10:],
+        },
     }
     save_json("dashboard.json", snapshot)
     return snapshot

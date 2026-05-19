@@ -102,7 +102,7 @@ SKILL_GROUPS: dict[int, list[int]] = {
     3: [3, 8, 9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23],  # Advanced
 }
 
-ENABLED_SKILL_GROUP = int(os.environ.get("ENABLED_SKILL_GROUP", "1"))
+ENABLED_SKILL_GROUP = int(os.environ.get("ENABLED_SKILL_GROUP", "3"))
 
 
 def get_enabled_skills() -> list[int]:
