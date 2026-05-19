@@ -12,6 +12,8 @@ SKILL_OVERRIDE = os.environ.get("SKILL_OVERRIDE", "auto")
 FORCE_INIT = os.environ.get("FORCE_INIT", "false").lower() == "true"
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY", "")
+GITHUB_REF = os.environ.get("GITHUB_REF", "")
+IS_MANUAL_DISPATCH = os.environ.get("GITHUB_EVENT_NAME", "schedule") == "workflow_dispatch"
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
