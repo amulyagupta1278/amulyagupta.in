@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 410">
+  <defs>
+    <marker id="ac" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#38BDF8"/>
+    </marker>
+    <marker id="ab" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#1A73E8"/>
+    </marker>
+  </defs>
+
+  <rect width="860" height="410" fill="#0B0E17" rx="10"/>
+
+  <text x="430" y="27" text-anchor="middle" font-family="'Courier New',monospace" font-size="10" fill="#38BDF8" font-weight="700" letter-spacing="2">AI-POWERED SUPPORT TICKET SYSTEM · RAG</text>
+
+  <!-- Incoming Ticket -->
+  <rect x="300" y="40" width="260" height="50" rx="8" fill="#0e1628" stroke="#1A73E8" stroke-width="1.5"/>
+  <text x="430" y="59" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#6b7ba4">INPUT</text>
+  <text x="430" y="78" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#F0F6FF" font-weight="600">Incoming Support Ticket</text>
+
+  <line x1="430" y1="90" x2="430" y2="122" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#ac)"/>
+
+  <!-- Classifier -->
+  <rect x="220" y="126" width="420" height="52" rx="8" fill="#0a1220" stroke="#38BDF8" stroke-width="2"/>
+  <text x="430" y="146" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#38BDF8" letter-spacing="2">CLASSIFIER</text>
+  <text x="430" y="166" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="#F0F6FF" font-weight="700">Ticket Classifier  ·  92% Accuracy</text>
+
+  <!-- two branch arrows -->
+  <line x1="330" y1="178" x2="220" y2="232" stroke="#1A73E8" stroke-width="1.5" marker-end="url(#ab)"/>
+  <line x1="530" y1="178" x2="640" y2="232" stroke="#1A73E8" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <!-- RAG Retrieval -->
+  <rect x="60" y="236" width="320" height="64" rx="8" fill="#141824" stroke="#1e2a45" stroke-width="1.5"/>
+  <text x="220" y="255" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#6b7ba4">RAG RETRIEVAL</text>
+  <text x="220" y="274" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#F0F6FF" font-weight="600">ChromaDB + BM25 Hybrid Search</text>
+  <text x="220" y="291" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#6b7ba4">Sentence-Transformers · Past Tickets · KB</text>
+
+  <!-- Smart Router -->
+  <rect x="480" y="236" width="320" height="64" rx="8" fill="#141824" stroke="#1e2a45" stroke-width="1.5"/>
+  <text x="640" y="255" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#6b7ba4">SMART ROUTER</text>
+  <text x="640" y="274" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#F0F6FF" font-weight="600">Priority + Team Assignment</text>
+  <text x="640" y="291" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#6b7ba4">Category · History · SLA</text>
+
+  <!-- converge to LLM Draft -->
+  <line x1="220" y1="300" x2="340" y2="348" stroke="#1A73E8" stroke-width="1.5" marker-end="url(#ab)"/>
+  <line x1="640" y1="300" x2="520" y2="348" stroke="#1A73E8" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <!-- LLM Draft -->
+  <rect x="220" y="352" width="420" height="48" rx="8" fill="#0e1628" stroke="#1A73E8" stroke-width="1.5"/>
+  <text x="430" y="372" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#38BDF8">OUTPUT</text>
+  <text x="430" y="390" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#F0F6FF" font-weight="600">LLM Draft Response  ·  Agent Review  ·  60% Faster Resolution</text>
+</svg>

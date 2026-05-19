@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 410">
+  <defs>
+    <marker id="ac" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#38BDF8"/>
+    </marker>
+    <marker id="ab" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="#1A73E8"/>
+    </marker>
+  </defs>
+
+  <rect width="860" height="410" fill="#0B0E17" rx="10"/>
+
+  <text x="430" y="27" text-anchor="middle" font-family="'Courier New',monospace" font-size="10" fill="#38BDF8" font-weight="700" letter-spacing="2">AUTOMATED ELT + ML PIPELINE · Prefect</text>
+
+  <!-- 3 source boxes -->
+  <rect x="40" y="42" width="228" height="50" rx="8" fill="#141824" stroke="#1e2a45" stroke-width="1.5"/>
+  <text x="154" y="61" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#6b7ba4">SOURCE 1</text>
+  <text x="154" y="80" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#F0F6FF" font-weight="600">CRM Exports</text>
+
+  <rect x="316" y="42" width="228" height="50" rx="8" fill="#141824" stroke="#1e2a45" stroke-width="1.5"/>
+  <text x="430" y="61" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#6b7ba4">SOURCE 2</text>
+  <text x="430" y="80" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#F0F6FF" font-weight="600">Usage Logs</text>
+
+  <rect x="592" y="42" width="228" height="50" rx="8" fill="#141824" stroke="#1e2a45" stroke-width="1.5"/>
+  <text x="706" y="61" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#6b7ba4">SOURCE 3</text>
+  <text x="706" y="80" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#F0F6FF" font-weight="600">Billing Records</text>
+
+  <!-- converging arrows -->
+  <line x1="154" y1="92" x2="340" y2="140" stroke="#1A73E8" stroke-width="1.5" marker-end="url(#ab)"/>
+  <line x1="430" y1="92" x2="430" y2="140" stroke="#1A73E8" stroke-width="1.5" marker-end="url(#ab)"/>
+  <line x1="706" y1="92" x2="520" y2="140" stroke="#1A73E8" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <!-- Prefect -->
+  <rect x="220" y="144" width="420" height="52" rx="8" fill="#0a1220" stroke="#38BDF8" stroke-width="2"/>
+  <text x="430" y="163" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#38BDF8" letter-spacing="2">ORCHESTRATOR</text>
+  <text x="430" y="183" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="#F0F6FF" font-weight="700">Prefect Pipeline</text>
+
+  <line x1="430" y1="196" x2="430" y2="224" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#ac)"/>
+
+  <!-- Data Validation -->
+  <rect x="220" y="228" width="420" height="48" rx="8" fill="#0e1628" stroke="#1A73E8" stroke-width="1.5"/>
+  <text x="430" y="248" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#38BDF8">STEP 1</text>
+  <text x="430" y="266" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#F0F6FF" font-weight="600">Data Validation + Quality Checks</text>
+
+  <line x1="430" y1="276" x2="430" y2="304" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#ac)"/>
+
+  <!-- Feature Engineering -->
+  <rect x="220" y="308" width="420" height="48" rx="8" fill="#0e1628" stroke="#1A73E8" stroke-width="1.5"/>
+  <text x="430" y="328" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#38BDF8">STEP 2</text>
+  <text x="430" y="346" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#F0F6FF" font-weight="600">Feature Engineering  ·  40% Speed Optimised</text>
+
+  <line x1="430" y1="356" x2="430" y2="374" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#ac)"/>
+
+  <!-- Model Training -->
+  <rect x="220" y="378" width="420" height="24" rx="6" fill="#141824" stroke="#1e2a45" stroke-width="1"/>
+  <text x="430" y="394" text-anchor="middle" font-family="'Courier New',monospace" font-size="9" fill="#6b7ba4">MODEL TRAINING  ·  90%+ Accuracy  ·  Scheduled Retraining</text>
+</svg>
