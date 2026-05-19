@@ -1,6 +1,6 @@
 import requests
 import logging
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL, PAGESPEED_API_KEY, CWV_THRESHOLDS
 
 log = logging.getLogger(__name__)
@@ -63,7 +63,6 @@ class Skill05CoreWebVitals(BaseSEOSkill):
     SKILL_NAME = "Core Web Vitals"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         cwv_data = []
 

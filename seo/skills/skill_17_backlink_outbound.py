@@ -1,5 +1,5 @@
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 TRUSTED_DOMAINS = {
@@ -16,7 +16,6 @@ class Skill17BacklinkOutbound(BaseSEOSkill):
     SKILL_NAME = "Backlink & Outbound Link Audit"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         all_external = []
 

@@ -33,17 +33,33 @@ def save_json(name: str, data):
         log.error("Save failed [%s]: %s", name, e)
 
 
-def get_next_skill(sheets_client=None) -> int:
-    """Return 1-based index of next skill to run (1..23)."""
+def get_next_skill(sheets_client=None, enabled_skills: list[int] | None = None) -> int:
+    """Return the next skill ID to run from the enabled skill set.
+
+    Cycles sequentially through enabled_skills. If the last-run skill is not
+    in the enabled set (e.g. the group was just narrowed), starts from the
+    beginning of the enabled list.
+    """
+    from config import get_enabled_skills
+    pool = sorted(enabled_skills if enabled_skills is not None else get_enabled_skills())
+    if not pool:
+        log.warning("No skills enabled — defaulting to skill 1")
+        return 1
+
+    last_skill = 0
     if sheets_client and sheets_client.available:
         last = sheets_client.get_last_run()
         if last:
             last_skill = int(last.get("skill_id", 0))
-            return (last_skill % 23) + 1
+    else:
+        state = load_json("state.json")
+        last_skill = state.get("last_skill_id", 0)
 
-    state = load_json("state.json")
-    last_skill = state.get("last_skill_id", 0)
-    return (last_skill % 23) + 1
+    try:
+        idx = pool.index(last_skill)
+        return pool[(idx + 1) % len(pool)]
+    except ValueError:
+        return pool[0]
 
 
 def save_run_state(skill_id: int, run_id: str):

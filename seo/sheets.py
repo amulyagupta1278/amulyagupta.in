@@ -3,12 +3,12 @@ import os
 import logging
 from datetime import datetime
 import gspread
-from google.oauth2.service_account import Credentials
 from config import (
     GOOGLE_SERVICE_ACCOUNT_JSON,
     GOOGLE_SHEETS_SPREADSHEET_ID,
     SHEET_NAMES,
 )
+import governance
 
 log = logging.getLogger(__name__)
 
@@ -50,8 +50,7 @@ class SheetsClient:
             return
         try:
             creds_data = json.loads(GOOGLE_SERVICE_ACCOUNT_JSON)
-            creds = Credentials.from_service_account_info(creds_data, scopes=SCOPES)
-            self._gc = gspread.authorize(creds)
+            self._gc = gspread.service_account_from_dict(creds_data, scopes=SCOPES)
             self._spreadsheet = self._gc.open_by_key(GOOGLE_SHEETS_SPREADSHEET_ID)
             self._available = True
             log.info("Google Sheets connected: %s", GOOGLE_SHEETS_SPREADSHEET_ID)
@@ -81,6 +80,8 @@ class SheetsClient:
         return True
 
     def append(self, sheet_name: str, row: list) -> bool:
+        # Hard Stop 5: guard every write — only append operations reach this method
+        governance.enforce_append_only(sheet_name, "append")
         if not self._available:
             return False
         try:
@@ -89,6 +90,19 @@ class SheetsClient:
             return True
         except Exception as e:
             log.error("Sheets append error [%s]: %s", sheet_name, e)
+            return False
+
+    def clear_sheet(self, sheet_name: str) -> bool:
+        """Clear a non-history sheet (e.g. seo_reports). Blocked on append-only sheets."""
+        governance.enforce_append_only(sheet_name, "clear")
+        if not self._available:
+            return False
+        try:
+            ws = self._get_or_create_sheet(sheet_name)
+            ws.clear()
+            return True
+        except Exception as e:
+            log.error("Sheets clear error [%s]: %s", sheet_name, e)
             return False
 
     def get_all_records(self, sheet_name: str) -> list[dict]:

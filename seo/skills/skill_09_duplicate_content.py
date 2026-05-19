@@ -1,6 +1,6 @@
 import re
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 
@@ -28,7 +28,6 @@ class Skill09DuplicateContent(BaseSEOSkill):
     SKILL_NAME = "Duplicate Content Detection"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
 
         page_data = []

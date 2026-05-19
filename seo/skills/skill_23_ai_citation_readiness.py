@@ -1,5 +1,5 @@
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 CITATION_SIGNALS = [
@@ -18,7 +18,6 @@ class Skill23AICitationReadiness(BaseSEOSkill):
     SKILL_NAME = "AI Citation Readiness"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         citation_score = 100
 

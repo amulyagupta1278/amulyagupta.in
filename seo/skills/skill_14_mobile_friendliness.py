@@ -1,6 +1,6 @@
 import re
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 
@@ -9,7 +9,6 @@ class Skill14MobileFriendliness(BaseSEOSkill):
     SKILL_NAME = "Mobile Friendliness Audit"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         ok_count = 0
         total = 0

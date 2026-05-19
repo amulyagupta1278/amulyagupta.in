@@ -100,7 +100,11 @@ def extract_headings(soup: BeautifulSoup) -> list[dict]:
 
 
 def word_count(soup: BeautifulSoup) -> int:
-    for tag in soup(["script", "style", "nav", "footer", "header"]):
-        tag.decompose()
-    text = soup.get_text(separator=" ")
-    return len(text.split())
+    skip = {"script", "style", "nav", "footer", "header"}
+    words = [
+        w
+        for string in soup.strings
+        if getattr(string.parent, "name", None) not in skip
+        for w in string.split()
+    ]
+    return len(words)

@@ -1,5 +1,37 @@
 name: SEO Autonomous Runtime
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Mandatory governance — 7 Hard Stops enforced at every execution:
+#
+#   HS1  CLAUDE_SEO_SKILL_EXECUTION_ONLY
+#        Exactly ONE skill per day, sequential 23-day rotation, no batching.
+#
+#   HS2  NO_AUTO_MERGE_OR_DIRECT_PUSH
+#        Runtime never merges PRs, never pushes to main, never self-approves.
+#        All remediation: Runtime → PR → Human Review → Manual Merge.
+#
+#   HS3  DASHBOARD_AND_OBSERVABILITY_REQUIRED
+#        Local JSON + Google Sheets persistence; dashboard auto-refreshes.
+#
+#   HS4  RUNTIME_VALIDATION_REQUIRED
+#        Pre-execution context validation; no skill runs on invalid state.
+#
+#   HS5  GOOGLE_SHEETS_PERSISTENT_MEMORY
+#        All history sheets are append-only; no clear/overwrite operations.
+#
+#   HS6  EXPERIMENTAL_BRANCH_ISOLATION
+#        Only validated infrastructure on seo-runtime-stable or main.
+#
+#   HS7  CAVEMAN_CREDIT_OPTIMIZATION
+#        Execution mode suppresses verbose context; Humaniser (emailer)
+#        runs post-execution only.
+#
+# Phased rollout — advance ENABLED_SKILL_GROUP as each phase stabilises:
+#   Phase 1 (Group 1)  — Robots/Sitemap, Meta/OG, Internal Linking, Headings
+#   Phase 2 (Group 2)  — Crawl Audit, Schema, CWV, Images, Mobile, Page Speed
+#   Phase 3 (Group 3)  — All 23 skills active
+# ─────────────────────────────────────────────────────────────────────────────
+
 on:
   schedule:
     # 23:00 UTC = 04:30 AM IST (UTC+5:30)
@@ -7,11 +39,15 @@ on:
   workflow_dispatch:
     inputs:
       skill_override:
-        description: 'Force-run a specific skill (1–23) or leave blank for auto'
+        description: 'Force a specific skill (1–23) or leave blank for auto-rotation'
         required: false
         default: 'auto'
+      enabled_skill_group:
+        description: 'Skill group to activate: 1=Foundational, 2=+Technical, 3=+Advanced'
+        required: false
+        default: '1'
       force_init:
-        description: 'Force re-initialization of Sheets structure'
+        description: 'Force re-initialise Sheets structure (use only on first deploy)'
         required: false
         type: boolean
         default: false
@@ -26,7 +62,7 @@ concurrency:
 
 jobs:
   seo-runtime:
-    name: Daily SEO Skill Execution
+    name: "SEO Skill Runtime (Group ${{ github.event.inputs.enabled_skill_group || '1' }})"
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -53,6 +89,7 @@ jobs:
           SITE_URL: https://amulyagupta.in
           REPORT_EMAIL: amulagupta2001@gmail.com
           SKILL_OVERRIDE: ${{ github.event.inputs.skill_override || 'auto' }}
+          ENABLED_SKILL_GROUP: ${{ github.event.inputs.enabled_skill_group || '1' }}
           FORCE_INIT: ${{ github.event.inputs.force_init || 'false' }}
           GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
@@ -62,11 +99,18 @@ jobs:
           PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: python runtime.py
 
       - name: Commit dashboard data
         if: always()
         run: |
+          # Hard Stop 2 — never push to main under any circumstance
+          if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "master" ]]; then
+            echo "HARD STOP 2: Refusing to push data commit to protected branch '${{ github.ref_name }}'."
+            exit 1
+          fi
           git config user.name "SEO Runtime Bot"
           git config user.email "seo-bot@amulyagupta.in"
           git add seo/data/ 2>/dev/null || true
@@ -74,7 +118,8 @@ jobs:
             echo "No data changes to commit."
           else
             git commit -m "chore(seo): update dashboard data [skip ci]"
-            git push origin ${{ github.ref_name }} || echo "Push failed — will retry next run"
+            git push origin ${{ github.ref_name }} \
+              || echo "Push failed — data preserved in artifact"
           fi
 
       - name: Upload run artifacts

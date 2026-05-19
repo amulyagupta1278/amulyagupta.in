@@ -1,5 +1,5 @@
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 COMPETITORS = [
@@ -20,7 +20,6 @@ class Skill20CompetitorAnalysis(BaseSEOSkill):
     SKILL_NAME = "Competitor SEO Analysis"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
 
         # Analyze own site strengths

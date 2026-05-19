@@ -1,5 +1,5 @@
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 
@@ -8,7 +8,6 @@ class Skill11AISearchReadiness(BaseSEOSkill):
     SKILL_NAME = "AI Search Readiness"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
         score = 100
 

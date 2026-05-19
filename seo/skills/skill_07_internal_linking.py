@@ -1,6 +1,6 @@
 from collections import defaultdict
 import crawler
-from base import BaseSEOSkill, Finding
+from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL, SITE_PAGES
 
 
@@ -9,7 +9,6 @@ class Skill07InternalLinking(BaseSEOSkill):
     SKILL_NAME = "Internal Linking Analysis"
 
     def run(self, pages: list[dict]) -> SkillResult:
-        from base import SkillResult
         findings = []
 
         inbound = defaultdict(list)
