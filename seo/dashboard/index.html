@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO Command Center — amulyagupta.in</title>
+  <meta name="robots" content="noindex, nofollow">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #273549;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #22c55e;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --purple: #a78bfa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+    /* Auth */
+    #auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .auth-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; text-align: center; max-width: 360px; width: 100%; }
+    .auth-box h1 { font-size: 22px; margin-bottom: 8px; }
+    .auth-box p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+    .auth-box input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 8px; font-size: 16px; margin-bottom: 12px; }
+    .auth-box button { width: 100%; background: var(--accent); color: #0f172a; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; }
+    .auth-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+
+    /* Layout */
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+    .logo { font-weight: 700; font-size: 15px; color: var(--accent); letter-spacing: -0.3px; }
+    .logo span { color: var(--muted); font-weight: 400; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .badge { background: var(--surface2); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; font-size: 11px; color: var(--muted); }
+    .btn-refresh { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all .2s; }
+    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+    main { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+    /* Grid */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .grid-4, .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* Cards */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 12px; }
+    .metric-value { font-size: 40px; font-weight: 700; line-height: 1; }
+    .metric-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .metric-delta { font-size: 12px; margin-top: 6px; }
+    .delta-up { color: var(--green); }
+    .delta-down { color: var(--red); }
+
+    /* Section headers */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-size: 16px; font-weight: 600; }
+    .section-label { font-size: 11px; color: var(--muted); }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* Severity badges */
+    .sev { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: .4px; }
+    .sev-critical { background: rgba(239,68,68,.15); color: var(--red); }
+    .sev-warning { background: rgba(245,158,11,.15); color: var(--yellow); }
+    .sev-info { background: rgba(56,189,248,.15); color: var(--accent); }
+
+    /* Score ring */
+    .score-ring { position: relative; width: 80px; height: 80px; }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring .score-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+
+    /* Progress bar */
+    .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width .8s ease; }
+    .fill-green { background: var(--green); }
+    .fill-yellow { background: var(--yellow); }
+    .fill-red { background: var(--red); }
+
+    /* Chart containers */
+    .chart-container { position: relative; height: 200px; }
+
+    /* Skill cycle */
+    .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+    .skill-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 11px; }
+    .skill-item.active { border-color: var(--accent); background: rgba(56,189,248,.08); }
+    .skill-item.done { border-color: rgba(34,197,94,.3); background: rgba(34,197,94,.05); }
+    .skill-num { font-weight: 700; font-size: 18px; margin-bottom: 4px; }
+    .skill-name { color: var(--muted); line-height: 1.3; }
+
+    /* Loading state */
+    .loading { text-align: center; padding: 60px; color: var(--muted); }
+    .loading::after { content: ''; display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-left: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .timestamp { font-size: 11px; color: var(--muted); margin-bottom: 24px; }
+    .tag { display: inline-block; background: var(--surface2); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; color: var(--muted); margin: 2px; }
+
+    /* Critical alert banner */
+    .alert-banner { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: none; }
+    .alert-banner.visible { display: block; }
+    .alert-title { color: var(--red); font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+    .alert-items { font-size: 12px; color: #fca5a5; }
+
+    /* Phase badges */
+    .phase-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .phase-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+                   border: 1px solid var(--border); color: var(--muted); }
+    .phase-badge.active { background: rgba(56,189,248,.15); border-color: var(--accent); color: var(--accent); }
+    .phase-badge.done   { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.4); color: var(--green); }
+
+    /* Security notice */
+    .security-notice { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.25);
+                       border-radius: 8px; padding: 10px 14px; font-size: 11px; color: #fbbf24;
+                       margin-bottom: 20px; }
+
+    .skill-item.disabled { opacity: .35; }
+  </style>
+</head>
+<body>
+
+<!-- Auth Overlay -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <h1>SEO Command Center</h1>
+    <p>amulyagupta.in · Operational Dashboard</p>
+    <input type="password" id="pin-input" placeholder="Access PIN" autocomplete="current-password">
+    <button onclick="checkAuth()">Access Dashboard</button>
+    <div class="auth-error" id="auth-error">Incorrect PIN</div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">SEO Command Center <span>· amulyagupta.in</span></div>
+  <div class="header-actions">
+    <div class="status-dot" id="status-dot"></div>
+    <span class="badge" id="last-updated">Loading...</span>
+    <button class="btn-refresh" onclick="loadData()">Refresh</button>
+  </div>
+</header>
+
+<main id="main-content" style="display:none">
+
+  <!-- Security notice -->
+  <div class="security-notice">
+    &#x1F512; Dashboard uses PIN-based access. Production upgrade path:
+    GitHub OAuth &rarr; Auth.js &rarr; Cloudflare Access. Do not expose this URL publicly.
+  </div>
+
+  <!-- Rollout phase indicator -->
+  <div class="phase-bar" id="phase-bar">
+    <div class="phase-badge" id="phase-1">Phase 1 — Foundational</div>
+    <div class="phase-badge" id="phase-2">Phase 2 — Technical SEO</div>
+    <div class="phase-badge" id="phase-3">Phase 3 — Advanced Intelligence</div>
+  </div>
+
+  <div id="critical-banner" class="alert-banner">
+    <div class="alert-title">&#x26A0; CRITICAL — IMMEDIATE SEO INTERVENTION REQUIRED</div>
+    <div class="alert-items" id="critical-list"></div>
+  </div>
+
+  <!-- Executive Summary KPIs -->
+  <div class="grid-4" id="kpi-grid">
+    <div class="card">
+      <div class="card-title">SEO Health Score</div>
+      <div class="metric-value" id="kpi-score" style="color: var(--green)">—</div>
+      <div class="metric-label">out of 100</div>
+      <div class="progress-bar"><div class="progress-fill fill-green" id="score-bar" style="width:0%"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Active Issues</div>
+      <div class="metric-value" id="kpi-issues" style="color: var(--yellow)">—</div>
+      <div class="metric-label">tracked issues</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Critical Issues</div>
+      <div class="metric-value" id="kpi-critical" style="color: var(--red)">—</div>
+      <div class="metric-label">need immediate action</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Total Runs</div>
+      <div class="metric-value" id="kpi-runs" style="color: var(--accent)">—</div>
+      <div class="metric-label">completed executions</div>
+    </div>
+  </div>
+
+  <!-- Score Trend + Skill Cycle -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">Score Trend</div>
+        <div class="section-label" id="trend-label">Last 23 skills</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="score-chart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">Current Run</div>
+      </div>
+      <div id="current-run-info">
+        <div class="loading">Loading run data</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Issues Table -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="section-header">
+      <div class="section-title">Active Issues</div>
+      <div id="issues-count" class="section-label"></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Severity</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>URL</th>
+            <th>First Seen</th>
+            <th>Occurrences</th>
+          </tr>
+        </thead>
+        <tbody id="issues-tbody">
+          <tr><td colspan="6" class="loading">Loading issues</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Runs + Skill Cycle -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">Recent Executions</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Skill</th>
+              <th>Score</th>
+              <th>Issues</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="runs-tbody">
+            <tr><td colspan="5" class="loading">Loading</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">Skill Rotation Cycle</div>
+        <div class="section-label" id="skill-group-label"></div>
+      </div>
+      <div class="skill-grid" id="skill-grid"></div>
+    </div>
+  </div>
+
+  <!-- AI Visibility + Score by Skill -->
+  <div class="grid-2" style="margin-top:24px">
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">SEO Score by Skill</div>
+      </div>
+      <div class="chart-container" style="height:280px">
+        <canvas id="skill-chart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">Issue Distribution</div>
+      </div>
+      <div class="chart-container" style="height:280px">
+        <canvas id="issue-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="timestamp" id="footer-ts" style="margin-top:24px;text-align:center;">
+    SEO Runtime Bot · Data updated automatically · <a href="https://amulyagupta.in" style="color:var(--accent)">amulyagupta.in</a>
+  </div>
+</main>
+
+<script>
+const SKILL_NAMES = [
+  "Technical Crawl Audit","Robots & Sitemap","Canonical & Redirects","Structured Data",
+  "Core Web Vitals","Meta Tags & OG","Internal Linking","Content Quality",
+  "Duplicate Content","Keyword Optimization","AI Search Readiness","Heading Hierarchy",
+  "Image Optimization","Mobile Friendliness","Page Speed Deep Dive","Indexation Coverage",
+  "Backlink & Outbound","Search Console","Analytics Insights","Competitor Analysis",
+  "Semantic Coverage","Anchor Text","AI Citation Readiness"
+];
+
+// Mirrors seo/config.py SKILL_GROUPS (1-indexed)
+const SKILL_GROUPS = {
+  1: [2, 6, 7, 12],
+  2: [1, 4, 5, 13, 14, 15],
+  3: [3, 8, 9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23],
+};
+const PHASE_LABELS = {
+  1: 'Phase 1 — Foundational',
+  2: 'Phase 2 — Technical SEO',
+  3: 'Phase 3 — Advanced Intelligence',
+};
+
+const PIN_HASH_KEY = 'seo_auth_v1';
+const DATA_URL = '../data/dashboard.json';
+const SHEETS_ID = '';
+const SHEETS_KEY = '';
+
+let scoreChart, skillChart, issueChart;
+
+function simpleHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  }
+  return h.toString(16);
+}
+
+function checkAuth() {
+  const pin = document.getElementById('pin-input').value;
+  const stored = localStorage.getItem(PIN_HASH_KEY);
+  if (!stored) {
+    // First time — set the PIN
+    if (pin.length >= 4) {
+      localStorage.setItem(PIN_HASH_KEY, simpleHash(pin));
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      loadData();
+    } else {
+      showAuthError('PIN must be at least 4 characters');
+    }
+  } else {
+    if (simpleHash(pin) === stored) {
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      loadData();
+    } else {
+      showAuthError('Incorrect PIN');
+    }
+  }
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+document.getElementById('pin-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkAuth();
+});
+
+async function loadData() {
+  try {
+    const r = await fetch(DATA_URL + '?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    renderDashboard(data);
+  } catch (e) {
+    console.warn('Local data failed, trying Sheets API...', e);
+    await loadFromSheets();
+  }
+}
+
+async function loadFromSheets() {
+  if (!SHEETS_ID || !SHEETS_KEY) {
+    renderError('Configure SHEETS_ID and SHEETS_KEY in dashboard JavaScript to load live data.');
+    return;
+  }
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/seo_runs?key=${SHEETS_KEY}`;
+    const r = await fetch(url);
+    const data = await r.json();
+    renderFromSheets(data);
+  } catch (e) {
+    renderError('Failed to load data: ' + e.message);
+  }
+}
+
+function renderError(msg) {
+  document.getElementById('kpi-score').textContent = 'ERR';
+  document.getElementById('last-updated').textContent = 'Error loading data';
+  console.error(msg);
+}
+
+function renderDashboard(data) {
+  const summary = data.summary || {};
+  const currentRun = data.current_run || {};
+  const runs = data.recent_runs || [];
+  const scores = data.score_history || [];
+  const issues = data.active_issues_list || [];
+  const findings = data.latest_findings || [];
+  const generatedAt = data.generated_at || '';
+
+  // Update timestamp
+  if (generatedAt) {
+    const d = new Date(generatedAt);
+    document.getElementById('last-updated').textContent = 'Updated ' + d.toLocaleTimeString();
+    document.getElementById('footer-ts').textContent =
+      `SEO Runtime Bot · Last run: ${d.toLocaleString()} UTC · amulyagupta.in`;
+  }
+
+  // KPIs
+  const avgScore = summary.avg_score || 0;
+  document.getElementById('kpi-score').textContent = Math.round(avgScore);
+  document.getElementById('score-bar').style.width = avgScore + '%';
+  const scoreColor = avgScore >= 80 ? 'var(--green)' : avgScore >= 50 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('kpi-score').style.color = scoreColor;
+  document.getElementById('score-bar').className = 'progress-fill ' + (avgScore >= 80 ? 'fill-green' : avgScore >= 50 ? 'fill-yellow' : 'fill-red');
+
+  document.getElementById('kpi-issues').textContent = summary.active_issues || 0;
+  document.getElementById('kpi-critical').textContent = summary.critical_issues || 0;
+  document.getElementById('kpi-runs').textContent = summary.total_runs || 0;
+
+  // Critical banner
+  const criticalIssues = issues.filter(i => i.severity === 'critical').slice(0, 5);
+  if (criticalIssues.length > 0) {
+    const banner = document.getElementById('critical-banner');
+    banner.classList.add('visible');
+    document.getElementById('critical-list').innerHTML =
+      criticalIssues.map(i => `• ${i.title}`).join('<br>');
+  }
+
+  // Current run card
+  if (currentRun.skill_id) {
+    const skillName = SKILL_NAMES[currentRun.skill_id - 1] || 'Unknown';
+    const runDate = currentRun.date ? new Date(currentRun.date).toLocaleDateString() : '—';
+    const runScore = currentRun.score || 0;
+    const runColor = runScore >= 80 ? 'var(--green)' : runScore >= 50 ? 'var(--yellow)' : 'var(--red)';
+    document.getElementById('current-run-info').innerHTML = `
+      <div style="display:flex;gap:20px;align-items:center;margin-bottom:16px">
+        <div>
+          <div style="font-size:36px;font-weight:700;color:${runColor}">${runScore}</div>
+          <div style="font-size:11px;color:var(--muted)">Score /100</div>
+        </div>
+        <div>
+          <div style="font-size:16px;font-weight:600">Skill ${currentRun.skill_id}/23</div>
+          <div style="color:var(--accent);font-size:13px;margin:4px 0">${skillName}</div>
+          <div style="font-size:12px;color:var(--muted)">${runDate}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <span class="tag">Issues: ${currentRun.issues_found || 0}</span>
+        <span class="tag">Critical: ${currentRun.issues_critical || 0}</span>
+        <span class="tag">Duration: ${currentRun.duration_s || 0}s</span>
+        <span class="tag">Run: ${currentRun.run_id || '—'}</span>
+      </div>
+    `;
+  }
+
+  // Score trend chart
+  const recentScores = scores.slice(-23);
+  if (recentScores.length > 0) {
+    const labels = recentScores.map(s => `S${s.skill_id || ''}`);
+    const values = recentScores.map(s => s.score || 0);
+    const colors = values.map(v => v >= 80 ? 'rgba(34,197,94,.8)' : v >= 50 ? 'rgba(245,158,11,.8)' : 'rgba(239,68,68,.8)');
+
+    if (scoreChart) scoreChart.destroy();
+    const ctx = document.getElementById('score-chart').getContext('2d');
+    scoreChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.05)' } },
+          y: { min: 0, max: 100, ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.05)' } }
+        }
+      }
+    });
+  }
+
+  // Issues table
+  const tbody = document.getElementById('issues-tbody');
+  tbody.innerHTML = issues.slice(0, 30).map(i => {
+    const sevClass = `sev sev-${i.severity || 'info'}`;
+    const firstSeen = i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—';
+    const urlShort = (i.url || '').replace('https://amulyagupta.in', '') || '—';
+    return `<tr>
+      <td><span class="${sevClass}">${(i.severity || 'info').toUpperCase()}</span></td>
+      <td style="max-width:300px;word-break:break-word">${i.title || ''}</td>
+      <td><span class="tag">${i.category || ''}</span></td>
+      <td style="font-size:11px;color:var(--muted)">${urlShort}</td>
+      <td style="font-size:11px;color:var(--muted)">${firstSeen}</td>
+      <td style="text-align:center">${i.occurrences || 1}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('issues-count').textContent = `${issues.length} active`;
+
+  // Recent runs table
+  const runsTbody = document.getElementById('runs-tbody');
+  runsTbody.innerHTML = runs.slice(-10).reverse().map(r => {
+    const d = r.date ? new Date(r.date).toLocaleDateString() : '—';
+    const sc = r.score || 0;
+    const color = sc >= 80 ? 'var(--green)' : sc >= 50 ? 'var(--yellow)' : 'var(--red)';
+    const sname = r.skill_name || SKILL_NAMES[(r.skill_id || 1) - 1] || '—';
+    return `<tr>
+      <td style="font-size:11px;color:var(--muted)">${d}</td>
+      <td><span class="tag">S${r.skill_id || '?'}</span> ${sname}</td>
+      <td style="font-weight:600;color:${color}">${sc}</td>
+      <td>${r.issues_found || 0}</td>
+      <td style="font-size:11px;color:var(--muted)">${r.duration_s || 0}s</td>
+    </tr>`;
+  }).join('');
+
+  // Phase bar
+  const activeGroup = currentRun.notes
+    ? (parseInt((currentRun.notes.match(/Group (\d)/) || [])[1]) || 1) : 1;
+  for (let g = 1; g <= 3; g++) {
+    const el = document.getElementById(`phase-${g}`);
+    if (el) {
+      el.className = 'phase-badge' + (g < activeGroup ? ' done' : g === activeGroup ? ' active' : '');
+      el.textContent = PHASE_LABELS[g];
+    }
+  }
+
+  // Skill cycle grid — dim skills outside the active group
+  const enabledSkills = new Set(
+    Object.entries(SKILL_GROUPS)
+      .filter(([g]) => parseInt(g) <= activeGroup)
+      .flatMap(([, ids]) => ids)
+  );
+  document.getElementById('skill-group-label').textContent =
+    `Group ${activeGroup} — ${enabledSkills.size} skills enabled`;
+
+  const lastSkill = currentRun.skill_id || 0;
+  const skillGrid = document.getElementById('skill-grid');
+  skillGrid.innerHTML = SKILL_NAMES.map((name, i) => {
+    const num = i + 1;
+    const isEnabled = enabledSkills.has(num);
+    const isDone = isEnabled && num < lastSkill;
+    const isActive = num === lastSkill;
+    const cls = [
+      'skill-item',
+      isActive ? 'active' : isDone ? 'done' : '',
+      !isEnabled ? 'disabled' : '',
+    ].filter(Boolean).join(' ');
+    const scoreForSkill = scores.find(s => s.skill_id === num);
+    const scoreDisplay = scoreForSkill
+      ? `<div style="font-size:12px;color:${scoreForSkill.score >= 80 ? 'var(--green)' : scoreForSkill.score >= 50 ? 'var(--yellow)' : 'var(--red)'};margin-top:4px">${scoreForSkill.score}/100</div>`
+      : '';
+    const numColor = isActive ? 'var(--accent)' : isDone ? 'var(--green)' : 'var(--muted)';
+    return `<div class="${cls}" title="${isEnabled ? 'Enabled' : 'Not yet activated'}">
+      <div class="skill-num" style="color:${numColor}">${String(num).padStart(2,'0')}</div>
+      <div class="skill-name">${name}</div>
+      ${isEnabled ? scoreDisplay : '<div style="font-size:10px;color:var(--muted);margin-top:4px">—</div>'}
+    </div>`;
+  }).join('');
+
+  // Skill score bar chart
+  const skillScoreMap = {};
+  scores.forEach(s => { if (s.skill_id) skillScoreMap[s.skill_id] = s.score; });
+  const skillLabels = SKILL_NAMES.map((n, i) => `S${i+1}`);
+  const skillValues = SKILL_NAMES.map((_, i) => skillScoreMap[i+1] || null);
+
+  if (skillChart) skillChart.destroy();
+  const ctx2 = document.getElementById('skill-chart').getContext('2d');
+  skillChart = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: skillLabels,
+      datasets: [{
+        label: 'Score',
+        data: skillValues,
+        backgroundColor: skillValues.map(v => !v ? 'rgba(148,163,184,.2)' : v >= 80 ? 'rgba(34,197,94,.7)' : v >= 50 ? 'rgba(245,158,11,.7)' : 'rgba(239,68,68,.7)'),
+        borderRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { min: 0, max: 100, ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } }
+      }
+    }
+  });
+
+  // Issue distribution doughnut
+  const severityCounts = { critical: 0, warning: 0, info: 0 };
+  issues.forEach(i => { if (severityCounts.hasOwnProperty(i.severity)) severityCounts[i.severity]++; });
+
+  if (issueChart) issueChart.destroy();
+  const ctx3 = document.getElementById('issue-chart').getContext('2d');
+  issueChart = new Chart(ctx3, {
+    type: 'doughnut',
+    data: {
+      labels: ['Critical', 'Warning', 'Info'],
+      datasets: [{
+        data: [severityCounts.critical, severityCounts.warning, severityCounts.info],
+        backgroundColor: ['rgba(239,68,68,.8)', 'rgba(245,158,11,.8)', 'rgba(56,189,248,.8)'],
+        borderColor: 'transparent',
+        hoverOffset: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 12 }, padding: 16 } }
+      },
+      cutout: '60%',
+    }
+  });
+}
+
+function renderFromSheets(data) {
+  const rows = (data.values || []).slice(1);
+  const mockData = {
+    generated_at: new Date().toISOString(),
+    site_url: 'https://amulyagupta.in',
+    summary: { avg_score: 0, active_issues: 0, critical_issues: 0, total_runs: rows.length },
+    current_run: rows.length ? { run_id: rows[rows.length-1][0], date: rows[rows.length-1][1], skill_id: parseInt(rows[rows.length-1][2]), skill_name: rows[rows.length-1][3], score: parseInt(rows[rows.length-1][4]), issues_found: parseInt(rows[rows.length-1][5]), issues_critical: parseInt(rows[rows.length-1][6]), duration_s: parseInt(rows[rows.length-1][7]) } : {},
+    recent_runs: rows.map(r => ({ run_id: r[0], date: r[1], skill_id: parseInt(r[2]), skill_name: r[3], score: parseInt(r[4])||0, issues_found: parseInt(r[5])||0, issues_critical: parseInt(r[6])||0, duration_s: parseInt(r[7])||0 })),
+    score_history: rows.map(r => ({ skill_id: parseInt(r[2]), score: parseInt(r[4])||0, date: r[1] })),
+    active_issues_list: [],
+    latest_findings: [],
+  };
+  if (mockData.recent_runs.length) {
+    mockData.summary.avg_score = Math.round(mockData.recent_runs.reduce((a,r) => a + r.score, 0) / mockData.recent_runs.length);
+  }
+  renderDashboard(mockData);
+}
+
+// Auto-refresh every 5 minutes
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+</body>
+</html>
