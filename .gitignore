@@ -13,3 +13,6 @@ __pycache__/
 *.egg-info/
 .env
 
+# SEO runtime — keep data/ tracked for dashboard sync
+# seo/data/ is intentionally NOT ignored
+

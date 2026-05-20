@@ -1,7 +1,7 @@
 import os
 
 SITE_URL = os.environ.get("SITE_URL", "https://amulyagupta.in").rstrip("/")
-REPORT_EMAIL = os.environ.get("REPORT_EMAIL", "amulagupta2001@gmail.com")
+REPORT_EMAIL = os.environ.get("REPORT_EMAIL", "amulyagupta2001@gmail.com")
 GMAIL_SENDER = os.environ.get("GMAIL_SENDER", "")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 PAGESPEED_API_KEY = os.environ.get("PAGESPEED_API_KEY", "")
@@ -27,6 +27,7 @@ SITE_PAGES = [
     "/blog/index.html",
     "/blog/post-1-mlops-pipeline.html",
     "/blog/post-2-mlops-stack.html",
+    "/blog/post-2-rag-system.html",
     "/blog/ai-ml-guide-2026.html",
     "/privacy.html",
 ]

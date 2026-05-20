@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-19T00:00:00",
+  "generated_at": "2026-05-20T00:00:00",
   "site_url": "https://amulyagupta.in",
   "current_run": {},
   "summary": {
@@ -7,10 +7,15 @@
     "active_issues": 0,
     "critical_issues": 0,
     "warning_issues": 0,
-    "total_runs": 0
+    "info_issues": 0,
+    "total_runs": 0,
+    "skills_run": [],
+    "trend_delta": 0,
+    "trend_dir": "unknown"
   },
   "recent_runs": [],
   "latest_findings": [],
   "score_history": [],
+  "skill_scores": {},
   "active_issues_list": []
 }

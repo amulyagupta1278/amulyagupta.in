@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO Command Center — amulyagupta.in</title>
+  <meta name="robots" content="noindex,nofollow">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0f172a;--surface:#1e293b;--surface2:#263345;--border:#334155;
+      --text:#f1f5f9;--muted:#94a3b8;--accent:#3b82f6;--green:#22c55e;
+      --yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+    }
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh}
+    a{color:var(--accent);text-decoration:none}
+
+    /* ── Auth screen ── */
+    #auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .auth-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:400px;text-align:center}
+    .auth-card h1{font-size:22px;margin-bottom:8px}
+    .auth-card p{color:var(--muted);font-size:13px;margin-bottom:28px}
+    .auth-card input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-size:14px;margin-bottom:12px;outline:none}
+    .auth-card input:focus{border-color:var(--accent)}
+    .auth-card button{width:100%;background:var(--accent);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+    .auth-card button:hover{background:#2563eb}
+    .auth-error{color:var(--red);font-size:12px;margin-top:8px;display:none}
+    .auth-hint{color:var(--muted);font-size:11px;margin-top:16px}
+
+    /* ── Main layout ── */
+    #app{display:none}
+    .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+    .header-brand{display:flex;align-items:center;gap:12px}
+    .header-brand .logo{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
+    .header-brand h1{font-size:15px;font-weight:700}
+    .header-brand small{font-size:11px;color:var(--muted);display:block;margin-top:-2px}
+    .header-right{display:flex;align-items:center;gap:16px}
+    .status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .last-updated{font-size:11px;color:var(--muted)}
+    .btn-sm{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer}
+    .btn-sm:hover{background:var(--border)}
+    .btn-logout{color:var(--muted);font-size:12px;cursor:pointer}
+    .btn-logout:hover{color:var(--red)}
+
+    /* ── Tab nav ── */
+    .tab-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:4px;overflow-x:auto}
+    .tab-btn{padding:12px 16px;font-size:12px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+    .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+    .tab-btn:hover:not(.active){color:var(--text)}
+
+    /* ── Main content ── */
+    .main{padding:24px;max-width:1400px;margin:0 auto}
+    .section{display:none}
+    .section.active{display:block}
+
+    /* ── Cards & grids ── */
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+    @media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}}
+    @media(max-width:600px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+    .card-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600}
+    .metric-value{font-size:36px;font-weight:700;line-height:1}
+    .metric-label{font-size:12px;color:var(--muted);margin-top:4px}
+    .metric-delta{font-size:12px;font-weight:600;margin-top:4px}
+    .delta-up{color:var(--green)}
+    .delta-down{color:var(--red)}
+    .delta-flat{color:var(--muted)}
+    .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .card-h2{font-size:15px;font-weight:700}
+
+    /* ── Badges ── */
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600}
+    .badge-critical{background:#7f1d1d;color:#fca5a5}
+    .badge-warning{background:#78350f;color:#fcd34d}
+    .badge-info{background:#1e3a5f;color:#93c5fd}
+    .badge-good{background:#14532d;color:#86efac}
+    .badge-active{background:#1e3a5f;color:#93c5fd}
+    .badge-resolved{background:#14532d;color:#86efac}
+
+    /* ── Tables ── */
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+    td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:var(--surface2)}
+
+    /* ── Skill rotation ── */
+    .skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px}
+    .skill-chip{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px;cursor:default;transition:all .15s}
+    .skill-chip.completed{border-color:#166534;background:#052e16;color:var(--green)}
+    .skill-chip.current{border-color:var(--accent);background:#1e3a5f;color:#93c5fd;box-shadow:0 0 0 2px rgba(59,130,246,.3)}
+    .skill-chip.pending{color:var(--muted)}
+    .skill-chip .skill-num{font-weight:700;font-size:13px;margin-bottom:2px}
+    .skill-chip .skill-nm{font-size:10px;line-height:1.3}
+
+    /* ── Progress bar ── */
+    .progress-bar{background:var(--surface2);border-radius:100px;height:8px;overflow:hidden;margin:8px 0}
+    .progress-fill{height:100%;border-radius:100px;transition:width .5s ease;background:linear-gradient(90deg,var(--accent),var(--purple))}
+
+    /* ── Check rows ── */
+    .check-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+    .check-row:last-child{border-bottom:none}
+    .check-label{font-size:13px}
+    .check-status{font-size:12px;font-weight:600}
+    .ok{color:var(--green)}
+    .warn{color:var(--yellow)}
+    .err{color:var(--red)}
+    .unknown{color:var(--muted)}
+
+    /* ── Empty state ── */
+    .empty{padding:40px;text-align:center;color:var(--muted)}
+    .empty h3{font-size:16px;margin-bottom:8px;color:var(--text)}
+    .empty p{font-size:13px;line-height:1.6}
+    .empty code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px}
+
+    /* ── Score chart container ── */
+    .chart-container{position:relative;height:300px;padding:16px 0}
+
+    /* ── Incidents banner ── */
+    .incident-banner{background:#7f1d1d;border:1px solid #ef4444;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+    .incident-banner .ib-icon{font-size:20px}
+    .incident-banner .ib-text strong{display:block;color:#fca5a5;font-size:13px}
+    .incident-banner .ib-text span{font-size:12px;color:#fca5a5;opacity:.8}
+
+    /* ── Loading ── */
+    .loader{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--muted);font-size:14px;gap:10px}
+    .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Setup page ── */
+    .setup-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:520px;margin:0 auto}
+    .setup-card h2{font-size:18px;margin-bottom:8px}
+    .setup-card p{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6}
+    .setup-card label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500}
+    .setup-card input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;outline:none}
+    .setup-card button{background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     AUTH SCREEN
+═══════════════════════════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div style="width:52px;height:52px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 20px;">📊</div>
+    <h1>SEO Command Center</h1>
+    <p>amulyagupta.in · Autonomous SEO Intelligence Platform</p>
+    <input type="password" id="pwd-input" placeholder="Enter admin password" autocomplete="current-password">
+    <button onclick="doLogin()">Access Dashboard</button>
+    <div id="auth-error" class="auth-error">Incorrect password. Please try again.</div>
+    <div class="auth-hint">First time? Set your password via the setup link below.<br>
+      <a href="#" onclick="showSetup()" style="color:var(--accent);font-size:11px;">Set up / reset password</a>
+    </div>
+  </div>
+</div>
+
+<!-- Setup page (hidden by default) -->
+<div id="setup-screen" style="display:none;min-height:100vh;display:none;align-items:center;justify-content:center;padding:24px;">
+  <div class="setup-card">
+    <h2>Set Admin Password</h2>
+    <p>Choose a password for the SEO Command Center. This is stored locally in your browser using a secure hash — the password never leaves your device.</p>
+    <label>New Password</label>
+    <input type="password" id="setup-pwd1" placeholder="Minimum 6 characters">
+    <label>Confirm Password</label>
+    <input type="password" id="setup-pwd2" placeholder="Repeat password">
+    <div id="setup-error" style="color:var(--red);font-size:12px;margin-bottom:12px;display:none;"></div>
+    <button onclick="savePassword()">Save Password</button>
+    <a href="#" onclick="showLogin()" style="margin-left:12px;font-size:12px;color:var(--muted);">← Back to login</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════════════════════════════════ -->
+<div id="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="logo">📊</div>
+      <div>
+        <h1>SEO Command Center</h1>
+        <small>amulyagupta.in · Autonomous Runtime</small>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-dot" id="runtime-dot" title="Runtime health"></div>
+      <span class="last-updated" id="last-updated-label">Loading…</span>
+      <button class="btn-sm" onclick="loadData()">⟳ Refresh</button>
+      <span class="btn-logout" onclick="doLogout()">Logout</span>
+    </div>
+  </header>
+
+  <!-- Tab nav -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('cmd')">Command Center</button>
+    <button class="tab-btn" onclick="switchTab('runtime')">Runtime & Rotation</button>
+    <button class="tab-btn" onclick="switchTab('issues')">Issue Tracker</button>
+    <button class="tab-btn" onclick="switchTab('scores')">Score History</button>
+    <button class="tab-btn" onclick="switchTab('technical')">Technical SEO</button>
+    <button class="tab-btn" onclick="switchTab('ai')">AI Visibility</button>
+    <button class="tab-btn" onclick="switchTab('runs')">Run Log</button>
+    <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Loading indicator -->
+    <div id="global-loader" class="loader">
+      <div class="spinner"></div> Loading SEO intelligence data…
+    </div>
+
+    <!-- No-data banner -->
+    <div id="no-data" style="display:none;">
+      <div class="empty">
+        <h3>No Runtime Data Available</h3>
+        <p>The SEO runtime hasn't executed yet, or data hasn't been pushed to <code>seo-runtime-stable</code>.<br><br>
+          Trigger the first run via GitHub Actions → <strong>SEO Autonomous Runtime</strong> → <strong>Run workflow</strong>.<br>
+          Select branch <code>seo-runtime-stable</code> and set skill group to 1.</p>
+      </div>
+    </div>
+
+    <!-- ── COMMAND CENTER ── -->
+    <section id="tab-cmd" class="section">
+
+      <div id="incident-banners"></div>
+
+      <!-- KPI metrics -->
+      <div class="grid-4" id="kpi-grid">
+        <div class="card">
+          <div class="card-title">SEO Health Score</div>
+          <div class="metric-value" id="kpi-score" style="color:var(--muted)">—</div>
+          <div class="metric-label">current skill score</div>
+          <div class="metric-delta" id="kpi-score-delta"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Active Issues</div>
+          <div class="metric-value" style="color:var(--red)" id="kpi-issues">—</div>
+          <div class="metric-label">across all skills</div>
+          <div class="metric-delta" id="kpi-critical-count" style="color:var(--red)"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Avg Score (cycle)</div>
+          <div class="metric-value" style="color:var(--purple)" id="kpi-avg">—</div>
+          <div class="metric-label">last 23 runs</div>
+          <div class="metric-delta" id="kpi-trend" style="font-size:11px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Runtime Health</div>
+          <div class="metric-value" style="font-size:24px;margin-top:4px" id="kpi-runtime">—</div>
+          <div class="metric-label" id="kpi-runtime-label">checking…</div>
+        </div>
+      </div>
+
+      <!-- Current skill + cycle bar -->
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+          <span class="card-h2">Current Skill Run</span>
+          <span id="cmd-run-id" style="font-size:11px;color:var(--muted);font-family:monospace"></span>
+        </div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+          <div>
+            <div style="font-size:22px;font-weight:700;margin-bottom:4px;" id="cmd-skill-name">—</div>
+            <div style="font-size:13px;color:var(--muted);" id="cmd-skill-date">—</div>
+            <div style="margin-top:8px;" id="cmd-skill-findings"></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:48px;font-weight:700;line-height:1;" id="cmd-score">—</div>
+            <div style="font-size:12px;color:var(--muted);">/ 100</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;">
+            <span>23-Day Skill Cycle Progress</span>
+            <span id="cycle-label">—</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="cycle-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Status matrix -->
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">Crawl Health</div>
+          <div id="crawl-health">
+            <div class="check-row"><span class="check-label">Pages reachable</span><span class="check-status unknown" id="ch-pages">—</span></div>
+            <div class="check-row"><span class="check-label">Crawl errors</span><span class="check-status unknown" id="ch-errors">—</span></div>
+            <div class="check-row"><span class="check-label">Avg response time</span><span class="check-status unknown" id="ch-speed">—</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">SEO Signals</div>
+          <div class="check-row"><span class="check-label">robots.txt</span><span class="check-status unknown" id="sig-robots">—</span></div>
+          <div class="check-row"><span class="check-label">sitemap.xml</span><span class="check-status unknown" id="sig-sitemap">—</span></div>
+          <div class="check-row"><span class="check-label">llms.txt (AI)</span><span class="check-status unknown" id="sig-llms">—</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Issue Severity Breakdown</div>
+          <div class="check-row"><span class="check-label">Critical</span><span class="check-status err" id="sev-critical">—</span></div>
+          <div class="check-row"><span class="check-label">Warning</span><span class="check-status warn" id="sev-warning">—</span></div>
+          <div class="check-row"><span class="check-label">Informational</span><span class="check-status unknown" id="sev-info">—</span></div>
+        </div>
+      </div>
+
+      <!-- Latest findings preview -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-h2">Latest Findings</span>
+          <button class="btn-sm" onclick="switchTab('issues')">View all →</button>
+        </div>
+        <div class="table-wrap">
+          <table id="latest-findings-table">
+            <thead><tr><th>Severity</th><th>Issue</th><th>Category</th><th>URL</th></tr></thead>
+            <tbody id="latest-findings-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── RUNTIME & ROTATION ── -->
+    <section id="tab-runtime" class="section">
+      <div class="grid-2" style="margin-bottom:24px;">
+        <div class="card">
+          <div class="card-title">Last Execution</div>
+          <div style="font-size:20px;font-weight:700;margin-bottom:8px;" id="rt-last-skill">—</div>
+          <div class="check-row"><span class="check-label">Date / Time</span><span id="rt-date" style="font-size:12px;color:var(--muted)">—</span></div>
+          <div class="check-row"><span class="check-label">Run ID</span><span id="rt-run-id" style="font-size:12px;font-family:monospace;color:var(--muted)">—</span></div>
+          <div class="check-row"><span class="check-label">Score</span><span id="rt-score" style="font-size:12px;font-weight:700">—</span></div>
+          <div class="check-row"><span class="check-label">Issues found</span><span id="rt-issues" style="font-size:12px;color:var(--muted)">—</span></div>
+          <div class="check-row"><span class="check-label">Duration</span><span id="rt-duration" style="font-size:12px;color:var(--muted)">—</span></div>
+          <div class="check-row"><span class="check-label">Status</span><span id="rt-status" style="font-size:12px;font-weight:600">—</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Next Execution</div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:12px;color:var(--accent)">Daily at 04:30 AM IST</div>
+          <div class="check-row"><span class="check-label">Schedule</span><span style="font-size:12px;color:var(--muted)">0 23 * * * (UTC)</span></div>
+          <div class="check-row"><span class="check-label">Branch</span><span style="font-size:12px;font-family:monospace;color:var(--muted)">seo-runtime-stable</span></div>
+          <div class="check-row"><span class="check-label">Skill group</span><span id="rt-group" style="font-size:12px;color:var(--muted)">—</span></div>
+          <div class="check-row"><span class="check-label">Skills in pool</span><span id="rt-pool-size" style="font-size:12px;color:var(--muted)">—</span></div>
+          <div style="margin-top:16px;font-size:12px;color:var(--muted)">
+            Trigger manually: GitHub Actions → SEO Autonomous Runtime → Run workflow
+          </div>
+        </div>
+      </div>
+
+      <!-- 23-skill rotation grid -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-h2">23-Day Skill Rotation Cycle</span>
+          <span id="rotation-summary" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+        <div class="skill-grid" id="skill-rotation-grid"></div>
+        <div style="display:flex;gap:16px;margin-top:12px;font-size:11px;color:var(--muted);">
+          <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#052e16;border:1px solid #166534;"></span> Completed</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#1e3a5f;border:1px solid var(--accent);"></span> Current</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);"></span> Pending</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ISSUE TRACKER ── -->
+    <section id="tab-issues" class="section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-sm active" onclick="filterIssues('all')">All</button>
+          <button class="btn-sm" onclick="filterIssues('critical')">Critical</button>
+          <button class="btn-sm" onclick="filterIssues('warning')">Warning</button>
+          <button class="btn-sm" onclick="filterIssues('info')">Info</button>
+          <button class="btn-sm" onclick="filterIssues('active')">Active</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted);" id="issues-count-label"></div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="issues-table">
+            <thead><tr>
+              <th>Severity</th><th>Title</th><th>Category</th><th>First Seen</th><th>Last Seen</th><th>Occurrences</th><th>Status</th>
+            </tr></thead>
+            <tbody id="issues-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SCORE HISTORY ── -->
+    <section id="tab-scores" class="section">
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+          <span class="card-h2">SEO Score Progression</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-sm" onclick="filterScoreChart(10)">Last 10</button>
+            <button class="btn-sm" onclick="filterScoreChart(23)">Last 23</button>
+            <button class="btn-sm" onclick="filterScoreChart(46)">Last 46</button>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="score-chart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-h2">Score History</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Skill</th><th>Score</th><th>Δ vs prev</th><th>Run ID</th></tr></thead>
+            <tbody id="score-history-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TECHNICAL SEO ── -->
+    <section id="tab-technical" class="section">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Core Technical Checks</div>
+          <div class="check-row"><span class="check-label">robots.txt accessible</span><span class="check-status unknown" id="tech-robots">—</span></div>
+          <div class="check-row"><span class="check-label">sitemap.xml valid</span><span class="check-status unknown" id="tech-sitemap">—</span></div>
+          <div class="check-row"><span class="check-label">llms.txt present</span><span class="check-status unknown" id="tech-llms">—</span></div>
+          <div class="check-row"><span class="check-label">Canonical tags</span><span class="check-status unknown" id="tech-canonicals">—</span></div>
+          <div class="check-row"><span class="check-label">Structured data</span><span class="check-status unknown" id="tech-schema">—</span></div>
+          <div class="check-row"><span class="check-label">Meta tags (OG)</span><span class="check-status unknown" id="tech-meta">—</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Crawl Health</div>
+          <div class="check-row"><span class="check-label">All pages accessible</span><span class="check-status unknown" id="tech-crawl">—</span></div>
+          <div class="check-row"><span class="check-label">Internal linking</span><span class="check-status unknown" id="tech-linking">—</span></div>
+          <div class="check-row"><span class="check-label">Image optimization</span><span class="check-status unknown" id="tech-images">—</span></div>
+          <div class="check-row"><span class="check-label">Mobile friendliness</span><span class="check-status unknown" id="tech-mobile">—</span></div>
+          <div class="check-row"><span class="check-label">Core Web Vitals</span><span class="check-status unknown" id="tech-cwv">—</span></div>
+          <div class="check-row"><span class="check-label">Page speed</span><span class="check-status unknown" id="tech-speed">—</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-h2">Technical Issues</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th>Issue</th><th>Severity</th><th>First Seen</th></tr></thead>
+            <tbody id="tech-issues-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── AI VISIBILITY ── -->
+    <section id="tab-ai" class="section">
+      <div class="grid-3" style="margin-bottom:24px;">
+        <div class="card">
+          <div class="card-title">AI Search Readiness</div>
+          <div class="check-row"><span class="check-label">llms.txt</span><span class="check-status unknown" id="ai-llms">—</span></div>
+          <div class="check-row"><span class="check-label">Structured content</span><span class="check-status unknown" id="ai-structured">—</span></div>
+          <div class="check-row"><span class="check-label">Entity clarity</span><span class="check-status unknown" id="ai-entity">—</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">AI Overview Signals</div>
+          <div class="check-row"><span class="check-label">FAQ schema</span><span class="check-status unknown" id="ai-faq">—</span></div>
+          <div class="check-row"><span class="check-label">HowTo schema</span><span class="check-status unknown" id="ai-howto">—</span></div>
+          <div class="check-row"><span class="check-label">Person schema</span><span class="check-status unknown" id="ai-person">—</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Citation Readiness</div>
+          <div class="check-row"><span class="check-label">Authoritative content</span><span class="check-status unknown" id="ai-auth">—</span></div>
+          <div class="check-row"><span class="check-label">Consistent identity</span><span class="check-status unknown" id="ai-ident">—</span></div>
+          <div class="check-row"><span class="check-label">Citation signals</span><span class="check-status unknown" id="ai-cite">—</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-h2">AI Visibility Issues</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Check</th><th>Finding</th><th>Severity</th></tr></thead>
+            <tbody id="ai-issues-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── RUN LOG ── -->
+    <section id="tab-runs" class="section">
+      <div class="card">
+        <div class="card-header"><span class="card-h2">Execution History</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Skill</th><th>Score</th><th>Issues</th><th>Critical</th><th>Duration</th><th>Status</th><th>Run ID</th></tr></thead>
+            <tbody id="runs-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SETTINGS ── -->
+    <section id="tab-settings" class="section">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Data Sources</div>
+          <div style="font-size:13px;line-height:1.8;margin-bottom:16px;">
+            The dashboard fetches data from these sources in order:
+            <ol style="margin:8px 0 0 18px;font-size:12px;color:var(--muted);">
+              <li>Same-origin: <code style="background:var(--surface2);padding:2px 5px;border-radius:4px;">/seo/data/dashboard.json</code></li>
+              <li>GitHub raw: <code id="settings-raw-url" style="background:var(--surface2);padding:2px 5px;border-radius:4px;word-break:break-all;font-size:10px;"></code></li>
+            </ol>
+          </div>
+          <div style="font-size:12px;color:var(--muted);padding:12px;background:var(--surface2);border-radius:8px;">
+            <strong style="color:var(--text);">Active source:</strong> <span id="settings-active-source">—</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Change Password</div>
+          <div style="margin-bottom:12px;">
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px;">New Password</label>
+            <input type="password" id="new-pwd1" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;" placeholder="Min. 6 characters">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px;">Confirm</label>
+            <input type="password" id="new-pwd2" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;" placeholder="Repeat password">
+          </div>
+          <button class="btn-sm" onclick="changePassword()" style="background:var(--accent);border:none;color:#fff;padding:8px 16px;cursor:pointer;border-radius:6px;font-size:13px;">Update Password</button>
+          <div id="pwd-msg" style="font-size:12px;margin-top:8px;"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Runtime Configuration</div>
+        <div class="check-row"><span class="check-label">Target site</span><span style="font-size:12px;font-family:monospace;color:var(--muted)">https://amulyagupta.in</span></div>
+        <div class="check-row"><span class="check-label">Report email</span><span style="font-size:12px;font-family:monospace;color:var(--muted)">amulyagupta2001@gmail.com</span></div>
+        <div class="check-row"><span class="check-label">Schedule</span><span style="font-size:12px;color:var(--muted)">Daily 04:30 AM IST (23:00 UTC)</span></div>
+        <div class="check-row"><span class="check-label">Execution branch</span><span style="font-size:12px;font-family:monospace;color:var(--muted)">seo-runtime-stable</span></div>
+        <div class="check-row"><span class="check-label">Hard Stops</span><span style="font-size:12px;color:var(--green)">7 active</span></div>
+        <div class="check-row"><span class="check-label">Remediation model</span><span style="font-size:12px;color:var(--muted)">PR-only (never auto-merge)</span></div>
+        <div class="check-row"><span class="check-label">Total skills</span><span style="font-size:12px;color:var(--muted)">23-day rotation cycle</span></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════════
+const GITHUB_REPO = 'amulyagupta1278/amulyagupta.in';
+const RUNTIME_BRANCH = 'seo-runtime-stable';
+const DATA_PATH = 'seo/data/dashboard.json';
+const REFRESH_MS = 10 * 60 * 1000; // 10 minutes
+const SESSION_HOURS = 24;
+
+const SKILL_NAMES = [
+  'Technical Crawl Audit','Robots.txt & Sitemap','Canonical & Redirects',
+  'Structured Data','Core Web Vitals','Meta Tags & Open Graph',
+  'Internal Linking','Content Quality','Duplicate Content',
+  'Keyword Optimization','AI Search Readiness','Heading Hierarchy',
+  'Image Optimization','Mobile Friendliness','Page Speed Deep Dive',
+  'Indexation Coverage','Backlink & Outbound','Search Console Intelligence',
+  'Analytics Insights','Competitor SEO Analysis','Semantic Coverage',
+  'Anchor Text Optimization','AI Citation Readiness'
+];
+
+const SEV_COLORS = {critical:'#ef4444',warning:'#f59e0b',info:'#3b82f6'};
+
+// ═══════════════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════════════
+const AUTH_KEY = 'seo_pwd_hash';
+const SESSION_KEY = 'seo_session';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function isLoggedIn() {
+  const s = sessionStorage.getItem(SESSION_KEY);
+  if (!s) return false;
+  try {
+    const {ts} = JSON.parse(s);
+    return (Date.now() - ts) < SESSION_HOURS * 3600 * 1000;
+  } catch { return false; }
+}
+
+async function doLogin() {
+  const pwd = document.getElementById('pwd-input').value;
+  if (!pwd) return;
+  const stored = localStorage.getItem(AUTH_KEY);
+  if (!stored) { showSetup(); return; }
+  const hash = await sha256(pwd);
+  if (hash === stored) {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ts: Date.now()}));
+    showApp();
+  } else {
+    document.getElementById('auth-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('auth-screen').style.display !== 'none') doLogin();
+});
+
+function doLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadData();
+  setInterval(loadData, REFRESH_MS);
+}
+
+function showSetup() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+  document.getElementById('setup-screen').style.alignItems = 'center';
+  document.getElementById('setup-screen').style.justifyContent = 'center';
+  document.getElementById('setup-screen').style.minHeight = '100vh';
+}
+
+function showLogin() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+async function savePassword() {
+  const p1 = document.getElementById('setup-pwd1').value;
+  const p2 = document.getElementById('setup-pwd2').value;
+  const err = document.getElementById('setup-error');
+  err.style.display = 'none';
+  if (p1.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display='block'; return; }
+  if (p1 !== p2) { err.textContent = 'Passwords do not match.'; err.style.display='block'; return; }
+  const hash = await sha256(p1);
+  localStorage.setItem(AUTH_KEY, hash);
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ts: Date.now()}));
+  showApp();
+}
+
+async function changePassword() {
+  const p1 = document.getElementById('new-pwd1').value;
+  const p2 = document.getElementById('new-pwd2').value;
+  const msg = document.getElementById('pwd-msg');
+  if (p1.length < 6) { msg.style.color='var(--red)'; msg.textContent='Min. 6 characters.'; return; }
+  if (p1 !== p2) { msg.style.color='var(--red)'; msg.textContent='Passwords do not match.'; return; }
+  const hash = await sha256(p1);
+  localStorage.setItem(AUTH_KEY, hash);
+  msg.style.color='var(--green)'; msg.textContent='Password updated.';
+  document.getElementById('new-pwd1').value = '';
+  document.getElementById('new-pwd2').value = '';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DATA LOADING
+// ═══════════════════════════════════════════════════════════════════
+let dashData = null;
+let activeSource = 'none';
+let scoreChart = null;
+
+const SOURCES = [
+  {label: 'same-origin', url: '/seo/data/dashboard.json'},
+  {label: 'github-raw', url: `https://raw.githubusercontent.com/${GITHUB_REPO}/${RUNTIME_BRANCH}/${DATA_PATH}`},
+];
+
+async function loadData() {
+  document.getElementById('global-loader').style.display = 'flex';
+  document.getElementById('no-data').style.display = 'none';
+
+  for (const src of SOURCES) {
+    try {
+      const r = await fetch(src.url + '?t=' + Date.now(), {cache: 'no-store'});
+      if (!r.ok) continue;
+      const data = await r.json();
+      if (!data || !data.generated_at) continue;
+      dashData = data;
+      activeSource = src.label;
+      break;
+    } catch {}
+  }
+
+  document.getElementById('global-loader').style.display = 'none';
+  document.getElementById('settings-raw-url').textContent = SOURCES[1].url;
+  document.getElementById('settings-active-source').textContent = activeSource;
+
+  if (!dashData || !dashData.generated_at) {
+    document.getElementById('no-data').style.display = 'block';
+    return;
+  }
+
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════
+function renderAll() {
+  const d = dashData;
+  const now = new Date(d.generated_at);
+  document.getElementById('last-updated-label').textContent = 'Updated ' + timeAgo(now);
+  renderCommandCenter(d);
+  renderRuntime(d);
+  renderIssues(d);
+  renderScores(d);
+  renderTechnical(d);
+  renderAI(d);
+  renderRuns(d);
+}
+
+function timeAgo(date) {
+  const diff = Math.floor((Date.now() - date) / 1000);
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) + ' ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + ' UTC';
+}
+
+function scoreColor(s) {
+  if (s >= 80) return 'var(--green)';
+  if (s >= 50) return 'var(--yellow)';
+  return 'var(--red)';
+}
+
+function badgeFor(sev) {
+  return `<span class="badge badge-${sev}">${sev.toUpperCase()}</span>`;
+}
+
+// ─────────────────── Command Center ───────────────────────────────
+function renderCommandCenter(d) {
+  const run = d.current_run || {};
+  const summary = d.summary || {};
+  const score = run.score ?? 0;
+  const issues = d.active_issues_list || [];
+  const findings = d.latest_findings || [];
+
+  // KPIs
+  const sc = document.getElementById('kpi-score');
+  sc.textContent = score || '—';
+  sc.style.color = score ? scoreColor(score) : 'var(--muted)';
+
+  document.getElementById('kpi-issues').textContent = summary.active_issues ?? '—';
+  document.getElementById('kpi-critical-count').textContent = (summary.critical_issues ?? 0) + ' critical open';
+  document.getElementById('kpi-avg').textContent = summary.avg_score ? Math.round(summary.avg_score) : '—';
+
+  // Trend
+  const hist = d.score_history || [];
+  const trend = calcTrend(hist);
+  document.getElementById('kpi-trend').textContent = trend.label;
+  document.getElementById('kpi-trend').className = 'metric-delta delta-' + trend.dir;
+
+  // Runtime health
+  const runsCount = (d.recent_runs || []).length;
+  const lastDate = run.date ? new Date(run.date) : null;
+  const daysSince = lastDate ? Math.floor((Date.now() - lastDate)/86400000) : null;
+  const rtEl = document.getElementById('kpi-runtime');
+  const rtLabel = document.getElementById('kpi-runtime-label');
+  if (daysSince === null) { rtEl.textContent = '?'; rtLabel.textContent = 'no data'; }
+  else if (daysSince === 0) { rtEl.textContent = '✅'; rtLabel.textContent = 'ran today'; document.getElementById('runtime-dot').style.background='var(--green)'; }
+  else if (daysSince === 1) { rtEl.textContent = '✅'; rtLabel.textContent = 'ran yesterday'; }
+  else if (daysSince <= 3) { rtEl.textContent = '⚠️'; rtLabel.textContent = daysSince + 'd since last run'; document.getElementById('runtime-dot').style.background='var(--yellow)'; }
+  else { rtEl.textContent = '🔴'; rtLabel.textContent = daysSince + 'd since last run'; document.getElementById('runtime-dot').style.background='var(--red)'; }
+
+  // Incident banners
+  const criticals = issues.filter(i => i.severity === 'critical' && i.status === 'active');
+  const bannerEl = document.getElementById('incident-banners');
+  bannerEl.innerHTML = '';
+  if (criticals.length > 0) {
+    bannerEl.innerHTML = `<div class="incident-banner">
+      <span class="ib-icon">🚨</span>
+      <div class="ib-text">
+        <strong>CRITICAL — IMMEDIATE SEO INTERVENTION REQUIRED</strong>
+        <span>${criticals.length} critical issue${criticals.length>1?'s':''} require attention: ${criticals.slice(0,3).map(i=>i.title).join(', ')}${criticals.length>3?' and more…':''}</span>
+      </div>
+    </div>`;
+  }
+
+  // Current skill
+  document.getElementById('cmd-skill-name').textContent = run.skill_name ? '#' + run.skill_id + ' — ' + run.skill_name : '—';
+  document.getElementById('cmd-skill-date').textContent = run.date ? fmtDate(run.date) : '—';
+  document.getElementById('cmd-run-id').textContent = run.run_id || '';
+  const sc2 = document.getElementById('cmd-score');
+  sc2.textContent = score || '—';
+  sc2.style.color = score ? scoreColor(score) : 'var(--muted)';
+
+  const findingsSpan = document.getElementById('cmd-skill-findings');
+  const crit = findings.filter(f=>f.severity==='critical').length;
+  const warn = findings.filter(f=>f.severity==='warning').length;
+  findingsSpan.innerHTML = `${badgeFor('critical')} ${crit} &nbsp; ${badgeFor('warning')} ${warn}`;
+
+  // Cycle bar
+  const hist2 = d.score_history || [];
+  const skillIds = [...new Set(hist2.map(h=>h.skill_id))];
+  const lastSkill = run.skill_id || 0;
+  const pos = skillIds.length > 0 ? skillIds.indexOf(lastSkill) + 1 : 1;
+  const total = 23;
+  const pct = Math.round((pos / total) * 100);
+  document.getElementById('cycle-bar').style.width = pct + '%';
+  document.getElementById('cycle-label').textContent = `Skill ${pos}/${total} (${pct}%)`;
+
+  // SEO signal checks — infer from findings categories
+  const catMap = {};
+  for (const f of findings) { catMap[f.category] = (catMap[f.category] || 0) + (f.severity==='critical'?10:f.severity==='warning'?3:1); }
+  setCheck('sig-robots', catMap['robots'] ? 'warn' : 'ok', catMap['robots'] ? '⚠ Issues' : '✓ OK');
+  setCheck('sig-sitemap', catMap['sitemap'] ? 'warn' : 'ok', catMap['sitemap'] ? '⚠ Issues' : '✓ OK');
+  setCheck('sig-llms', catMap['ai-seo'] ? 'warn' : 'ok', catMap['ai-seo'] ? '⚠ Issues' : '✓ OK');
+  document.getElementById('ch-pages').textContent = '—';
+  document.getElementById('ch-errors').textContent = '—';
+  document.getElementById('ch-speed').textContent = '—';
+
+  // Severity counts from active issues
+  const all = issues;
+  document.getElementById('sev-critical').textContent = all.filter(i=>i.severity==='critical').length;
+  document.getElementById('sev-warning').textContent = all.filter(i=>i.severity==='warning').length;
+  document.getElementById('sev-info').textContent = all.filter(i=>i.severity==='info').length;
+
+  // Latest findings table
+  const tbody = document.getElementById('latest-findings-body');
+  tbody.innerHTML = '';
+  if (!findings.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty" style="padding:20px;text-align:center;color:var(--muted);">No findings yet</td></tr>';
+  } else {
+    findings.slice(0,15).forEach(f => {
+      tbody.innerHTML += `<tr>
+        <td>${badgeFor(f.severity||'info')}</td>
+        <td style="max-width:280px;">${f.title||''}</td>
+        <td><span style="font-size:11px;color:var(--muted)">${f.category||''}</span></td>
+        <td style="font-size:11px;color:var(--muted);max-width:200px;word-break:break-all;">${f.url||'—'}</td>
+      </tr>`;
+    });
+  }
+}
+
+function setCheck(id, status, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'check-status ' + status;
+}
+
+function calcTrend(hist) {
+  const recent = hist.slice(-5).map(h=>h.score).filter(Boolean);
+  if (recent.length < 2) return {label:'—', dir:'flat'};
+  const delta = recent[recent.length-1] - recent[0];
+  if (delta >= 5) return {label:`↑ +${Math.round(delta)} pts`, dir:'up'};
+  if (delta <= -5) return {label:`↓ ${Math.round(delta)} pts`, dir:'down'};
+  return {label:`→ ${delta>0?'+':''}${Math.round(delta)} pts`, dir:'flat'};
+}
+
+// ─────────────────── Runtime & Rotation ───────────────────────────
+function renderRuntime(d) {
+  const run = d.current_run || {};
+  document.getElementById('rt-last-skill').textContent = run.skill_name ? '#'+run.skill_id+' — '+run.skill_name : 'No data';
+  document.getElementById('rt-date').textContent = fmtDate(run.date);
+  document.getElementById('rt-run-id').textContent = run.run_id || '—';
+  const rtScoreEl = document.getElementById('rt-score');
+  rtScoreEl.textContent = run.score != null ? run.score + '/100' : '—';
+  rtScoreEl.style.color = run.score != null ? scoreColor(run.score) : 'var(--muted)';
+  document.getElementById('rt-issues').textContent = run.issues_found != null ? run.issues_found + ' found (' + (run.issues_critical||0) + ' critical)' : '—';
+  document.getElementById('rt-duration').textContent = run.duration_s != null ? run.duration_s + 's' : '—';
+  const stEl = document.getElementById('rt-status');
+  stEl.textContent = run.status || '—';
+  stEl.style.color = run.status === 'completed' ? 'var(--green)' : run.status ? 'var(--red)' : 'var(--muted)';
+  document.getElementById('rt-group').textContent = run.notes || '—';
+  document.getElementById('rt-pool-size').textContent = '4–23 depending on group';
+
+  // 23-skill rotation grid
+  const hist = d.score_history || [];
+  const completedIds = new Set(hist.map(h=>h.skill_id));
+  const currentId = run.skill_id;
+  const grid = document.getElementById('skill-rotation-grid');
+  grid.innerHTML = '';
+  for (let i=1;i<=23;i++) {
+    const name = SKILL_NAMES[i-1] || ('Skill '+i);
+    const isCompleted = completedIds.has(i) && i !== currentId;
+    const isCurrent = i === currentId;
+    const cls = isCompleted ? 'completed' : isCurrent ? 'current' : 'pending';
+    grid.innerHTML += `<div class="skill-chip ${cls}" title="${name}">
+      <div class="skill-num">#${i} ${isCurrent?'●':isCompleted?'✓':''}</div>
+      <div class="skill-nm">${name}</div>
+    </div>`;
+  }
+  const completed = [...completedIds].filter(id=>id!==currentId).length;
+  document.getElementById('rotation-summary').textContent = completed + '/23 completed this cycle';
+}
+
+// ─────────────────── Issue Tracker ────────────────────────────────
+let allIssues = [];
+let issueFilter = 'all';
+
+function renderIssues(d) {
+  allIssues = d.active_issues_list || [];
+  drawIssuesTable();
+}
+
+function filterIssues(f) {
+  issueFilter = f;
+  drawIssuesTable();
+}
+
+function drawIssuesTable() {
+  let items = allIssues;
+  if (issueFilter === 'critical') items = items.filter(i=>i.severity==='critical');
+  else if (issueFilter === 'warning') items = items.filter(i=>i.severity==='warning');
+  else if (issueFilter === 'info') items = items.filter(i=>i.severity==='info');
+  else if (issueFilter === 'active') items = items.filter(i=>i.status==='active');
+
+  document.getElementById('issues-count-label').textContent = items.length + ' issue' + (items.length!==1?'s':'') + ' shown';
+  const tbody = document.getElementById('issues-body');
+  tbody.innerHTML = '';
+  if (!items.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted);">No issues match this filter</td></tr>';
+    return;
+  }
+  const sorted = [...items].sort((a,b)=>{
+    const order={critical:0,warning:1,info:2};
+    return (order[a.severity]??3)-(order[b.severity]??3);
+  });
+  sorted.forEach(i=>{
+    const statusBadge = i.status==='active'
+      ? '<span class="badge badge-active">ACTIVE</span>'
+      : '<span class="badge badge-resolved">RESOLVED</span>';
+    tbody.innerHTML += `<tr>
+      <td>${badgeFor(i.severity||'info')}</td>
+      <td style="max-width:220px;font-size:12px;">${i.title||''}</td>
+      <td><span style="font-size:11px;color:var(--muted)">${i.category||''}</span></td>
+      <td style="font-size:11px;color:var(--muted)">${i.first_seen?i.first_seen.split('T')[0]:'—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${i.last_seen?i.last_seen.split('T')[0]:'—'}</td>
+      <td style="text-align:center;font-size:12px;">${i.occurrences||1}</td>
+      <td>${statusBadge}</td>
+    </tr>`;
+  });
+}
+
+// ─────────────────── Score History ────────────────────────────────
+let scoreChartWindow = 23;
+let scoreChartInst = null;
+
+function renderScores(d) {
+  const hist = d.score_history || [];
+  drawScoreChart(hist, scoreChartWindow);
+
+  const tbody = document.getElementById('score-history-body');
+  tbody.innerHTML = '';
+  const sorted = [...hist].reverse().slice(0,50);
+  sorted.forEach(h=>{
+    const delta = h.delta != null ? h.delta : '—';
+    const deltaColor = delta > 0 ? 'var(--green)' : delta < 0 ? 'var(--red)' : 'var(--muted)';
+    tbody.innerHTML += `<tr>
+      <td style="font-size:11px;color:var(--muted)">${h.date?h.date.split('T')[0]:'—'}</td>
+      <td style="font-size:12px">#${h.skill_id} ${h.skill_name||''}</td>
+      <td style="font-size:14px;font-weight:700;color:${scoreColor(h.score||0)}">${h.score||'—'}</td>
+      <td style="font-size:12px;font-weight:600;color:${deltaColor}">${typeof delta==='number'?(delta>0?'+':'')+delta:'—'}</td>
+      <td style="font-size:10px;color:var(--muted);font-family:monospace">${h.run_id||'—'}</td>
+    </tr>`;
+  });
+}
+
+function filterScoreChart(n) {
+  scoreChartWindow = n;
+  drawScoreChart(dashData?.score_history || [], n);
+}
+
+function drawScoreChart(hist, window) {
+  const data = hist.slice(-window);
+  const labels = data.map(h => '#'+h.skill_id+' '+h.date?.split('T')[0]);
+  const scores = data.map(h => h.score);
+  const colors = scores.map(s => s>=80?'rgba(34,197,94,.8)':s>=50?'rgba(245,158,11,.8)':'rgba(239,68,68,.8)');
+
+  const ctx = document.getElementById('score-chart').getContext('2d');
+  if (scoreChartInst) scoreChartInst.destroy();
+  scoreChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'SEO Score',
+        data: scores,
+        backgroundColor: colors,
+        borderColor: colors.map(c=>c.replace('0.8','1')),
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+        tooltip: {callbacks: {label: ctx => 'Score: ' + ctx.raw + '/100'}}
+      },
+      scales: {
+        x: {ticks: {color:'#94a3b8',font:{size:10}}, grid: {color:'#1e293b'}},
+        y: {min:0,max:100,ticks:{color:'#94a3b8',stepSize:20}, grid:{color:'#334155'}}
+      }
+    }
+  });
+}
+
+// ─────────────────── Technical SEO ────────────────────────────────
+const TECH_SKILL_IDS = {
+  'tech-robots': [2], 'tech-sitemap': [2], 'tech-llms': [11,23],
+  'tech-canonicals': [3], 'tech-schema': [4], 'tech-meta': [6],
+  'tech-crawl': [1], 'tech-linking': [7], 'tech-images': [13],
+  'tech-mobile': [14], 'tech-cwv': [5], 'tech-speed': [15]
+};
+
+function renderTechnical(d) {
+  const issues = d.active_issues_list || [];
+  const hist = d.score_history || [];
+
+  Object.entries(TECH_SKILL_IDS).forEach(([id, skillIds]) => {
+    const relevant = issues.filter(i => skillIds.includes(i.skill_id));
+    const crits = relevant.filter(i => i.severity==='critical').length;
+    const warns = relevant.filter(i => i.severity==='warning').length;
+    const ran = hist.some(h => skillIds.includes(h.skill_id));
+    if (!ran) { setCheck(id, 'unknown', '— not run'); return; }
+    if (crits) { setCheck(id, 'err', '✗ ' + crits + ' critical'); }
+    else if (warns) { setCheck(id, 'warn', '⚠ ' + warns + ' warnings'); }
+    else { setCheck(id, 'ok', '✓ OK'); }
+  });
+
+  // Technical issues table
+  const techCats = ['crawlability','redirects','canonical','structured-data','meta','robots','sitemap','linking','images','mobile','cwv','speed'];
+  const techIssues = issues.filter(i => techCats.some(c=>i.category?.includes(c)));
+  const tbody = document.getElementById('tech-issues-body');
+  tbody.innerHTML = '';
+  if (!techIssues.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--muted)">No technical issues detected</td></tr>';
+  } else {
+    techIssues.slice(0,20).forEach(i => {
+      tbody.innerHTML += `<tr>
+        <td><span style="font-size:11px;color:var(--muted)">${i.category||''}</span></td>
+        <td style="font-size:12px;max-width:260px">${i.title||''}</td>
+        <td>${badgeFor(i.severity||'info')}</td>
+        <td style="font-size:11px;color:var(--muted)">${i.first_seen?i.first_seen.split('T')[0]:'—'}</td>
+      </tr>`;
+    });
+  }
+}
+
+// ─────────────────── AI Visibility ────────────────────────────────
+function renderAI(d) {
+  const issues = d.active_issues_list || [];
+  const hist = d.score_history || [];
+  const aiIssues = issues.filter(i => i.skill_id===11||i.skill_id===23||i.category?.includes('ai'));
+  const ran11 = hist.some(h=>h.skill_id===11);
+  const ran23 = hist.some(h=>h.skill_id===23);
+
+  const llmsProblem = aiIssues.find(i=>i.title?.toLowerCase().includes('llms'));
+  setCheck('ai-llms', !ran11 ? 'unknown' : llmsProblem ? 'warn' : 'ok', !ran11 ? '— not run' : llmsProblem ? '⚠ Issues' : '✓ OK');
+  setCheck('ai-structured', !ran11 ? 'unknown' : aiIssues.some(i=>i.category==='structured-data')?'warn':'ok', !ran11?'— not run':aiIssues.some(i=>i.category==='structured-data')?'⚠ Issues':'✓ OK');
+  setCheck('ai-entity', !ran11 ? 'unknown' : 'ok', !ran11 ? '— not run' : '✓ OK');
+  setCheck('ai-faq', !ran23 ? 'unknown' : aiIssues.some(i=>i.title?.toLowerCase().includes('faq'))?'warn':'ok', !ran23?'— not run':aiIssues.some(i=>i.title?.toLowerCase().includes('faq'))?'⚠ Missing':'✓ Present');
+  setCheck('ai-howto', 'unknown', '— not run');
+  setCheck('ai-person', !ran23 ? 'unknown' : aiIssues.some(i=>i.title?.toLowerCase().includes('person'))?'warn':'ok', !ran23?'— not run':aiIssues.some(i=>i.title?.toLowerCase().includes('person'))?'⚠ Issues':'✓ Present');
+  setCheck('ai-auth', !ran23 ? 'unknown' : 'ok', !ran23 ? '— not run' : '✓ OK');
+  setCheck('ai-ident', !ran23 ? 'unknown' : 'ok', !ran23 ? '— not run' : '✓ OK');
+  setCheck('ai-cite', !ran23 ? 'unknown' : aiIssues.some(i=>i.skill_id===23&&i.severity==='critical')?'err':'ok', !ran23?'— not run':aiIssues.some(i=>i.skill_id===23&&i.severity==='critical')?'✗ Issues':'✓ Ready');
+
+  const tbody = document.getElementById('ai-issues-body');
+  tbody.innerHTML = '';
+  if (!aiIssues.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="padding:16px;text-align:center;color:var(--muted)">No AI visibility issues detected (or skills 11/23 not yet run)</td></tr>';
+  } else {
+    aiIssues.forEach(i => {
+      tbody.innerHTML += `<tr>
+        <td style="font-size:12px">${i.title||''}</td>
+        <td style="font-size:11px;color:var(--muted);max-width:280px">${i.description?.slice(0,120)||''}</td>
+        <td>${badgeFor(i.severity||'info')}</td>
+      </tr>`;
+    });
+  }
+}
+
+// ─────────────────── Run Log ───────────────────────────────────────
+function renderRuns(d) {
+  const runs = [...(d.recent_runs || [])].reverse();
+  const tbody = document.getElementById('runs-body');
+  tbody.innerHTML = '';
+  if (!runs.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="padding:16px;text-align:center;color:var(--muted)">No runs recorded yet</td></tr>';
+    return;
+  }
+  runs.forEach(r => {
+    const sc = r.score != null ? `<span style="font-weight:700;color:${scoreColor(r.score)}">${r.score}</span>` : '—';
+    const st = r.status==='completed' ? '<span class="badge badge-good">DONE</span>' : `<span class="badge badge-critical">${r.status||'?'}</span>`;
+    tbody.innerHTML += `<tr>
+      <td style="font-size:11px;color:var(--muted)">${r.date?r.date.split('T')[0]:'—'}</td>
+      <td style="font-size:12px">#${r.skill_id} ${r.skill_name||''}</td>
+      <td>${sc}</td>
+      <td style="font-size:12px;color:var(--muted)">${r.issues_found??'—'}</td>
+      <td style="font-size:12px;color:${r.issues_critical?'var(--red)':'var(--muted)'}">${r.issues_critical??'—'}</td>
+      <td style="font-size:12px;color:var(--muted)">${r.duration_s!=null?r.duration_s+'s':'—'}</td>
+      <td>${st}</td>
+      <td style="font-size:10px;color:var(--muted);font-family:monospace">${r.run_id||'—'}</td>
+    </tr>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const sec = document.getElementById('tab-'+name);
+  if (sec) sec.classList.add('active');
+  const btns = document.querySelectorAll('.tab-btn');
+  const tabOrder = ['cmd','runtime','issues','scores','technical','ai','runs','settings'];
+  const idx = tabOrder.indexOf(name);
+  if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
+
+  // Redraw chart when score tab becomes visible
+  if (name === 'scores' && dashData) drawScoreChart(dashData.score_history||[], scoreChartWindow);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  // Activate command center section by default
+  document.getElementById('tab-cmd').classList.add('active');
+
+  if (!localStorage.getItem(AUTH_KEY)) {
+    // No password set yet — show setup
+    document.getElementById('auth-screen').style.display = 'none';
+    showSetup();
+  } else if (isLoggedIn()) {
+    showApp();
+  } else {
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
+});
+</script>
+</body>
+</html>

@@ -30,6 +30,12 @@ name: SEO Autonomous Runtime
 #   Phase 1 (Group 1)  — Robots/Sitemap, Meta/OG, Internal Linking, Headings
 #   Phase 2 (Group 2)  — Crawl Audit, Schema, CWV, Images, Mobile, Page Speed
 #   Phase 3 (Group 3)  — All 23 skills active
+#
+# Branch strategy:
+#   Scheduled runs always execute on seo-runtime-stable (never on main).
+#   Hard Stop 2 blocks any commit to main/master — data lives on stable branch.
+#   The admin dashboard at /admin/seo/ reads live data from seo-runtime-stable
+#   via the public GitHub raw content URL.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -67,11 +73,15 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - name: Checkout repository
+      # Always checkout seo-runtime-stable — scheduled runs fire from the default
+      # branch (main) but Hard Stop 2 prohibits any commit to main. We explicitly
+      # check out the stable runtime branch so all data commits are safe.
+      - name: Checkout seo-runtime-stable
         uses: actions/checkout@v4
         with:
+          ref: seo-runtime-stable
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -83,11 +93,30 @@ jobs:
       - name: Install dependencies
         run: pip install -r seo/requirements.txt
 
+      - name: Initialize Google Sheets structure (first run or forced)
+        if: ${{ github.event.inputs.force_init == 'true' }}
+        working-directory: seo
+        env:
+          GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          python - <<'PYEOF'
+          import sys, os
+          sys.path.insert(0, '.')
+          from sheets import SheetsClient
+          sc = SheetsClient()
+          if sc.available:
+              ok = sc.initialize_all_sheets()
+              print(f"Sheets initialized: {ok}")
+          else:
+              print("Sheets unavailable — skipping init")
+          PYEOF
+
       - name: Run SEO Runtime
         working-directory: seo
         env:
           SITE_URL: https://amulyagupta.in
-          REPORT_EMAIL: amulagupta2001@gmail.com
+          REPORT_EMAIL: amulyagupta2001@gmail.com
           SKILL_OVERRIDE: ${{ github.event.inputs.skill_override || 'auto' }}
           ENABLED_SKILL_GROUP: ${{ github.event.inputs.enabled_skill_group || '1' }}
           FORCE_INIT: ${{ github.event.inputs.force_init || 'false' }}
@@ -99,27 +128,27 @@ jobs:
           PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_REF: ${{ github.ref }}
+          # Hard Stop 2: always report as seo-runtime-stable — blocks any main commit
+          GITHUB_REF: refs/heads/seo-runtime-stable
           GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: python runtime.py
 
-      - name: Commit dashboard data
+      - name: Commit dashboard data to seo-runtime-stable
         if: always()
         run: |
-          # Hard Stop 2 — never push to main under any circumstance
-          if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "master" ]]; then
-            echo "HARD STOP 2: Refusing to push data commit to protected branch '${{ github.ref_name }}'."
-            exit 1
-          fi
           git config user.name "SEO Runtime Bot"
           git config user.email "seo-bot@amulyagupta.in"
           git add seo/data/ 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "No data changes to commit."
           else
-            git commit -m "chore(seo): update dashboard data [skip ci]"
-            git push origin ${{ github.ref_name }} \
-              || echo "Push failed — data preserved in artifact"
+            git commit -m "chore(seo): update dashboard data $(date -u +%Y-%m-%dT%H:%M)Z [skip ci]"
+            # Retry push with exponential backoff (network resilience)
+            for delay in 2 4 8 16; do
+              git push origin seo-runtime-stable && break
+              echo "Push failed — retrying in ${delay}s..."
+              sleep $delay
+            done || echo "Push exhausted retries — data preserved in artifact"
           fi
 
       - name: Upload run artifacts

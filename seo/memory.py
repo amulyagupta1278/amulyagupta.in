@@ -153,8 +153,26 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
     active_issues = [i for i in issues.values() if i.get("status") == "active"]
     critical_issues = [i for i in active_issues if i.get("severity") == "critical"]
     warning_issues = [i for i in active_issues if i.get("severity") == "warning"]
+    info_issues = [i for i in active_issues if i.get("severity") == "info"]
 
     avg_score = sum(s["score"] for s in scores[-23:]) / len(scores[-23:]) if scores else 0
+
+    # Skill coverage: which skills have run at least once
+    skills_run = sorted({s["skill_id"] for s in scores})
+
+    # Per-skill latest score
+    skill_latest: dict[int, dict] = {}
+    for s in scores:
+        skill_latest[s["skill_id"]] = s
+
+    # Score trend over last 5 runs (all skills)
+    recent_scores = [s["score"] for s in scores[-5:]]
+    if len(recent_scores) >= 2:
+        trend_delta = recent_scores[-1] - recent_scores[0]
+        trend_dir = "up" if trend_delta >= 3 else "down" if trend_delta <= -3 else "flat"
+    else:
+        trend_delta = 0
+        trend_dir = "unknown"
 
     snapshot = {
         "generated_at": now,
@@ -165,12 +183,20 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
             "active_issues": len(active_issues),
             "critical_issues": len(critical_issues),
             "warning_issues": len(warning_issues),
+            "info_issues": len(info_issues),
             "total_runs": len(recent_runs),
+            "skills_run": skills_run,
+            "trend_delta": round(trend_delta, 1),
+            "trend_dir": trend_dir,
         },
         "recent_runs": recent_runs,
         "latest_findings": findings[:50],
         "score_history": scores[-46:],
-        "active_issues_list": sorted(active_issues, key=lambda x: x.get("severity", ""), reverse=True)[:50],
+        "skill_scores": {k: v for k, v in skill_latest.items()},
+        "active_issues_list": sorted(
+            active_issues,
+            key=lambda x: {"critical": 0, "warning": 1, "info": 2}.get(x.get("severity", "info"), 3),
+        )[:100],
     }
     save_json("dashboard.json", snapshot)
     return snapshot
