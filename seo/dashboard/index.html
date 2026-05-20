@@ -743,7 +743,7 @@ function renderDashboard(data) {
 
   // Phase bar
   const activeGroup = currentRun.notes
-    ? (parseInt((currentRun.notes.match(/Group (\d)/) || [])[1]) || 1) : 1;
+    ? (parseInt((currentRun.notes.match(/Group (\d)/) || [])[1]) || 3) : 3;
   for (let g = 1; g <= 3; g++) {
     const el = document.getElementById(`phase-${g}`);
     if (el) {

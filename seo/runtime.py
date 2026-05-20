@@ -47,6 +47,17 @@ log = logging.getLogger("seo.runtime")
 MIN_HEALTHY_PAGES = max(1, len(config.SITE_PAGES) // 2)
 
 
+def _cwv_rating(metric: str, value: float) -> str:
+    thresholds = config.CWV_THRESHOLDS.get(metric, {})
+    if not thresholds or not value:
+        return "unknown"
+    if value <= thresholds["good"]:
+        return "good"
+    if value <= thresholds["poor"]:
+        return "needs_improvement"
+    return "poor"
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Validation Layer
 # ─────────────────────────────────────────────────────────────────────────────
@@ -204,6 +215,9 @@ def run() -> None:
     sheets = SheetsClient()
     if not sheets.available:
         log.warning("Google Sheets unavailable — running without persistence")
+    if config.FORCE_INIT and sheets.available:
+        log.info("FORCE_INIT: initialising all sheet structures…")
+        sheets.initialize_all_sheets()
 
     # ── Hard Stop 3: verify at least one persistence layer is available ───────
     try:
@@ -371,7 +385,8 @@ def run() -> None:
     prev_score = same_skill_scores[-2]["score"] if len(same_skill_scores) >= 2 else None
     sheets.append("seo_scores", [
         now.isoformat(), skill_id, skill_name, result.score,
-        prev_score or result.score, (result.score - prev_score) if prev_score else 0,
+        prev_score if prev_score is not None else result.score,
+        (result.score - prev_score) if prev_score is not None else 0,
         config.ENABLED_SKILL_GROUP, run_id,
     ])
 
@@ -402,9 +417,10 @@ def run() -> None:
     if skill_id in (5, 15):
         for rec in result.metadata.get("cwv_records", []):
             for metric, key in [("lcp", "lcp_ms"), ("cls", "cls"), ("ttfb", "ttfb_ms")]:
+                val = rec.get(key, 0)
                 sheets.append("seo_cwv", [
                     now.isoformat(), rec.get("url", ""), metric,
-                    rec.get(key, 0), "unknown", rec.get("strategy", "mobile"), run_id,
+                    val, _cwv_rating(metric, val), rec.get("strategy", "mobile"), run_id,
                 ])
 
     # ── Dashboard snapshot ───────────────────────────────────────────────────

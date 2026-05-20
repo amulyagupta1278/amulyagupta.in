@@ -103,14 +103,24 @@ jobs:
         if: always()
         id: skill_branch
         run: |
-          # Read which skill just ran
+          # Read which skill just ran — state.json is primary, runs.json is fallback
           SKILL_ID=$(python3 -c "
           import json, sys
+          # Primary: state.json written by runtime at end of run
           try:
               with open('seo/data/state.json') as f:
-                  print(json.load(f).get('last_skill_id', 0))
-          except:
-              print(0)
+                  sid = json.load(f).get('last_skill_id', 0)
+                  if sid: print(sid); sys.exit(0)
+          except Exception:
+              pass
+          # Fallback: last entry in runs.json
+          try:
+              with open('seo/data/runs.json') as f:
+                  runs = json.load(f)
+                  if runs: print(runs[-1].get('skill_id', 0)); sys.exit(0)
+          except Exception:
+              pass
+          print(0)
           " 2>/dev/null || echo "0")
 
           if [ "$SKILL_ID" = "0" ] || [ -z "$SKILL_ID" ]; then
