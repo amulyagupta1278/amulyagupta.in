@@ -1,35 +1,23 @@
 name: SEO Autonomous Runtime
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Mandatory governance — 7 Hard Stops enforced at every execution:
+# Governance — 7 Hard Stops enforced on every execution:
 #
-#   HS1  CLAUDE_SEO_SKILL_EXECUTION_ONLY
-#        Exactly ONE skill per day, sequential 23-day rotation, no batching.
+#   HS1  One skill per day, strict 23-day sequential rotation.
+#   HS2  NO auto-merge. Runtime NEVER commits to main.
+#        Flow: Runtime → seo/skill-XX branch → PR → Human Review → Manual Merge.
+#   HS3  Dashboard + Google Sheets observability required.
+#   HS4  Pre-execution context validation; no skill runs on invalid state.
+#   HS5  Google Sheets history sheets are append-only.
+#   HS6  Experimental branch isolation.
+#   HS7  Caveman execution mode / Humaniser reporting separation.
 #
-#   HS2  NO_AUTO_MERGE_OR_DIRECT_PUSH
-#        Runtime never merges PRs, never pushes to main, never self-approves.
-#        All remediation: Runtime → PR → Human Review → Manual Merge.
-#
-#   HS3  DASHBOARD_AND_OBSERVABILITY_REQUIRED
-#        Local JSON + Google Sheets persistence; dashboard auto-refreshes.
-#
-#   HS4  RUNTIME_VALIDATION_REQUIRED
-#        Pre-execution context validation; no skill runs on invalid state.
-#
-#   HS5  GOOGLE_SHEETS_PERSISTENT_MEMORY
-#        All history sheets are append-only; no clear/overwrite operations.
-#
-#   HS6  EXPERIMENTAL_BRANCH_ISOLATION
-#        Only validated infrastructure on seo-runtime-stable or main.
-#
-#   HS7  CAVEMAN_CREDIT_OPTIMIZATION
-#        Execution mode suppresses verbose context; Humaniser (emailer)
-#        runs post-execution only.
-#
-# Phased rollout — advance ENABLED_SKILL_GROUP as each phase stabilises:
-#   Phase 1 (Group 1)  — Robots/Sitemap, Meta/OG, Internal Linking, Headings
-#   Phase 2 (Group 2)  — Crawl Audit, Schema, CWV, Images, Mobile, Page Speed
-#   Phase 3 (Group 3)  — All 23 skills active
+# Branch strategy:
+#   Scheduled cron runs on main (GitHub platform constraint).
+#   Python runtime writes findings to working tree — no git commits.
+#   Workflow then creates seo/skill-XX branch from main HEAD,
+#   commits all outputs there, and opens a PR for human review.
+#   main is NEVER committed to by this workflow.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -43,11 +31,11 @@ on:
         required: false
         default: 'auto'
       enabled_skill_group:
-        description: 'Skill group to activate: 1=Foundational, 2=+Technical, 3=+Advanced (all 23 skills)'
+        description: 'Skill group: 1=Foundational, 2=+Technical, 3=+Advanced (all 23 skills)'
         required: false
         default: '3'
       force_init:
-        description: 'Force re-initialise Sheets structure (use only on first deploy)'
+        description: 'Force re-initialise Sheets structure (first deploy only)'
         required: false
         type: boolean
         default: false
@@ -67,12 +55,15 @@ jobs:
     timeout-minutes: 45
 
     steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 1
+          # Full history so we can create branches and push PRs
+          fetch-depth: 0
 
+      # ── 2. Python setup ──────────────────────────────────────────────────────
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
@@ -83,6 +74,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r seo/requirements.txt
 
+      # ── 3. Run SEO skill (no git operations — writes to working tree only) ───
       - name: Run SEO Runtime
         working-directory: seo
         env:
@@ -103,28 +95,168 @@ jobs:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: python runtime.py
 
-      - name: Commit dashboard data
+      # ── 4. Create skill branch and commit all runtime outputs ────────────────
+      # The runtime wrote files to the working tree while on main.
+      # We create seo/skill-XX from main's HEAD — the working tree is preserved —
+      # then commit and push. main is never touched.
+      - name: Create skill branch and commit findings
         if: always()
+        id: skill_branch
         run: |
-          # Hard Stop 2 — only seo/data/ (operational telemetry) is staged here.
-          # Site content (HTML, robots.txt, sitemap, config) is NEVER touched.
-          # Scheduled workflows always run on main; that is expected and safe
-          # because git add is explicitly scoped to seo/data/ only.
-          git config user.name "SEO Runtime Bot"
-          git config user.email "seo-bot@amulyagupta.in"
-          git add seo/data/ 2>/dev/null || true
-          if git diff --staged --quiet; then
-            echo "No data changes to commit."
-          else
-            git commit -m "chore(seo): update dashboard data [skip ci]"
-            git push origin HEAD:${{ github.ref_name }} \
-              || echo "Push failed — data preserved in artifact"
+          # Read which skill just ran
+          SKILL_ID=$(python3 -c "
+          import json, sys
+          try:
+              with open('seo/data/state.json') as f:
+                  print(json.load(f).get('last_skill_id', 0))
+          except:
+              print(0)
+          " 2>/dev/null || echo "0")
+
+          if [ "$SKILL_ID" = "0" ] || [ -z "$SKILL_ID" ]; then
+            echo "Could not determine skill ID — skipping branch creation"
+            echo "branch_created=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
+          SKILL_PADDED=$(printf '%02d' "$SKILL_ID")
+          BRANCH="seo/skill-${SKILL_PADDED}"
+
+          SKILL_NAME=$(python3 -c "
+          import sys; sys.path.insert(0, 'seo')
+          import config
+          print(config.SKILL_NAMES[int('$SKILL_ID') - 1])
+          " 2>/dev/null || echo "Skill $SKILL_ID")
+
+          SCORE=$(python3 -c "
+          import json
+          try:
+              runs = json.load(open('seo/data/runs.json'))
+              print(runs[-1].get('score', 0) if runs else 0)
+          except:
+              print(0)
+          " 2>/dev/null || echo "0")
+
+          CRITICAL=$(python3 -c "
+          import json
+          try:
+              runs = json.load(open('seo/data/runs.json'))
+              print(runs[-1].get('issues_critical', 0) if runs else 0)
+          except:
+              print(0)
+          " 2>/dev/null || echo "0")
+
+          echo "Skill:  ${SKILL_PADDED} — ${SKILL_NAME}"
+          echo "Score:  ${SCORE}/100  (${CRITICAL} critical)"
+          echo "Branch: ${BRANCH}"
+
+          git config user.name  "SEO Runtime Bot"
+          git config user.email "seo-bot@amulyagupta.in"
+
+          # Create branch at current HEAD (= main's latest commit).
+          # Working tree with all runtime-generated files is preserved.
+          git checkout -B "$BRANCH"
+
+          # Stage only the runtime outputs — no other files are touched.
+          git add seo/reports/ seo/data/ 2>/dev/null || true
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            echo "branch_created=false" >> "$GITHUB_OUTPUT"
+          else
+            TODAY=$(date -u +%Y-%m-%d)
+            git commit -m "seo(skill-${SKILL_PADDED}): ${SKILL_NAME} — Score ${SCORE}/100 — ${TODAY}
+
+Findings: ${CRITICAL} critical | Auto-generated audit report
+Skill ${SKILL_ID}/23 in the 23-day SEO rotation cycle
+
+Review the report in seo/reports/ and merge when satisfied,
+or close this PR to skip this cycle's findings."
+
+            git push -f origin "$BRANCH"
+            echo "Pushed to origin/${BRANCH}"
+            echo "branch_created=true"  >> "$GITHUB_OUTPUT"
+          fi
+
+          # Export for the PR step
+          echo "skill_id=$SKILL_ID"       >> "$GITHUB_OUTPUT"
+          echo "skill_padded=$SKILL_PADDED" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH"           >> "$GITHUB_OUTPUT"
+          echo "skill_name=$SKILL_NAME"   >> "$GITHUB_OUTPUT"
+          echo "score=$SCORE"             >> "$GITHUB_OUTPUT"
+          echo "critical=$CRITICAL"       >> "$GITHUB_OUTPUT"
+
+      # ── 5. Open or update Pull Request ──────────────────────────────────────
+      # One open PR per skill branch at most.
+      # If the skill ran before and the PR was merged, a fresh PR is created.
+      # If the previous PR is still open, its title is refreshed with the latest score.
+      - name: Create or update Pull Request
+        if: steps.skill_branch.outputs.branch_created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ steps.skill_branch.outputs.branch }}"
+          SKILL_ID="${{ steps.skill_branch.outputs.skill_id }}"
+          SKILL_PADDED="${{ steps.skill_branch.outputs.skill_padded }}"
+          SKILL_NAME="${{ steps.skill_branch.outputs.skill_name }}"
+          SCORE="${{ steps.skill_branch.outputs.score }}"
+          CRITICAL="${{ steps.skill_branch.outputs.critical }}"
+          TODAY=$(date -u +%Y-%m-%d)
+
+          PR_TITLE="[SEO Audit] Skill ${SKILL_PADDED}/23 — ${SKILL_NAME} — Score ${SCORE}/100"
+
+          # Use the generated markdown report as the PR body
+          REPORT_FILE=$(ls seo/reports/*.md 2>/dev/null | sort | tail -1 || echo "")
+          if [ -n "$REPORT_FILE" ] && [ -f "$REPORT_FILE" ]; then
+            BODY_SOURCE="$REPORT_FILE"
+          else
+            # Fallback body if no report file
+            FALLBACK_BODY="## SEO Audit — Skill ${SKILL_PADDED}/23: ${SKILL_NAME}
+
+| Field | Value |
+|---|---|
+| **Score** | ${SCORE}/100 |
+| **Critical Issues** | ${CRITICAL} |
+| **Date** | ${TODAY} |
+| **Branch** | \`${BRANCH}\` |
+
+See \`seo/reports/\` and \`seo/data/\` in this PR for full findings.
+
+> Merge to accept findings and update the live dashboard.
+> Close to skip this cycle's findings."
+            BODY_SOURCE=$(mktemp --suffix=.md)
+            echo "$FALLBACK_BODY" > "$BODY_SOURCE"
+          fi
+
+          # Check for an existing open PR from this skill branch
+          EXISTING=$(gh pr list \
+            --head "$BRANCH" \
+            --base main \
+            --state open \
+            --json number \
+            --jq '.[0].number' 2>/dev/null || echo "")
+
+          if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
+            echo "Updating existing PR #${EXISTING} with latest score"
+            gh pr edit "$EXISTING" --title "$PR_TITLE"
+            echo "✅ PR #${EXISTING} updated: ${PR_TITLE}"
+          else
+            echo "Creating new PR: ${BRANCH} → main"
+            PR_URL=$(gh pr create \
+              --title "$PR_TITLE" \
+              --body-file "$BODY_SOURCE" \
+              --base main \
+              --head "$BRANCH")
+            echo "✅ PR created: ${PR_URL}"
+          fi
+
+      # ── 6. Upload artifacts (always, regardless of outcome) ─────────────────
       - name: Upload run artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: seo-run-${{ github.run_number }}
-          path: seo/data/
+          path: |
+            seo/data/
+            seo/reports/
           retention-days: 90

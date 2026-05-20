@@ -86,17 +86,18 @@ def enforce_sequential_rotation(skill_id: int, enabled_skills: list[int]) -> Non
 # ─────────────────────────────────────────────────────────────────────────────
 # Hard Stop 2 — No auto-merge, no direct push to protected branches
 # ─────────────────────────────────────────────────────────────────────────────
-# Hard Stop 2 — No auto-merge, no direct push of site content to protected branches
+# Hard Stop 2 — No auto-merge; main is NEVER committed to by the runtime.
 #
-# GitHub Actions scheduled workflows always execute on the default branch (main).
-# That is expected and unavoidable at the platform level.
-# The actual protection against unauthorized site changes is enforced here:
-#   • The runtime never stages HTML, robots.txt, sitemaps, or config files.
-#   • Only seo/data/ (operational telemetry) is committed on scheduled runs.
-#   • All SEO remediation (fixes to site files) MUST follow the PR model.
+# Branch strategy enforced by the workflow (seo-runtime.yml):
 #
-# Therefore enforce_no_direct_push logs the branch state and warns when on main,
-# but does NOT abort — aborting here would prevent every scheduled run.
+#   1. Cron triggers on main (GitHub platform constraint — unavoidable).
+#   2. Python runtime runs read-only analysis; writes files to working tree only.
+#   3. Workflow creates seo/skill-XX branch at main's HEAD, commits outputs there.
+#   4. Workflow opens a PR: seo/skill-XX → main.
+#   5. Human reviews and manually merges (or closes) the PR.
+#
+# GITHUB_REF will be refs/heads/main for all scheduled runs — that is expected.
+# The Python runtime itself never calls git; the workflow shell steps manage branching.
 # ─────────────────────────────────────────────────────────────────────────────
 
 _PROTECTED_BRANCHES = frozenset({"main", "master"})
@@ -104,24 +105,21 @@ _PROTECTED_BRANCHES = frozenset({"main", "master"})
 
 def enforce_no_direct_push(github_ref: str | None) -> None:
     """
-    Log branch state and warn when on a protected branch.
-
-    Scheduled GitHub Actions workflows always run on the default branch (main).
-    This function does NOT abort on main — aborting would break every cron run.
-    Protection against unauthorized site changes is enforced elsewhere:
-      • Only seo/data/ is staged in the workflow commit step.
-      • All HTML / config fixes follow the PR-only remediation model.
+    Log branch state. Does NOT abort when the trigger ref is main because
+    scheduled workflows always start on the default branch. The actual
+    HS2 guarantee — no direct commits to main — is enforced by the workflow:
+    all outputs go to seo/skill-XX branches, never to main.
     """
     ref = (github_ref or "").removeprefix("refs/heads/")
     if ref in _PROTECTED_BRANCHES:
         log.info(
-            "[HS2] Running on protected branch '%s' (normal for scheduled workflows). "
-            "Site-change protection active: only seo/data/ commits permitted; "
-            "all SEO fixes must go via PR.",
+            "[HS2] Trigger ref is '%s' (expected for scheduled cron). "
+            "Commits will go to seo/skill-XX branch → PR → human review. "
+            "main will not be touched by this run.",
             ref,
         )
     else:
-        log.info("[HS2] Branch '%s' is not protected — PR-only model confirmed", ref)
+        log.info("[HS2] Branch '%s' — PR-only remediation model confirmed", ref)
 
 
 def assert_no_auto_merge_authority() -> None:

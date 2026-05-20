@@ -18,6 +18,7 @@ Governance:
 
 import logging
 import os
+import reporter
 import sys
 import time
 import traceback
@@ -366,10 +367,29 @@ def run() -> None:
     # ── Score history ────────────────────────────────────────────────────────
     memory.append_score(skill_id, skill_name, result.score, run_id)
     scores = memory.load_score_history()
+    same_skill_scores = [s for s in scores if s.get("skill_id") == skill_id]
+    prev_score = same_skill_scores[-2]["score"] if len(same_skill_scores) >= 2 else None
     sheets.append("seo_scores", [
         now.isoformat(), skill_id, skill_name, result.score,
-        result.score, 0, config.ENABLED_SKILL_GROUP, run_id,
+        prev_score or result.score, (result.score - prev_score) if prev_score else 0,
+        config.ENABLED_SKILL_GROUP, run_id,
     ])
+
+    # ── Markdown report (committed to skill PR branch by workflow) ────────────
+    try:
+        report_path, _ = reporter.generate_skill_report(
+            run_id=run_id,
+            skill_id=skill_id,
+            skill_name=skill_name,
+            score=result.score,
+            findings=findings_dicts,
+            metadata=result.metadata,
+            run_date=now,
+            prev_score=prev_score,
+        )
+        log.info("Report written: %s", report_path)
+    except Exception as e:
+        log.warning("Report generation failed (non-fatal): %s", e)
 
     # ── Specialty tracking ───────────────────────────────────────────────────
     if skill_id in (11, 23):
