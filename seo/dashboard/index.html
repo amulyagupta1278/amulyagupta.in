@@ -8,128 +8,143 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface2: #273549;
-      --border: #334155;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --green: #22c55e;
-      --yellow: #f59e0b;
-      --red: #ef4444;
-      --purple: #a78bfa;
+      --bg: #0f172a; --surface: #1e293b; --surface2: #273549; --border: #334155;
+      --text: #f1f5f9; --muted: #94a3b8; --accent: #38bdf8;
+      --green: #22c55e; --yellow: #f59e0b; --red: #ef4444; --purple: #a78bfa;
+      --orange: #fb923c;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height: 100vh; }
 
     /* Auth */
-    #auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .auth-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; text-align: center; max-width: 360px; width: 100%; }
-    .auth-box h1 { font-size: 22px; margin-bottom: 8px; }
-    .auth-box p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
-    .auth-box input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 8px; font-size: 16px; margin-bottom: 12px; }
-    .auth-box button { width: 100%; background: var(--accent); color: #0f172a; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; }
-    .auth-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+    #auth-overlay { position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000; }
+    .auth-box { background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;max-width:360px;width:100%; }
+    .auth-box h1 { font-size:22px;margin-bottom:6px; }
+    .auth-box p { color:var(--muted);font-size:13px;margin-bottom:24px; }
+    .auth-box input { width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-size:16px;margin-bottom:12px; }
+    .auth-box button { width:100%;background:var(--accent);color:#0f172a;border:none;padding:12px;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer; }
+    .auth-error { color:var(--red);font-size:12px;margin-top:8px;display:none; }
 
     /* Layout */
-    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
-    .logo { font-weight: 700; font-size: 15px; color: var(--accent); letter-spacing: -0.3px; }
-    .logo span { color: var(--muted); font-weight: 400; }
-    .header-actions { display: flex; align-items: center; gap: 12px; }
-    .badge { background: var(--surface2); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; font-size: 11px; color: var(--muted); }
-    .btn-refresh { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all .2s; }
-    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+    header { background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100; }
+    .logo { font-weight:700;font-size:15px;color:var(--accent);letter-spacing:-.3px; }
+    .logo span { color:var(--muted);font-weight:400; }
+    .header-actions { display:flex;align-items:center;gap:12px; }
+    .badge { background:var(--surface2);border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-size:11px;color:var(--muted); }
+    .btn { background:none;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .2s; }
+    .btn:hover { border-color:var(--accent);color:var(--accent); }
+    .status-dot { width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
 
-    main { max-width: 1400px; margin: 0 auto; padding: 24px; }
+    /* Nav tabs */
+    .nav-tabs { display:flex;gap:4px;padding:16px 24px 0;border-bottom:1px solid var(--border);overflow-x:auto; }
+    .tab { padding:8px 16px;border-radius:8px 8px 0 0;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);border:1px solid transparent;border-bottom:none;white-space:nowrap; }
+    .tab.active { background:var(--surface);border-color:var(--border);color:var(--accent); }
+    .tab:hover:not(.active) { color:var(--text); }
 
-    /* Grid */
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-    @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 640px) { .grid-4, .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    main { max-width:1440px;margin:0 auto;padding:24px; }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+
+    /* Grids */
+    .grid-4 { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px; }
+    .grid-3 { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px; }
+    .grid-2 { display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px; }
+    @media(max-width:1200px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
 
     /* Cards */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-    .card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 12px; }
-    .metric-value { font-size: 40px; font-weight: 700; line-height: 1; }
-    .metric-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
-    .metric-delta { font-size: 12px; margin-top: 6px; }
-    .delta-up { color: var(--green); }
-    .delta-down { color: var(--red); }
-
-    /* Section headers */
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .section-title { font-size: 16px; font-weight: 600; }
-    .section-label { font-size: 11px; color: var(--muted); }
+    .card { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px; }
+    .card-title { font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:12px; }
+    .metric-value { font-size:40px;font-weight:700;line-height:1; }
+    .metric-label { font-size:12px;color:var(--muted);margin-top:4px; }
+    .section-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:16px; }
+    .section-title { font-size:16px;font-weight:600; }
+    .section-label { font-size:11px;color:var(--muted); }
 
     /* Tables */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--border); }
-    td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(255,255,255,.02); }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%;border-collapse:collapse; }
+    th { text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border); }
+    td { padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:rgba(255,255,255,.02); }
 
     /* Severity badges */
-    .sev { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: .4px; }
-    .sev-critical { background: rgba(239,68,68,.15); color: var(--red); }
-    .sev-warning { background: rgba(245,158,11,.15); color: var(--yellow); }
-    .sev-info { background: rgba(56,189,248,.15); color: var(--accent); }
-
-    /* Score ring */
-    .score-ring { position: relative; width: 80px; height: 80px; }
-    .score-ring svg { transform: rotate(-90deg); }
-    .score-ring .score-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+    .sev { display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.4px; }
+    .sev-critical { background:rgba(239,68,68,.15);color:var(--red); }
+    .sev-warning { background:rgba(245,158,11,.15);color:var(--yellow); }
+    .sev-info { background:rgba(56,189,248,.15);color:var(--accent); }
+    .sev-good { background:rgba(34,197,94,.15);color:var(--green); }
 
     /* Progress bar */
-    .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 8px; }
-    .progress-fill { height: 100%; border-radius: 3px; transition: width .8s ease; }
-    .fill-green { background: var(--green); }
-    .fill-yellow { background: var(--yellow); }
-    .fill-red { background: var(--red); }
+    .progress-bar { height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px; }
+    .progress-fill { height:100%;border-radius:3px;transition:width .8s ease; }
+    .fill-green { background:var(--green); }
+    .fill-yellow { background:var(--yellow); }
+    .fill-red { background:var(--red); }
 
-    /* Chart containers */
-    .chart-container { position: relative; height: 200px; }
+    /* Chart */
+    .chart-container { position:relative;height:200px; }
+    .chart-lg { height:260px; }
 
-    /* Skill cycle */
-    .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
-    .skill-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 11px; }
-    .skill-item.active { border-color: var(--accent); background: rgba(56,189,248,.08); }
-    .skill-item.done { border-color: rgba(34,197,94,.3); background: rgba(34,197,94,.05); }
-    .skill-num { font-weight: 700; font-size: 18px; margin-bottom: 4px; }
-    .skill-name { color: var(--muted); line-height: 1.3; }
+    /* Skill grid */
+    .skill-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px; }
+    .skill-item { background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:11px; }
+    .skill-item.active { border-color:var(--accent);background:rgba(56,189,248,.08); }
+    .skill-item.done { border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.05); }
+    .skill-item.disabled { opacity:.35; }
+    .skill-num { font-weight:700;font-size:18px;margin-bottom:4px; }
+    .skill-name { color:var(--muted);line-height:1.3; }
 
-    /* Loading state */
-    .loading { text-align: center; padding: 60px; color: var(--muted); }
-    .loading::after { content: ''; display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-left: 8px; vertical-align: middle; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Tags */
+    .tag { display:inline-block;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-size:11px;color:var(--muted);margin:2px; }
+    .tag-green { border-color:rgba(34,197,94,.4);color:var(--green); }
+    .tag-red { border-color:rgba(239,68,68,.4);color:var(--red); }
+    .tag-yellow { border-color:rgba(245,158,11,.4);color:var(--yellow); }
 
-    .timestamp { font-size: 11px; color: var(--muted); margin-bottom: 24px; }
-    .tag { display: inline-block; background: var(--surface2); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; color: var(--muted); margin: 2px; }
+    /* Alert banner */
+    .alert-banner { background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:none; }
+    .alert-banner.visible { display:block; }
+    .alert-title { color:var(--red);font-weight:700;font-size:13px;margin-bottom:8px; }
+    .alert-items { font-size:12px;color:#fca5a5; }
 
-    /* Critical alert banner */
-    .alert-banner { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: none; }
-    .alert-banner.visible { display: block; }
-    .alert-title { color: var(--red); font-weight: 700; font-size: 13px; margin-bottom: 8px; }
-    .alert-items { font-size: 12px; color: #fca5a5; }
+    /* Regression banner */
+    .regression-banner { background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:none; }
+    .regression-banner.visible { display:block; }
 
-    /* Phase badges */
-    .phase-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-    .phase-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
-                   border: 1px solid var(--border); color: var(--muted); }
-    .phase-badge.active { background: rgba(56,189,248,.15); border-color: var(--accent); color: var(--accent); }
-    .phase-badge.done   { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.4); color: var(--green); }
+    /* Phase bar */
+    .phase-bar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px; }
+    .phase-badge { padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--border);color:var(--muted); }
+    .phase-badge.active { background:rgba(56,189,248,.15);border-color:var(--accent);color:var(--accent); }
+    .phase-badge.done { background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);color:var(--green); }
 
-    /* Security notice */
-    .security-notice { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.25);
-                       border-radius: 8px; padding: 10px 14px; font-size: 11px; color: #fbbf24;
-                       margin-bottom: 20px; }
+    /* Check items */
+    .check-item { display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04); }
+    .check-item:last-child { border-bottom:none; }
+    .check-icon { font-size:14px;margin-top:1px;flex-shrink:0; }
+    .check-text { font-size:13px; }
+    .check-sub { font-size:11px;color:var(--muted);margin-top:2px; }
 
-    .skill-item.disabled { opacity: .35; }
+    /* Metric row */
+    .metric-row { display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04); }
+    .metric-row:last-child { border-bottom:none; }
+
+    /* CWV meter */
+    .cwv-metric { background:var(--surface2);border-radius:8px;padding:14px;text-align:center; }
+    .cwv-value { font-size:28px;font-weight:700;line-height:1; }
+    .cwv-label { font-size:11px;color:var(--muted);margin-top:4px; }
+    .cwv-rating { font-size:10px;font-weight:700;margin-top:4px; }
+
+    /* Loading */
+    .loading { text-align:center;padding:40px;color:var(--muted); }
+    .spinner { display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-left:6px; }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .timestamp { font-size:11px;color:var(--muted); }
+    .security-notice { background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px 14px;font-size:11px;color:#fbbf24;margin-bottom:16px; }
+    .empty-state { text-align:center;padding:32px;color:var(--muted);font-size:13px; }
+    .divider { height:1px;background:var(--border);margin:20px 0; }
   </style>
 </head>
 <body>
@@ -149,127 +164,107 @@
   <div class="logo">SEO Command Center <span>· amulyagupta.in</span></div>
   <div class="header-actions">
     <div class="status-dot" id="status-dot"></div>
-    <span class="badge" id="last-updated">Loading...</span>
-    <button class="btn-refresh" onclick="loadData()">Refresh</button>
+    <span class="badge" id="last-updated">Loading…</span>
+    <span class="badge" id="cycle-badge">Cycle —</span>
+    <button class="btn" onclick="loadData()">↻ Refresh</button>
   </div>
 </header>
 
+<!-- Nav Tabs -->
+<div class="nav-tabs" id="nav-tabs">
+  <div class="tab active" onclick="showTab('overview')">Overview</div>
+  <div class="tab" onclick="showTab('issues')">Issues</div>
+  <div class="tab" onclick="showTab('ai-visibility')">AI Visibility</div>
+  <div class="tab" onclick="showTab('cwv')">Core Web Vitals</div>
+  <div class="tab" onclick="showTab('technical')">Technical SEO</div>
+  <div class="tab" onclick="showTab('content')">Content</div>
+  <div class="tab" onclick="showTab('competitors')">Competitors</div>
+  <div class="tab" onclick="showTab('history')">History</div>
+  <div class="tab" onclick="showTab('reports')">Reports</div>
+</div>
+
 <main id="main-content" style="display:none">
 
-  <!-- Security notice -->
   <div class="security-notice">
-    &#x1F512; Dashboard uses PIN-based access. Production upgrade path:
-    GitHub OAuth &rarr; Auth.js &rarr; Cloudflare Access. Do not expose this URL publicly.
+    &#x1F512; PIN-protected admin dashboard. Do not share this URL publicly.
+    Production path: amulyagupta.in/admin/seo/
   </div>
 
-  <!-- Rollout phase indicator -->
-  <div class="phase-bar" id="phase-bar">
-    <div class="phase-badge" id="phase-1">Phase 1 — Foundational</div>
-    <div class="phase-badge" id="phase-2">Phase 2 — Technical SEO</div>
-    <div class="phase-badge" id="phase-3">Phase 3 — Advanced Intelligence</div>
-  </div>
+  <!-- ═══════════════════════════════════════════════════ OVERVIEW ═══ -->
+  <div id="tab-overview" class="tab-content active">
 
-  <div id="critical-banner" class="alert-banner">
-    <div class="alert-title">&#x26A0; CRITICAL — IMMEDIATE SEO INTERVENTION REQUIRED</div>
-    <div class="alert-items" id="critical-list"></div>
-  </div>
+    <!-- Phase rollout indicator -->
+    <div class="phase-bar" id="phase-bar"></div>
 
-  <!-- Executive Summary KPIs -->
-  <div class="grid-4" id="kpi-grid">
-    <div class="card">
-      <div class="card-title">SEO Health Score</div>
-      <div class="metric-value" id="kpi-score" style="color: var(--green)">—</div>
-      <div class="metric-label">out of 100</div>
-      <div class="progress-bar"><div class="progress-fill fill-green" id="score-bar" style="width:0%"></div></div>
+    <!-- Critical alert -->
+    <div id="critical-banner" class="alert-banner">
+      <div class="alert-title">&#x26A0; CRITICAL — IMMEDIATE SEO INTERVENTION REQUIRED</div>
+      <div id="critical-list" class="alert-items"></div>
     </div>
-    <div class="card">
-      <div class="card-title">Active Issues</div>
-      <div class="metric-value" id="kpi-issues" style="color: var(--yellow)">—</div>
-      <div class="metric-label">tracked issues</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Critical Issues</div>
-      <div class="metric-value" id="kpi-critical" style="color: var(--red)">—</div>
-      <div class="metric-label">need immediate action</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Total Runs</div>
-      <div class="metric-value" id="kpi-runs" style="color: var(--accent)">—</div>
-      <div class="metric-label">completed executions</div>
-    </div>
-  </div>
 
-  <!-- Score Trend + Skill Cycle -->
-  <div class="grid-2">
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Score Trend</div>
-        <div class="section-label" id="trend-label">Last 23 skills</div>
+    <!-- Regression alert -->
+    <div id="regression-banner" class="regression-banner">
+      <div style="color:var(--yellow);font-weight:700;font-size:13px;margin-bottom:6px">
+        &#x25BC; Score Regressions Detected
       </div>
-      <div class="chart-container">
-        <canvas id="score-chart"></canvas>
-      </div>
+      <div id="regression-list" style="font-size:12px;color:#fbbf24"></div>
     </div>
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Current Run</div>
-      </div>
-      <div id="current-run-info">
-        <div class="loading">Loading run data</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Issues Table -->
-  <div class="card" style="margin-bottom:24px">
-    <div class="section-header">
-      <div class="section-title">Active Issues</div>
-      <div id="issues-count" class="section-label"></div>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Severity</th>
-            <th>Title</th>
-            <th>Category</th>
-            <th>URL</th>
-            <th>First Seen</th>
-            <th>Occurrences</th>
-          </tr>
-        </thead>
-        <tbody id="issues-tbody">
-          <tr><td colspan="6" class="loading">Loading issues</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Recent Runs + Skill Cycle -->
-  <div class="grid-2">
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Recent Executions</div>
+    <!-- KPIs -->
+    <div class="grid-4">
+      <div class="card">
+        <div class="card-title">SEO Health Score</div>
+        <div class="metric-value" id="kpi-score">—</div>
+        <div class="metric-label">average across skills</div>
+        <div class="progress-bar"><div class="progress-fill fill-green" id="score-bar" style="width:0%"></div></div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Skill</th>
-              <th>Score</th>
-              <th>Issues</th>
-              <th>Duration</th>
-            </tr>
-          </thead>
-          <tbody id="runs-tbody">
-            <tr><td colspan="5" class="loading">Loading</td></tr>
-          </tbody>
-        </table>
+      <div class="card">
+        <div class="card-title">Active Issues</div>
+        <div class="metric-value" id="kpi-issues" style="color:var(--yellow)">—</div>
+        <div class="metric-label">tracked open issues</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Critical Issues</div>
+        <div class="metric-value" id="kpi-critical" style="color:var(--red)">—</div>
+        <div class="metric-label">need immediate action</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Total Runs</div>
+        <div class="metric-value" id="kpi-runs" style="color:var(--accent)">—</div>
+        <div class="metric-label">completed executions</div>
       </div>
     </div>
 
-    <div class="card">
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">Score Trend</div>
+          <div class="section-label" id="trend-label">Last 23 skills</div>
+        </div>
+        <div class="chart-container"><canvas id="score-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="section-header"><div class="section-title">Current / Latest Run</div></div>
+        <div id="current-run-info"><div class="loading">Loading<span class="spinner"></span></div></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">SEO Score by Skill</div>
+        </div>
+        <div class="chart-container chart-lg"><canvas id="skill-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">Issue Distribution</div>
+        </div>
+        <div class="chart-container chart-lg"><canvas id="issue-chart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:24px">
       <div class="section-header">
         <div class="section-title">Skill Rotation Cycle</div>
         <div class="section-label" id="skill-group-label"></div>
@@ -278,32 +273,330 @@
     </div>
   </div>
 
-  <!-- AI Visibility + Score by Skill -->
-  <div class="grid-2" style="margin-top:24px">
-    <div class="card">
+  <!-- ═══════════════════════════════════════════════════ ISSUES ═════ -->
+  <div id="tab-issues" class="tab-content">
+    <div class="card" style="margin-bottom:16px">
       <div class="section-header">
-        <div class="section-title">SEO Score by Skill</div>
+        <div class="section-title">All Active Issues</div>
+        <div id="issues-count" class="section-label"></div>
       </div>
-      <div class="chart-container" style="height:280px">
-        <canvas id="skill-chart"></canvas>
+      <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="filterIssues('all')">All</button>
+        <button class="btn" onclick="filterIssues('critical')">Critical</button>
+        <button class="btn" onclick="filterIssues('warning')">Warning</button>
+        <button class="btn" onclick="filterIssues('info')">Info</button>
+        <button class="btn" onclick="filterIssues('recurring')">Recurring ↻</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Severity</th><th>Title</th><th>Category</th>
+            <th>URL</th><th>First Seen</th><th style="text-align:center">Seen</th>
+          </tr></thead>
+          <tbody id="issues-tbody"><tr><td colspan="6" class="loading">Loading<span class="spinner"></span></td></tr></tbody>
+        </table>
       </div>
     </div>
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Issue Distribution</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">Issues by Category</div>
+        <div id="category-list"></div>
       </div>
-      <div class="chart-container" style="height:280px">
-        <canvas id="issue-chart"></canvas>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">Recurring Issues (3+ occurrences)</div>
+        <div id="recurring-list"></div>
       </div>
     </div>
   </div>
 
-  <div class="timestamp" id="footer-ts" style="margin-top:24px;text-align:center;">
-    SEO Runtime Bot · Data updated automatically · <a href="https://amulyagupta.in" style="color:var(--accent)">amulyagupta.in</a>
+  <!-- ═══════════════════════════════════════════════ AI VISIBILITY ══ -->
+  <div id="tab-ai-visibility" class="tab-content">
+    <div class="grid-4" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">llms.txt Status</div>
+        <div class="metric-value" id="llms-status">—</div>
+        <div class="metric-label">AI crawler indexing</div>
+      </div>
+      <div class="card">
+        <div class="card-title">AI Readiness Score</div>
+        <div class="metric-value" id="ai-score">—</div>
+        <div class="metric-label">Skill 11 latest</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Citation Score</div>
+        <div class="metric-value" id="citation-score">—</div>
+        <div class="metric-label">Skill 23 latest</div>
+      </div>
+      <div class="card">
+        <div class="card-title">AI Issues Found</div>
+        <div class="metric-value" id="ai-issues-total" style="color:var(--yellow)">—</div>
+        <div class="metric-label">total AI SEO findings</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">AI Search Readiness Checklist</div>
+        <div id="ai-checklist"></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">AI Visibility Log</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Check</th><th>Status</th></tr></thead>
+            <tbody id="ai-log-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-bottom:14px">AI SEO Findings</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Severity</th><th>Title</th><th>URL</th><th>Recommendation</th></tr></thead>
+          <tbody id="ai-findings-tbody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════ CORE WEB VITALS ═ -->
+  <div id="tab-cwv" class="tab-content">
+    <div class="grid-3" id="cwv-latest" style="margin-bottom:24px">
+      <div class="cwv-metric card">
+        <div class="card-title">LCP</div>
+        <div class="cwv-value" id="cwv-lcp">—</div>
+        <div class="cwv-label">Largest Contentful Paint</div>
+        <div class="cwv-rating" id="cwv-lcp-rating">—</div>
+      </div>
+      <div class="cwv-metric card">
+        <div class="card-title">CLS</div>
+        <div class="cwv-value" id="cwv-cls">—</div>
+        <div class="cwv-label">Cumulative Layout Shift</div>
+        <div class="cwv-rating" id="cwv-cls-rating">—</div>
+      </div>
+      <div class="cwv-metric card">
+        <div class="card-title">TTFB</div>
+        <div class="cwv-value" id="cwv-ttfb">—</div>
+        <div class="cwv-label">Time to First Byte</div>
+        <div class="cwv-rating" id="cwv-ttfb-rating">—</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">LCP Trend</div>
+        <div class="chart-container"><canvas id="lcp-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">CLS Trend</div>
+        <div class="chart-container"><canvas id="cls-chart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-bottom:14px">CWV History</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>URL</th><th>Metric</th><th>Value</th><th>Device</th><th>Rating</th></tr></thead>
+          <tbody id="cwv-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ TECHNICAL SEO ══ -->
+  <div id="tab-technical" class="tab-content">
+    <div class="grid-3" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">Robots.txt</div>
+        <div id="robots-status" class="metric-value">—</div>
+        <div class="metric-label">Crawler access control</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Sitemap.xml</div>
+        <div id="sitemap-status" class="metric-value">—</div>
+        <div class="metric-label">Indexation coverage</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Schema Markup</div>
+        <div id="schema-status" class="metric-value">—</div>
+        <div class="metric-label">Structured data health</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">Technical SEO Health</div>
+        <div id="technical-checklist"></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">Technical Issues</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Severity</th><th>Issue</th><th>URL</th></tr></thead>
+            <tbody id="tech-issues-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ CONTENT ════════ -->
+  <div id="tab-content" class="tab-content">
+    <div class="grid-3" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">Content Quality Score</div>
+        <div id="content-score" class="metric-value">—</div>
+        <div class="metric-label">Skill 08 latest</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Duplicate Content</div>
+        <div id="dup-issues" class="metric-value" style="color:var(--yellow)">—</div>
+        <div class="metric-label">Skill 09 findings</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Keyword Coverage</div>
+        <div id="kw-score" class="metric-value">—</div>
+        <div class="metric-label">Skill 10 latest</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">Content Intelligence</div>
+        <div id="content-checklist"></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">Content Issues</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Severity</th><th>Issue</th><th>URL</th></tr></thead>
+            <tbody id="content-issues-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ COMPETITORS ════ -->
+  <div id="tab-competitors" class="tab-content">
+    <div class="grid-3" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">Competitor Score</div>
+        <div id="comp-score" class="metric-value">—</div>
+        <div class="metric-label">Skill 20 latest</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Competitive Gaps</div>
+        <div id="comp-gaps" class="metric-value" style="color:var(--yellow)">—</div>
+        <div class="metric-label">Areas behind benchmark</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Schema Completeness</div>
+        <div id="schema-comp" class="metric-value">—</div>
+        <div class="metric-label">vs. competitive standard</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-bottom:14px">Competitive Intelligence Log</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Metric</th><th>Our Value</th><th>Gap</th></tr></thead>
+          <tbody id="comp-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ HISTORY ════════ -->
+  <div id="tab-history" class="tab-content">
+    <div class="grid-3" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">Weekly Avg Score</div>
+        <div id="weekly-score" class="metric-value">—</div>
+        <div class="metric-label">Last 7 days</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Weekly Issues Found</div>
+        <div id="weekly-issues" class="metric-value" style="color:var(--yellow)">—</div>
+        <div class="metric-label">Last 7 days</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Regressions</div>
+        <div id="regressions-count" class="metric-value" style="color:var(--red)">—</div>
+        <div class="metric-label">Score drops detected</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title" style="margin-bottom:14px">Score History (All Cycles)</div>
+      <div class="chart-container chart-lg"><canvas id="history-chart"></canvas></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">Score Regressions</div>
+        <div id="regression-detail"></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:14px">Recent Executions</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Skill</th><th>Score</th><th>Issues</th><th>Dur.</th></tr></thead>
+            <tbody id="runs-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ REPORTS ════════ -->
+  <div id="tab-reports" class="tab-content">
+    <div class="grid-4" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">Total Reports</div>
+        <div id="reports-total" class="metric-value" style="color:var(--accent)">—</div>
+        <div class="metric-label">Archived reports</div>
+      </div>
+      <div class="card">
+        <div class="card-title">This Week</div>
+        <div id="reports-week" class="metric-value" style="color:var(--green)">—</div>
+        <div class="metric-label">Reports generated</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Last Report</div>
+        <div id="reports-last" class="metric-value" style="font-size:18px">—</div>
+        <div class="metric-label">Date</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Skills Covered</div>
+        <div id="reports-skills" class="metric-value">—</div>
+        <div class="metric-label">Of 23 total</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">Report Archive</div>
+        <div class="section-label">All automated SEO reports</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Report ID</th><th>Type</th><th>Skill</th><th>Title</th><th>Summary</th></tr></thead>
+          <tbody id="reports-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
+// ─── Config ──────────────────────────────────────────────────────────────────
 const SKILL_NAMES = [
   "Technical Crawl Audit","Robots & Sitemap","Canonical & Redirects","Structured Data",
   "Core Web Vitals","Meta Tags & OG","Internal Linking","Content Quality",
@@ -313,100 +606,77 @@ const SKILL_NAMES = [
   "Semantic Coverage","Anchor Text","AI Citation Readiness"
 ];
 
-// Mirrors seo/config.py SKILL_GROUPS (1-indexed)
-const SKILL_GROUPS = {
-  1: [2, 6, 7, 12],
-  2: [1, 4, 5, 13, 14, 15],
-  3: [3, 8, 9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23],
-};
-const PHASE_LABELS = {
-  1: 'Phase 1 — Foundational',
-  2: 'Phase 2 — Technical SEO',
-  3: 'Phase 3 — Advanced Intelligence',
-};
+const SKILL_GROUPS = { 1:[2,6,7,12], 2:[1,4,5,13,14,15], 3:[3,8,9,10,11,16,17,18,19,20,21,22,23] };
+const PHASE_LABELS = { 1:'Phase 1 — Foundational', 2:'Phase 2 — Technical SEO', 3:'Phase 3 — Advanced Intelligence' };
 
-const PIN_HASH_KEY = 'seo_auth_v1';
+const TECH_SKILLS = [1,2,3,5,13,14,15];
+const CONTENT_SKILLS = [8,9,10,12,21,22];
+const AI_SKILLS = [11,23];
+const COMP_SKILLS = [20];
+
+const PIN_HASH_KEY = 'seo_auth_v2';
 const DATA_URL = '../data/dashboard.json';
-const SHEETS_ID = '';
-const SHEETS_KEY = '';
 
-let scoreChart, skillChart, issueChart;
-
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 function simpleHash(str) {
   let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
-  }
+  for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
   return h.toString(16);
 }
-
 function checkAuth() {
   const pin = document.getElementById('pin-input').value;
   const stored = localStorage.getItem(PIN_HASH_KEY);
   if (!stored) {
-    // First time — set the PIN
     if (pin.length >= 4) {
       localStorage.setItem(PIN_HASH_KEY, simpleHash(pin));
-      document.getElementById('auth-overlay').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      loadData();
-    } else {
-      showAuthError('PIN must be at least 4 characters');
-    }
+      showDashboard();
+    } else { showAuthError('PIN must be at least 4 characters'); }
   } else {
-    if (simpleHash(pin) === stored) {
-      document.getElementById('auth-overlay').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      loadData();
-    } else {
-      showAuthError('Incorrect PIN');
-    }
+    if (simpleHash(pin) === stored) { showDashboard(); }
+    else { showAuthError('Incorrect PIN'); }
   }
 }
-
 function showAuthError(msg) {
   const el = document.getElementById('auth-error');
-  el.textContent = msg;
-  el.style.display = 'block';
+  el.textContent = msg; el.style.display = 'block';
+}
+function showDashboard() {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  loadData();
+}
+document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
+
+// ─── Tab navigation ───────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const tabs = document.querySelectorAll('.tab');
+  const map = ['overview','issues','ai-visibility','cwv','technical','content','competitors','history','reports'];
+  const idx = map.indexOf(name);
+  if (idx >= 0) tabs[idx].classList.add('active');
 }
 
-document.getElementById('pin-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkAuth();
-});
-
+// ─── Data loading ─────────────────────────────────────────────────────────────
+let _charts = {};
 async function loadData() {
   try {
     const r = await fetch(DATA_URL + '?t=' + Date.now());
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
     renderDashboard(data);
-  } catch (e) {
-    console.warn('Local data failed, trying Sheets API...', e);
-    await loadFromSheets();
+  } catch(e) {
+    console.warn('Could not load dashboard data:', e.message);
+    renderError(e.message);
   }
 }
-
-async function loadFromSheets() {
-  if (!SHEETS_ID || !SHEETS_KEY) {
-    renderError('Configure SHEETS_ID and SHEETS_KEY in dashboard JavaScript to load live data.');
-    return;
-  }
-  try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/seo_runs?key=${SHEETS_KEY}`;
-    const r = await fetch(url);
-    const data = await r.json();
-    renderFromSheets(data);
-  } catch (e) {
-    renderError('Failed to load data: ' + e.message);
-  }
-}
-
 function renderError(msg) {
   document.getElementById('kpi-score').textContent = 'ERR';
-  document.getElementById('last-updated').textContent = 'Error loading data';
-  console.error(msg);
+  document.getElementById('last-updated').textContent = 'Error: ' + msg;
 }
 
+// ─── Main render ──────────────────────────────────────────────────────────────
 function renderDashboard(data) {
   const summary = data.summary || {};
   const currentRun = data.current_run || {};
@@ -414,243 +684,582 @@ function renderDashboard(data) {
   const scores = data.score_history || [];
   const issues = data.active_issues_list || [];
   const findings = data.latest_findings || [];
-  const generatedAt = data.generated_at || '';
+  const cats = data.issue_categories || {};
+  const recurring = data.recurring_issues || [];
+  const regressions = data.regressions || [];
+  const aiViz = data.ai_visibility || [];
+  const cwv = data.cwv_history || [];
+  const competitors = data.competitor_data || [];
+  const reports = data.reports || [];
+  const weekly = data.weekly || {};
 
-  // Update timestamp
-  if (generatedAt) {
-    const d = new Date(generatedAt);
+  // Timestamp
+  if (data.generated_at) {
+    const d = new Date(data.generated_at);
     document.getElementById('last-updated').textContent = 'Updated ' + d.toLocaleTimeString();
-    document.getElementById('footer-ts').textContent =
-      `SEO Runtime Bot · Last run: ${d.toLocaleString()} UTC · amulyagupta.in`;
   }
 
-  // KPIs
-  const avgScore = summary.avg_score || 0;
-  document.getElementById('kpi-score').textContent = Math.round(avgScore);
-  document.getElementById('score-bar').style.width = avgScore + '%';
-  const scoreColor = avgScore >= 80 ? 'var(--green)' : avgScore >= 50 ? 'var(--yellow)' : 'var(--red)';
-  document.getElementById('kpi-score').style.color = scoreColor;
-  document.getElementById('score-bar').className = 'progress-fill ' + (avgScore >= 80 ? 'fill-green' : avgScore >= 50 ? 'fill-yellow' : 'fill-red');
+  // Cycle badge
+  const cycleMatch = (currentRun.notes || '').match(/cycle (\d+)/i);
+  if (cycleMatch) document.getElementById('cycle-badge').textContent = 'Cycle ' + cycleMatch[1];
 
+  renderOverview(data, summary, currentRun, runs, scores, issues, findings, regressions);
+  renderIssues(issues, cats, recurring, findings);
+  renderAIVisibility(aiViz, issues, findings, scores);
+  renderCWV(cwv);
+  renderTechnical(issues, findings, scores);
+  renderContent(issues, findings, scores);
+  renderCompetitors(competitors, issues, findings, scores);
+  renderHistory(runs, scores, regressions, weekly);
+  renderReports(reports, weekly);
+}
+
+// ─── Overview tab ─────────────────────────────────────────────────────────────
+function renderOverview(data, summary, currentRun, runs, scores, issues, findings, regressions) {
+  const avg = summary.avg_score || 0;
+  document.getElementById('kpi-score').textContent = Math.round(avg);
+  document.getElementById('score-bar').style.width = avg + '%';
+  document.getElementById('kpi-score').style.color = scoreColor(avg);
+  document.getElementById('score-bar').className = 'progress-fill ' + (avg >= 80 ? 'fill-green' : avg >= 50 ? 'fill-yellow' : 'fill-red');
   document.getElementById('kpi-issues').textContent = summary.active_issues || 0;
   document.getElementById('kpi-critical').textContent = summary.critical_issues || 0;
   document.getElementById('kpi-runs').textContent = summary.total_runs || 0;
 
   // Critical banner
-  const criticalIssues = issues.filter(i => i.severity === 'critical').slice(0, 5);
-  if (criticalIssues.length > 0) {
-    const banner = document.getElementById('critical-banner');
-    banner.classList.add('visible');
-    document.getElementById('critical-list').innerHTML =
-      criticalIssues.map(i => `• ${i.title}`).join('<br>');
+  const crits = issues.filter(i => i.severity === 'critical').slice(0, 5);
+  const cb = document.getElementById('critical-banner');
+  if (crits.length) {
+    cb.classList.add('visible');
+    document.getElementById('critical-list').innerHTML = crits.map(i => '• ' + i.title).join('<br>');
+  }
+
+  // Regression banner
+  const rb = document.getElementById('regression-banner');
+  if (regressions.length) {
+    rb.classList.add('visible');
+    document.getElementById('regression-list').innerHTML = regressions.map(r =>
+      `S${r.skill_id} ${r.skill_name}: ${r.current_score} (was ${r.prev_score}, Δ${r.delta >= 0 ? '+' : ''}${r.delta})`
+    ).join(' &nbsp;|&nbsp; ');
   }
 
   // Current run card
   if (currentRun.skill_id) {
-    const skillName = SKILL_NAMES[currentRun.skill_id - 1] || 'Unknown';
-    const runDate = currentRun.date ? new Date(currentRun.date).toLocaleDateString() : '—';
-    const runScore = currentRun.score || 0;
-    const runColor = runScore >= 80 ? 'var(--green)' : runScore >= 50 ? 'var(--yellow)' : 'var(--red)';
+    const sc = currentRun.score || 0;
+    const col = scoreColor(sc);
+    const d = currentRun.date ? new Date(currentRun.date).toLocaleDateString() : '—';
     document.getElementById('current-run-info').innerHTML = `
-      <div style="display:flex;gap:20px;align-items:center;margin-bottom:16px">
-        <div>
-          <div style="font-size:36px;font-weight:700;color:${runColor}">${runScore}</div>
+      <div style="display:flex;gap:20px;align-items:center;margin-bottom:14px">
+        <div style="text-align:center">
+          <div style="font-size:44px;font-weight:700;color:${col};line-height:1">${sc}</div>
           <div style="font-size:11px;color:var(--muted)">Score /100</div>
         </div>
         <div>
-          <div style="font-size:16px;font-weight:600">Skill ${currentRun.skill_id}/23</div>
-          <div style="color:var(--accent);font-size:13px;margin:4px 0">${skillName}</div>
-          <div style="font-size:12px;color:var(--muted)">${runDate}</div>
+          <div style="font-size:17px;font-weight:600">Skill ${currentRun.skill_id}/23</div>
+          <div style="color:var(--accent);font-size:13px;margin:3px 0">${SKILL_NAMES[currentRun.skill_id-1]||'—'}</div>
+          <div style="font-size:12px;color:var(--muted)">${d}</div>
         </div>
       </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <span class="tag">Issues: ${currentRun.issues_found || 0}</span>
-        <span class="tag">Critical: ${currentRun.issues_critical || 0}</span>
-        <span class="tag">Duration: ${currentRun.duration_s || 0}s</span>
-        <span class="tag">Run: ${currentRun.run_id || '—'}</span>
-      </div>
-    `;
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag">Issues: ${currentRun.issues_found||0}</span>
+        <span class="tag ${currentRun.issues_critical > 0 ? 'tag-red' : ''}">Critical: ${currentRun.issues_critical||0}</span>
+        <span class="tag">Duration: ${currentRun.duration_s||0}s</span>
+        <span class="tag">Run: ${currentRun.run_id||'—'}</span>
+      </div>`;
+  } else {
+    document.getElementById('current-run-info').innerHTML = '<div class="empty-state">No run data available yet.</div>';
   }
-
-  // Score trend chart
-  const recentScores = scores.slice(-23);
-  if (recentScores.length > 0) {
-    const labels = recentScores.map(s => `S${s.skill_id || ''}`);
-    const values = recentScores.map(s => s.score || 0);
-    const colors = values.map(v => v >= 80 ? 'rgba(34,197,94,.8)' : v >= 50 ? 'rgba(245,158,11,.8)' : 'rgba(239,68,68,.8)');
-
-    if (scoreChart) scoreChart.destroy();
-    const ctx = document.getElementById('score-chart').getContext('2d');
-    scoreChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          data: values,
-          backgroundColor: colors,
-          borderRadius: 4,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.05)' } },
-          y: { min: 0, max: 100, ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.05)' } }
-        }
-      }
-    });
-  }
-
-  // Issues table
-  const tbody = document.getElementById('issues-tbody');
-  tbody.innerHTML = issues.slice(0, 30).map(i => {
-    const sevClass = `sev sev-${i.severity || 'info'}`;
-    const firstSeen = i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—';
-    const urlShort = (i.url || '').replace('https://amulyagupta.in', '') || '—';
-    return `<tr>
-      <td><span class="${sevClass}">${(i.severity || 'info').toUpperCase()}</span></td>
-      <td style="max-width:300px;word-break:break-word">${i.title || ''}</td>
-      <td><span class="tag">${i.category || ''}</span></td>
-      <td style="font-size:11px;color:var(--muted)">${urlShort}</td>
-      <td style="font-size:11px;color:var(--muted)">${firstSeen}</td>
-      <td style="text-align:center">${i.occurrences || 1}</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('issues-count').textContent = `${issues.length} active`;
-
-  // Recent runs table
-  const runsTbody = document.getElementById('runs-tbody');
-  runsTbody.innerHTML = runs.slice(-10).reverse().map(r => {
-    const d = r.date ? new Date(r.date).toLocaleDateString() : '—';
-    const sc = r.score || 0;
-    const color = sc >= 80 ? 'var(--green)' : sc >= 50 ? 'var(--yellow)' : 'var(--red)';
-    const sname = r.skill_name || SKILL_NAMES[(r.skill_id || 1) - 1] || '—';
-    return `<tr>
-      <td style="font-size:11px;color:var(--muted)">${d}</td>
-      <td><span class="tag">S${r.skill_id || '?'}</span> ${sname}</td>
-      <td style="font-weight:600;color:${color}">${sc}</td>
-      <td>${r.issues_found || 0}</td>
-      <td style="font-size:11px;color:var(--muted)">${r.duration_s || 0}s</td>
-    </tr>`;
-  }).join('');
 
   // Phase bar
-  const activeGroup = currentRun.notes
-    ? (parseInt((currentRun.notes.match(/Group (\d)/) || [])[1]) || 1) : 1;
-  for (let g = 1; g <= 3; g++) {
-    const el = document.getElementById(`phase-${g}`);
-    if (el) {
-      el.className = 'phase-badge' + (g < activeGroup ? ' done' : g === activeGroup ? ' active' : '');
-      el.textContent = PHASE_LABELS[g];
-    }
-  }
+  const ag = currentRun.notes ? (parseInt((currentRun.notes.match(/Group (\d)/)||[])[1])||1) : 1;
+  const pb = document.getElementById('phase-bar');
+  pb.innerHTML = [1,2,3].map(g =>
+    `<div class="phase-badge ${g < ag ? 'done' : g === ag ? 'active' : ''}">${PHASE_LABELS[g]}</div>`
+  ).join('');
 
-  // Skill cycle grid — dim skills outside the active group
+  // Skill grid
   const enabledSkills = new Set(
-    Object.entries(SKILL_GROUPS)
-      .filter(([g]) => parseInt(g) <= activeGroup)
-      .flatMap(([, ids]) => ids)
+    Object.entries(SKILL_GROUPS).filter(([g]) => parseInt(g) <= ag).flatMap(([,ids]) => ids)
   );
-  document.getElementById('skill-group-label').textContent =
-    `Group ${activeGroup} — ${enabledSkills.size} skills enabled`;
-
+  document.getElementById('skill-group-label').textContent = `Group ${ag} — ${enabledSkills.size} skills enabled`;
   const lastSkill = currentRun.skill_id || 0;
-  const skillGrid = document.getElementById('skill-grid');
-  skillGrid.innerHTML = SKILL_NAMES.map((name, i) => {
+  const scoreMap = {};
+  scores.forEach(s => { if (s.skill_id) scoreMap[s.skill_id] = s.score; });
+  document.getElementById('skill-grid').innerHTML = SKILL_NAMES.map((name, i) => {
     const num = i + 1;
-    const isEnabled = enabledSkills.has(num);
-    const isDone = isEnabled && num < lastSkill;
-    const isActive = num === lastSkill;
-    const cls = [
-      'skill-item',
-      isActive ? 'active' : isDone ? 'done' : '',
-      !isEnabled ? 'disabled' : '',
-    ].filter(Boolean).join(' ');
-    const scoreForSkill = scores.find(s => s.skill_id === num);
-    const scoreDisplay = scoreForSkill
-      ? `<div style="font-size:12px;color:${scoreForSkill.score >= 80 ? 'var(--green)' : scoreForSkill.score >= 50 ? 'var(--yellow)' : 'var(--red)'};margin-top:4px">${scoreForSkill.score}/100</div>`
-      : '';
-    const numColor = isActive ? 'var(--accent)' : isDone ? 'var(--green)' : 'var(--muted)';
-    return `<div class="${cls}" title="${isEnabled ? 'Enabled' : 'Not yet activated'}">
-      <div class="skill-num" style="color:${numColor}">${String(num).padStart(2,'0')}</div>
+    const enabled = enabledSkills.has(num);
+    const active = num === lastSkill;
+    const done = enabled && num < lastSkill;
+    const cls = ['skill-item', active?'active':done?'done':'', !enabled?'disabled':''].filter(Boolean).join(' ');
+    const sc = scoreMap[num];
+    const col = num === lastSkill ? 'var(--accent)' : done ? 'var(--green)' : 'var(--muted)';
+    return `<div class="${cls}">
+      <div class="skill-num" style="color:${col}">${String(num).padStart(2,'0')}</div>
       <div class="skill-name">${name}</div>
-      ${isEnabled ? scoreDisplay : '<div style="font-size:10px;color:var(--muted);margin-top:4px">—</div>'}
+      ${sc !== undefined ? `<div style="font-size:12px;color:${scoreColor(sc)};margin-top:4px">${sc}/100</div>` : '<div style="font-size:10px;color:var(--muted);margin-top:4px">—</div>'}
     </div>`;
   }).join('');
 
-  // Skill score bar chart
-  const skillScoreMap = {};
-  scores.forEach(s => { if (s.skill_id) skillScoreMap[s.skill_id] = s.score; });
-  const skillLabels = SKILL_NAMES.map((n, i) => `S${i+1}`);
-  const skillValues = SKILL_NAMES.map((_, i) => skillScoreMap[i+1] || null);
+  // Score trend chart
+  renderChart('score-chart', 'bar', scores.slice(-23), s => `S${s.skill_id}`, s => s.score,
+    { colors: true, yMax: 100 });
 
-  if (skillChart) skillChart.destroy();
-  const ctx2 = document.getElementById('skill-chart').getContext('2d');
-  skillChart = new Chart(ctx2, {
-    type: 'bar',
-    data: {
-      labels: skillLabels,
-      datasets: [{
-        label: 'Score',
-        data: skillValues,
-        backgroundColor: skillValues.map(v => !v ? 'rgba(148,163,184,.2)' : v >= 80 ? 'rgba(34,197,94,.7)' : v >= 50 ? 'rgba(245,158,11,.7)' : 'rgba(239,68,68,.7)'),
-        borderRadius: 3,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.04)' } },
-        y: { min: 0, max: 100, ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } }
-      }
-    }
-  });
+  // Skill score chart
+  renderChart('skill-chart', 'bar',
+    SKILL_NAMES.map((n,i) => ({ label:'S'+(i+1), score: scoreMap[i+1]||null })),
+    s => s.label, s => s.score,
+    { colors: true, yMax: 100 });
 
-  // Issue distribution doughnut
-  const severityCounts = { critical: 0, warning: 0, info: 0 };
-  issues.forEach(i => { if (severityCounts.hasOwnProperty(i.severity)) severityCounts[i.severity]++; });
-
-  if (issueChart) issueChart.destroy();
-  const ctx3 = document.getElementById('issue-chart').getContext('2d');
-  issueChart = new Chart(ctx3, {
-    type: 'doughnut',
-    data: {
-      labels: ['Critical', 'Warning', 'Info'],
-      datasets: [{
-        data: [severityCounts.critical, severityCounts.warning, severityCounts.info],
-        backgroundColor: ['rgba(239,68,68,.8)', 'rgba(245,158,11,.8)', 'rgba(56,189,248,.8)'],
-        borderColor: 'transparent',
-        hoverOffset: 4,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 12 }, padding: 16 } }
-      },
-      cutout: '60%',
-    }
-  });
+  // Issue doughnut
+  renderDoughnut('issue-chart',
+    ['Critical','Warning','Info'],
+    [summary.critical_issues||0, summary.warning_issues||0, (summary.active_issues||0)-(summary.critical_issues||0)-(summary.warning_issues||0)],
+    ['rgba(239,68,68,.8)','rgba(245,158,11,.8)','rgba(56,189,248,.8)']);
 }
 
-function renderFromSheets(data) {
-  const rows = (data.values || []).slice(1);
-  const mockData = {
-    generated_at: new Date().toISOString(),
-    site_url: 'https://amulyagupta.in',
-    summary: { avg_score: 0, active_issues: 0, critical_issues: 0, total_runs: rows.length },
-    current_run: rows.length ? { run_id: rows[rows.length-1][0], date: rows[rows.length-1][1], skill_id: parseInt(rows[rows.length-1][2]), skill_name: rows[rows.length-1][3], score: parseInt(rows[rows.length-1][4]), issues_found: parseInt(rows[rows.length-1][5]), issues_critical: parseInt(rows[rows.length-1][6]), duration_s: parseInt(rows[rows.length-1][7]) } : {},
-    recent_runs: rows.map(r => ({ run_id: r[0], date: r[1], skill_id: parseInt(r[2]), skill_name: r[3], score: parseInt(r[4])||0, issues_found: parseInt(r[5])||0, issues_critical: parseInt(r[6])||0, duration_s: parseInt(r[7])||0 })),
-    score_history: rows.map(r => ({ skill_id: parseInt(r[2]), score: parseInt(r[4])||0, date: r[1] })),
-    active_issues_list: [],
-    latest_findings: [],
-  };
-  if (mockData.recent_runs.length) {
-    mockData.summary.avg_score = Math.round(mockData.recent_runs.reduce((a,r) => a + r.score, 0) / mockData.recent_runs.length);
+// ─── Issues tab ───────────────────────────────────────────────────────────────
+let _allIssues = [];
+function renderIssues(issues, cats, recurring, findings) {
+  _allIssues = issues;
+  filterIssues('all');
+  document.getElementById('issues-count').textContent = issues.length + ' active';
+
+  // Category breakdown
+  const sorted = Object.entries(cats).sort((a,b) => b[1]-a[1]);
+  document.getElementById('category-list').innerHTML = sorted.length
+    ? sorted.map(([cat, n]) => `<div class="metric-row"><span class="tag">${cat}</span><span style="font-weight:600">${n}</span></div>`).join('')
+    : '<div class="empty-state">No category data</div>';
+
+  // Recurring issues
+  document.getElementById('recurring-list').innerHTML = recurring.length
+    ? recurring.map(i => `<div class="check-item">
+        <span class="check-icon" style="color:var(--yellow)">↻</span>
+        <div><div class="check-text">${i.title}</div>
+          <div class="check-sub">${i.occurrences} occurrences since ${(i.first_seen||'').slice(0,10)}</div>
+        </div>
+      </div>`).join('')
+    : '<div class="empty-state">No recurring issues detected.</div>';
+}
+
+function filterIssues(filter) {
+  let filtered = _allIssues;
+  if (filter === 'critical') filtered = _allIssues.filter(i => i.severity === 'critical');
+  else if (filter === 'warning') filtered = _allIssues.filter(i => i.severity === 'warning');
+  else if (filter === 'info') filtered = _allIssues.filter(i => i.severity === 'info');
+  else if (filter === 'recurring') filtered = _allIssues.filter(i => (i.occurrences||1) >= 3);
+
+  const tbody = document.getElementById('issues-tbody');
+  tbody.innerHTML = filtered.slice(0, 60).map(i => {
+    const d = i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—';
+    const url = (i.url||'').replace('https://amulyagupta.in','') || '—';
+    const rec = i.occurrences >= 3 ? ' <span style="color:var(--yellow)">↻</span>' : '';
+    return `<tr>
+      <td><span class="sev sev-${i.severity||'info'}">${(i.severity||'info').toUpperCase()}</span></td>
+      <td style="max-width:280px;word-break:break-word">${i.title||''}${rec}</td>
+      <td><span class="tag">${i.category||''}</span></td>
+      <td style="font-size:11px;color:var(--muted);max-width:180px;word-break:break-all">${url}</td>
+      <td style="font-size:11px;color:var(--muted)">${d}</td>
+      <td style="text-align:center">${i.occurrences||1}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="empty-state">No issues matching this filter.</td></tr>';
+}
+
+// ─── AI Visibility tab ────────────────────────────────────────────────────────
+function renderAIVisibility(aiViz, issues, findings, scores) {
+  // Scores from AI skills
+  const scoreMap = {};
+  scores.forEach(s => { if (s.skill_id) scoreMap[s.skill_id] = s.score; });
+  const s11 = scoreMap[11];
+  const s23 = scoreMap[23];
+  document.getElementById('ai-score').textContent = s11 !== undefined ? s11 : '—';
+  document.getElementById('citation-score').textContent = s23 !== undefined ? s23 : '—';
+  if (s11 !== undefined) document.getElementById('ai-score').style.color = scoreColor(s11);
+  if (s23 !== undefined) document.getElementById('citation-score').style.color = scoreColor(s23);
+
+  const aiIssues = issues.filter(i => AI_SKILLS.includes(Number(i.skill_id)));
+  document.getElementById('ai-issues-total').textContent = aiIssues.length;
+
+  // Checklist from common AI SEO signals
+  const checks = [
+    { name: 'llms.txt exists', test: () => aiViz.some(e => e.check && e.check.toLowerCase().includes('llms') && (e.status === 'info' || e.score > 0)) },
+    { name: 'AI crawlers allowed in robots.txt', test: () => !issues.some(i => i.category === 'ai-seo' && i.title && i.title.includes('crawler') && i.severity === 'critical') },
+    { name: 'Person schema with sameAs', test: () => !issues.some(i => i.category === 'ai-seo' && i.title && i.title.includes('sameAs')) },
+    { name: 'FAQ schema on blog posts', test: () => !issues.some(i => i.category === 'ai-seo' && i.title && i.title.includes('FAQ')) },
+    { name: 'AI Citation readiness audited', test: () => s23 !== undefined },
+    { name: 'Author attribution on posts', test: () => !issues.some(i => i.category === 'citation' && i.severity === 'critical') },
+  ];
+  document.getElementById('ai-checklist').innerHTML = checks.map(c => {
+    const ok = c.test();
+    return `<div class="check-item">
+      <span class="check-icon">${ok ? '✅' : '⚠️'}</span>
+      <div class="check-text" style="color:${ok ? 'var(--green)' : 'var(--yellow)'}">${c.name}</div>
+    </div>`;
+  }).join('');
+
+  // Determine llms.txt status
+  const llmsIssue = issues.find(i => i.title && i.title.toLowerCase().includes('llms'));
+  document.getElementById('llms-status').textContent = llmsIssue && llmsIssue.severity === 'critical' ? '✗' : '✓';
+  document.getElementById('llms-status').style.color = llmsIssue && llmsIssue.severity === 'critical' ? 'var(--red)' : 'var(--green)';
+
+  // AI log
+  const logTbody = document.getElementById('ai-log-tbody');
+  logTbody.innerHTML = aiViz.slice(-15).reverse().map(e => {
+    const d = e.date ? new Date(e.date).toLocaleDateString() : '—';
+    const sev = e.status || 'info';
+    return `<tr>
+      <td style="font-size:11px;color:var(--muted)">${d}</td>
+      <td style="max-width:260px;word-break:break-word;font-size:12px">${e.check||'—'}</td>
+      <td><span class="sev sev-${sev}">${sev.toUpperCase()}</span></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="3" class="empty-state">No AI visibility data yet. Run Skills 11 and 23.</td></tr>';
+
+  // AI findings
+  const aiFindsTbody = document.getElementById('ai-findings-tbody');
+  const aiFinds = issues.filter(i => ['ai-seo','citation'].includes(i.category));
+  aiFindsTbody.innerHTML = aiFinds.map(f => `<tr>
+    <td><span class="sev sev-${f.severity||'info'}">${(f.severity||'info').toUpperCase()}</span></td>
+    <td style="max-width:250px;word-break:break-word">${f.title||''}</td>
+    <td style="font-size:11px;color:var(--muted)">${(f.url||'').replace('https://amulyagupta.in','')||'—'}</td>
+    <td style="font-size:11px;color:var(--muted);max-width:220px">${f.description||''}</td>
+  </tr>`).join('') || '<tr><td colspan="4" class="empty-state">No AI SEO issues detected.</td></tr>';
+}
+
+// ─── CWV tab ──────────────────────────────────────────────────────────────────
+function renderCWV(cwv) {
+  if (!cwv || !cwv.length) {
+    ['cwv-lcp','cwv-cls','cwv-ttfb'].forEach(id => { document.getElementById(id).textContent = 'N/A'; });
+    ['cwv-lcp-rating','cwv-cls-rating','cwv-ttfb-rating'].forEach(id => {
+      document.getElementById(id).textContent = 'Run Skills 5 or 15 to collect data';
+    });
+    document.getElementById('cwv-tbody').innerHTML = '<tr><td colspan="6" class="empty-state">No CWV data. Run Skills 5 or 15 with PAGESPEED_API_KEY set.</td></tr>';
+    return;
   }
-  renderDashboard(mockData);
+
+  // Latest values per metric
+  const getLatest = metric => cwv.filter(c => c.metric === metric).slice(-1)[0];
+  const lcp = getLatest('lcp');
+  const cls = getLatest('cls');
+  const ttfb = getLatest('ttfb');
+
+  if (lcp) {
+    const val = lcp.value || 0;
+    const rating = val <= 2500 ? 'GOOD' : val <= 4000 ? 'NEEDS IMPROVEMENT' : 'POOR';
+    const col = val <= 2500 ? 'var(--green)' : val <= 4000 ? 'var(--yellow)' : 'var(--red)';
+    document.getElementById('cwv-lcp').textContent = (val/1000).toFixed(2) + 's';
+    document.getElementById('cwv-lcp').style.color = col;
+    document.getElementById('cwv-lcp-rating').textContent = rating;
+    document.getElementById('cwv-lcp-rating').style.color = col;
+  }
+  if (cls) {
+    const val = cls.value || 0;
+    const rating = val <= 0.1 ? 'GOOD' : val <= 0.25 ? 'NEEDS IMPROVEMENT' : 'POOR';
+    const col = val <= 0.1 ? 'var(--green)' : val <= 0.25 ? 'var(--yellow)' : 'var(--red)';
+    document.getElementById('cwv-cls').textContent = val.toFixed(3);
+    document.getElementById('cwv-cls').style.color = col;
+    document.getElementById('cwv-cls-rating').textContent = rating;
+    document.getElementById('cwv-cls-rating').style.color = col;
+  }
+  if (ttfb) {
+    const val = ttfb.value || 0;
+    const rating = val <= 800 ? 'GOOD' : val <= 1800 ? 'NEEDS IMPROVEMENT' : 'POOR';
+    const col = val <= 800 ? 'var(--green)' : val <= 1800 ? 'var(--yellow)' : 'var(--red)';
+    document.getElementById('cwv-ttfb').textContent = Math.round(val) + 'ms';
+    document.getElementById('cwv-ttfb').style.color = col;
+    document.getElementById('cwv-ttfb-rating').textContent = rating;
+    document.getElementById('cwv-ttfb-rating').style.color = col;
+  }
+
+  // LCP trend chart
+  const lcpData = cwv.filter(c => c.metric === 'lcp').slice(-10);
+  if (lcpData.length) {
+    renderChart('lcp-chart', 'line', lcpData,
+      c => new Date(c.date).toLocaleDateString(), c => (c.value||0)/1000,
+      { label:'LCP (s)', color:'rgba(56,189,248,.8)', fill:true, yMin:0 });
+  }
+
+  // CLS trend chart
+  const clsData = cwv.filter(c => c.metric === 'cls').slice(-10);
+  if (clsData.length) {
+    renderChart('cls-chart', 'line', clsData,
+      c => new Date(c.date).toLocaleDateString(), c => c.value||0,
+      { label:'CLS', color:'rgba(245,158,11,.8)', fill:true, yMin:0 });
+  }
+
+  // CWV table
+  document.getElementById('cwv-tbody').innerHTML = cwv.slice(-30).reverse().map(c => {
+    const rating = c.rating || rateMetric(c.metric, c.value);
+    const rColor = rating==='good' ? 'var(--green)' : rating==='needs-improvement' ? 'var(--yellow)' : 'var(--red)';
+    const d = c.date ? new Date(c.date).toLocaleDateString() : '—';
+    return `<tr>
+      <td style="font-size:11px;color:var(--muted)">${d}</td>
+      <td style="font-size:12px;max-width:160px">${(c.url||'').replace('https://amulyagupta.in','')||'/'}</td>
+      <td><span class="tag">${c.metric||'—'}</span></td>
+      <td style="font-weight:600">${formatMetricValue(c.metric, c.value)}</td>
+      <td><span class="tag">${c.device||'—'}</span></td>
+      <td style="color:${rColor};font-weight:600;font-size:11px">${rating.toUpperCase()}</td>
+    </tr>`;
+  }).join('');
+}
+
+function rateMetric(metric, val) {
+  if (metric === 'lcp') return val <= 2500 ? 'good' : val <= 4000 ? 'needs-improvement' : 'poor';
+  if (metric === 'cls') return val <= 0.1 ? 'good' : val <= 0.25 ? 'needs-improvement' : 'poor';
+  if (metric === 'ttfb') return val <= 800 ? 'good' : val <= 1800 ? 'needs-improvement' : 'poor';
+  return 'unknown';
+}
+function formatMetricValue(metric, val) {
+  if (!val && val !== 0) return '—';
+  if (metric === 'lcp') return (val/1000).toFixed(2) + 's';
+  if (metric === 'cls') return (+val).toFixed(3);
+  return Math.round(val) + 'ms';
+}
+
+// ─── Technical SEO tab ────────────────────────────────────────────────────────
+function renderTechnical(issues, findings, scores) {
+  const scoreMap = {};
+  scores.forEach(s => { if (s.skill_id) scoreMap[s.skill_id] = s.score; });
+
+  // Robot/sitemap/schema status from issues
+  const robotsIssues = issues.filter(i => i.category === 'robots' || (i.title||'').includes('robots'));
+  const sitemapIssues = issues.filter(i => (i.title||'').toLowerCase().includes('sitemap'));
+  const schemaIssues = issues.filter(i => i.category === 'schema' || i.category === 'structured-data');
+
+  const statusEl = (el, issues) => {
+    document.getElementById(el).textContent = issues.some(i => i.severity === 'critical') ? '✗' : issues.some(i => i.severity === 'warning') ? '⚠' : '✓';
+    document.getElementById(el).style.color = issues.some(i => i.severity === 'critical') ? 'var(--red)' : issues.some(i => i.severity === 'warning') ? 'var(--yellow)' : 'var(--green)';
+  };
+  statusEl('robots-status', robotsIssues);
+  statusEl('sitemap-status', sitemapIssues);
+  statusEl('schema-status', schemaIssues);
+
+  // Technical checklist
+  const techChecks = [
+    { name: 'robots.txt accessible', pass: !robotsIssues.some(i=>i.severity==='critical') },
+    { name: 'sitemap.xml valid', pass: !sitemapIssues.some(i=>i.severity==='critical') },
+    { name: 'Schema markup present', pass: !schemaIssues.some(i=>i.severity==='critical') },
+    { name: 'Canonical tags audit passed', pass: !issues.some(i=>i.skill_id===3 && i.severity==='critical') },
+    { name: 'No redirect issues', pass: !issues.some(i=>i.category==='redirect' && i.severity==='critical') },
+    { name: 'Crawlability verified', pass: scoreMap[1] ? scoreMap[1] >= 70 : null },
+    { name: 'Mobile-friendly', pass: scoreMap[14] ? scoreMap[14] >= 70 : null },
+    { name: 'Images optimized', pass: scoreMap[13] ? scoreMap[13] >= 70 : null },
+  ];
+  document.getElementById('technical-checklist').innerHTML = techChecks.map(c => {
+    const icon = c.pass === null ? '○' : c.pass ? '✅' : '❌';
+    const col = c.pass === null ? 'var(--muted)' : c.pass ? 'var(--green)' : 'var(--red)';
+    return `<div class="check-item">
+      <span class="check-icon">${icon}</span>
+      <div class="check-text" style="color:${col}">${c.name}</div>
+    </div>`;
+  }).join('');
+
+  // Technical issues table
+  const techIssues = issues.filter(i => TECH_SKILLS.includes(Number(i.skill_id)));
+  document.getElementById('tech-issues-tbody').innerHTML = techIssues.slice(0,20).map(i => `<tr>
+    <td><span class="sev sev-${i.severity||'info'}">${(i.severity||'info').toUpperCase()}</span></td>
+    <td style="max-width:280px;word-break:break-word">${i.title||''}</td>
+    <td style="font-size:11px;color:var(--muted)">${(i.url||'').replace('https://amulyagupta.in','')||'—'}</td>
+  </tr>`).join('') || '<tr><td colspan="3" class="empty-state">No technical SEO issues detected.</td></tr>';
+}
+
+// ─── Content tab ──────────────────────────────────────────────────────────────
+function renderContent(issues, findings, scores) {
+  const scoreMap = {};
+  scores.forEach(s => { if (s.skill_id) scoreMap[s.skill_id] = s.score; });
+  const s8 = scoreMap[8]; const s9 = scoreMap[9]; const s10 = scoreMap[10];
+  document.getElementById('content-score').textContent = s8 !== undefined ? s8 : '—';
+  document.getElementById('dup-issues').textContent = issues.filter(i=>i.skill_id===9).length;
+  document.getElementById('kw-score').textContent = s10 !== undefined ? s10 : '—';
+  if (s8 !== undefined) document.getElementById('content-score').style.color = scoreColor(s8);
+  if (s10 !== undefined) document.getElementById('kw-score').style.color = scoreColor(s10);
+
+  const contentChecks = [
+    { name: 'Content quality acceptable', pass: s8 ? s8 >= 70 : null },
+    { name: 'No duplicate content detected', pass: !issues.some(i=>i.skill_id===9&&i.severity==='critical') },
+    { name: 'Keyword optimization good', pass: s10 ? s10 >= 70 : null },
+    { name: 'Heading hierarchy correct', pass: !issues.some(i=>i.skill_id===12&&i.severity==='critical') },
+    { name: 'Semantic coverage adequate', pass: scoreMap[21] ? scoreMap[21] >= 60 : null },
+    { name: 'Anchor text optimized', pass: !issues.some(i=>i.skill_id===22&&i.severity==='warning') },
+  ];
+  document.getElementById('content-checklist').innerHTML = contentChecks.map(c => {
+    const icon = c.pass === null ? '○' : c.pass ? '✅' : '❌';
+    const col = c.pass === null ? 'var(--muted)' : c.pass ? 'var(--green)' : 'var(--red)';
+    return `<div class="check-item"><span class="check-icon">${icon}</span><div class="check-text" style="color:${col}">${c.name}</div></div>`;
+  }).join('');
+
+  const contentIssues = issues.filter(i => CONTENT_SKILLS.includes(Number(i.skill_id)));
+  document.getElementById('content-issues-tbody').innerHTML = contentIssues.slice(0,20).map(i => `<tr>
+    <td><span class="sev sev-${i.severity||'info'}">${(i.severity||'info').toUpperCase()}</span></td>
+    <td style="max-width:280px;word-break:break-word">${i.title||''}</td>
+    <td style="font-size:11px;color:var(--muted)">${(i.url||'').replace('https://amulyagupta.in','')||'—'}</td>
+  </tr>`).join('') || '<tr><td colspan="3" class="empty-state">No content issues detected.</td></tr>';
+}
+
+// ─── Competitors tab ──────────────────────────────────────────────────────────
+function renderCompetitors(competitors, issues, findings, scores) {
+  const scoreMap = {};
+  scores.forEach(s => { if (s.skill_id) scoreMap[s.skill_id] = s.score; });
+  const s20 = scoreMap[20];
+  document.getElementById('comp-score').textContent = s20 !== undefined ? s20 : '—';
+  if (s20 !== undefined) document.getElementById('comp-score').style.color = scoreColor(s20);
+
+  const compIssues = issues.filter(i => i.skill_id === 20 || i.category === 'competitive');
+  document.getElementById('comp-gaps').textContent = compIssues.filter(i => i.severity !== 'info').length;
+
+  // Schema completeness from competitive benchmark
+  const schemaIssues = issues.filter(i => i.category === 'competitive' && i.title && i.title.includes('Schema'));
+  document.getElementById('schema-comp').textContent = schemaIssues.length === 0 ? '✓' : schemaIssues.length + ' gaps';
+  document.getElementById('schema-comp').style.color = schemaIssues.length === 0 ? 'var(--green)' : 'var(--yellow)';
+
+  document.getElementById('comp-tbody').innerHTML = competitors.slice(-20).reverse().map(c => {
+    const d = c.date ? new Date(c.date).toLocaleDateString() : '—';
+    return `<tr>
+      <td style="font-size:11px;color:var(--muted)">${d}</td>
+      <td style="font-size:12px">${c.metric||'—'}</td>
+      <td style="font-weight:600;color:${scoreColor(c.our_value||0)}">${c.our_value||'—'}</td>
+      <td style="font-size:12px;max-width:200px;word-break:break-word">${c.gap||'—'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" class="empty-state">No competitor data yet. Run Skill 20.</td></tr>';
+}
+
+// ─── History tab ──────────────────────────────────────────────────────────────
+function renderHistory(runs, scores, regressions, weekly) {
+  document.getElementById('weekly-score').textContent = weekly.avg_score || '—';
+  if (weekly.avg_score) document.getElementById('weekly-score').style.color = scoreColor(weekly.avg_score);
+  document.getElementById('weekly-issues').textContent = weekly.total_issues || '—';
+  document.getElementById('regressions-count').textContent = regressions.length;
+  if (regressions.length > 0) document.getElementById('regressions-count').style.color = 'var(--red)';
+
+  // Full history chart
+  renderChart('history-chart', 'line', scores.slice(-46),
+    s => `S${s.skill_id||'?'}`,
+    s => s.score,
+    { label:'Score', color:'rgba(56,189,248,.8)', fill:true, yMax:100 });
+
+  // Regressions detail
+  const regEl = document.getElementById('regression-detail');
+  if (regressions.length) {
+    regEl.innerHTML = regressions.map(r => `<div class="check-item">
+      <span class="check-icon" style="color:var(--red)">▼</span>
+      <div>
+        <div class="check-text"><strong>S${r.skill_id}</strong> ${r.skill_name}</div>
+        <div class="check-sub">
+          ${r.current_score} ← ${r.prev_score}
+          <span style="color:var(--red);font-weight:700"> Δ${r.delta}</span>
+          · ${(r.date||'').slice(0,10)}
+        </div>
+      </div>
+    </div>`).join('');
+  } else {
+    regEl.innerHTML = '<div class="empty-state">No score regressions detected. All skills stable or improving.</div>';
+  }
+
+  // Runs table
+  document.getElementById('runs-tbody').innerHTML = runs.slice(-10).reverse().map(r => {
+    const d = r.date ? new Date(r.date).toLocaleDateString() : '—';
+    const sc = r.score || 0;
+    return `<tr>
+      <td style="font-size:11px;color:var(--muted)">${d}</td>
+      <td><span class="tag">S${r.skill_id||'?'}</span> ${SKILL_NAMES[(r.skill_id||1)-1]||'—'}</td>
+      <td style="font-weight:600;color:${scoreColor(sc)}">${sc}</td>
+      <td>${r.issues_found||0}</td>
+      <td style="font-size:11px;color:var(--muted)">${r.duration_s||0}s</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty-state">No runs recorded yet.</td></tr>';
+}
+
+// ─── Reports tab ──────────────────────────────────────────────────────────────
+function renderReports(reports, weekly) {
+  document.getElementById('reports-total').textContent = reports.length;
+
+  const cutoff7 = new Date(Date.now() - 7*86400000).toISOString();
+  const weekReports = reports.filter(r => (r.date||'') >= cutoff7);
+  document.getElementById('reports-week').textContent = weekReports.length;
+
+  if (reports.length) {
+    const last = reports[reports.length-1];
+    document.getElementById('reports-last').textContent = last.date ? new Date(last.date).toLocaleDateString() : '—';
+  }
+
+  const skills = new Set(reports.map(r => r.skill_id).filter(Boolean));
+  document.getElementById('reports-skills').textContent = skills.size + '/23';
+
+  document.getElementById('reports-tbody').innerHTML = reports.slice(-30).reverse().map(r => {
+    const d = r.date ? new Date(r.date).toLocaleDateString() : '—';
+    const sidName = r.skill_id ? `S${r.skill_id} — ${SKILL_NAMES[(r.skill_id||1)-1]||''}` : '—';
+    return `<tr>
+      <td style="font-size:11px;color:var(--muted)">${d}</td>
+      <td style="font-size:11px;font-family:monospace;color:var(--accent)">${r.report_id||'—'}</td>
+      <td><span class="tag">${r.type||'—'}</span></td>
+      <td style="font-size:12px">${sidName}</td>
+      <td style="max-width:200px;word-break:break-word">${r.title||'—'}</td>
+      <td style="font-size:11px;color:var(--muted);max-width:200px">${r.summary||'—'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="empty-state">No reports archived yet.</td></tr>';
+}
+
+// ─── Chart helpers ────────────────────────────────────────────────────────────
+function scoreColor(v) {
+  if (!v && v !== 0) return 'var(--muted)';
+  return v >= 80 ? 'var(--green)' : v >= 50 ? 'var(--yellow)' : 'var(--red)';
+}
+
+function renderChart(id, type, data, labelFn, valueFn, opts={}) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const values = data.map(valueFn);
+  let bgColors = 'rgba(56,189,248,.7)';
+  if (opts.colors) {
+    bgColors = values.map(v => v === null
+      ? 'rgba(148,163,184,.2)'
+      : v >= 80 ? 'rgba(34,197,94,.7)' : v >= 50 ? 'rgba(245,158,11,.7)' : 'rgba(239,68,68,.7)');
+  } else if (opts.color) {
+    bgColors = opts.color;
+  }
+  const cfg = {
+    type,
+    data: {
+      labels: data.map(labelFn),
+      datasets: [{
+        label: opts.label || 'Score',
+        data: values,
+        backgroundColor: type === 'line' ? bgColors.replace('.7','.15') : bgColors,
+        borderColor: type === 'line' ? (opts.color || 'rgba(56,189,248,.8)') : undefined,
+        borderWidth: type === 'line' ? 2 : undefined,
+        borderRadius: type === 'bar' ? 4 : undefined,
+        fill: opts.fill || false,
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: type === 'line' ? (opts.color || 'rgba(56,189,248,.8)') : undefined,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: !!opts.label } },
+      scales: {
+        x: { ticks:{ color:'#94a3b8', font:{size:10} }, grid:{ color:'rgba(255,255,255,.04)' } },
+        y: {
+          min: opts.yMin !== undefined ? opts.yMin : undefined,
+          max: opts.yMax || undefined,
+          ticks:{ color:'#94a3b8', font:{size:10} }, grid:{ color:'rgba(255,255,255,.04)' }
+        }
+      }
+    }
+  };
+  _charts[id] = new Chart(canvas.getContext('2d'), cfg);
+}
+
+function renderDoughnut(id, labels, data, colors) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  _charts[id] = new Chart(canvas.getContext('2d'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderColor:'transparent', hoverOffset:4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout:'60%',
+      plugins: { legend:{ position:'bottom', labels:{ color:'#94a3b8', font:{size:12}, padding:16 } } }
+    }
+  });
 }
 
 // Auto-refresh every 5 minutes

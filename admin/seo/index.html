@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO Command Center — amulyagupta.in</title>
+  <meta name="robots" content="noindex, nofollow">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f172a; color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }
+    .box {
+      background: #1e293b; border: 1px solid #334155; border-radius: 16px;
+      padding: 48px 40px; text-align: center; max-width: 420px; width: 100%;
+    }
+    h1 { font-size: 24px; margin-bottom: 8px; color: #38bdf8; }
+    p { color: #94a3b8; font-size: 14px; margin-bottom: 28px; }
+    .spinner {
+      width: 32px; height: 32px; border: 3px solid #334155;
+      border-top-color: #38bdf8; border-radius: 50%;
+      animation: spin 1s linear infinite; margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    a {
+      display: inline-block; background: #38bdf8; color: #0f172a;
+      padding: 12px 28px; border-radius: 8px; font-weight: 700;
+      text-decoration: none; font-size: 14px; margin-top: 12px;
+    }
+    .note { font-size: 11px; color: #475569; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>SEO Command Center</h1>
+    <p>amulyagupta.in · Autonomous SEO Intelligence Platform</p>
+    <div class="spinner"></div>
+    <p id="msg">Redirecting to dashboard…</p>
+    <a href="/seo/dashboard/">Open Dashboard</a>
+    <p class="note">
+      Protected admin area · PIN required · noindex · Internal use only<br>
+      Powered by the SEO Runtime Bot — 23-skill autonomous intelligence system
+    </p>
+  </div>
+  <script>
+    // Redirect immediately to the actual dashboard
+    setTimeout(() => { window.location.replace('/seo/dashboard/'); }, 500);
+  </script>
+</body>
+</html>

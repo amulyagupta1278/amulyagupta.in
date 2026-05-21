@@ -7,6 +7,7 @@ Execution model:
   - Executes exactly ONE SEO skill per run from the enabled skill pool
   - Skills rotate sequentially; cycle restarts after all enabled skills complete
   - All site fixes are proposed via PR only — never auto-merged
+  - Monday 00:30 UTC: weekly summary email (RUN_MODE=weekly)
 
 Governance:
   - 7 mandatory Hard Stops enforced on every run (see governance.py)
@@ -42,7 +43,9 @@ logging.basicConfig(
 )
 log = logging.getLogger("seo.runtime")
 
-# ── Minimum healthy pages required to proceed (50 % of known pages) ──────────
+RUN_MODE = os.environ.get("RUN_MODE", "skill").strip().lower()
+
+# Minimum healthy pages required to proceed (50 % of known pages)
 MIN_HEALTHY_PAGES = max(1, len(config.SITE_PAGES) // 2)
 
 
@@ -166,6 +169,39 @@ def handle_failure(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Weekly Summary Mode
+# ─────────────────────────────────────────────────────────────────────────────
+
+def run_weekly_summary(sheets: SheetsClient) -> None:
+    """Generate and email the weekly SEO performance summary."""
+    run_id = str(uuid.uuid4())[:8]
+    log.info("=" * 60)
+    log.info("WEEKLY SUMMARY MODE  |  run_id=%s", run_id)
+    log.info("=" * 60)
+
+    weekly = memory.load_weekly_aggregate()
+    monthly = memory.load_monthly_aggregate()
+    scores = memory.load_score_history()
+    issues = memory.load_issues()
+    regressions = memory.detect_regressions(scores)
+
+    html, text = emailer.build_weekly_summary(weekly, monthly, scores, issues, regressions)
+    subject = (
+        f"[SEO Weekly] amulyagupta.in — Week of {datetime.utcnow().strftime('%b %d')} "
+        f"| {weekly.get('runs', 0)} skills executed | Avg score {weekly.get('avg_score', 0)}"
+    )
+    email_ok = emailer.send_report(subject, html, text)
+    sheets.append("seo_emails", [
+        datetime.utcnow().isoformat(), config.REPORT_EMAIL, subject,
+        "sent" if email_ok else "failed",
+        "" if email_ok else "Email delivery failed",
+        run_id,
+    ])
+    sheets.log_runtime(run_id, "INFO", "Weekly summary delivered", 0)
+    log.info("Weekly summary %s", "sent" if email_ok else "FAILED")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Main Runtime
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -177,7 +213,7 @@ def run() -> None:
 
     log.info("=" * 60)
     log.info("SEO Runtime  |  run_id=%s  |  %s UTC", run_id, now.isoformat())
-    log.info("Site: %s", config.SITE_URL)
+    log.info("Site: %s  |  Mode: %s", config.SITE_URL, RUN_MODE)
     log.info(
         "Skill group: %d  |  enabled skills: %s",
         config.ENABLED_SKILL_GROUP,
@@ -190,7 +226,6 @@ def run() -> None:
         sys.exit(1)
 
     # ── Hard Stop 2 + 6: branch protection checks at startup ─────────────────
-    # These run before any work begins — if we're on main, abort immediately.
     try:
         governance.enforce_no_direct_push(config.GITHUB_REF)
         governance.assert_no_auto_merge_authority()
@@ -211,6 +246,11 @@ def run() -> None:
         handle_failure(sheets, run_id, 0, str(exc), phase="governance-hs3")
         log.critical(str(exc))
         sys.exit(1)
+
+    # ── Weekly summary mode ──────────────────────────────────────────────────
+    if RUN_MODE == "weekly":
+        run_weekly_summary(sheets)
+        return
 
     # ── Determine skill ID ───────────────────────────────────────────────────
     override = config.SKILL_OVERRIDE.strip().lower()
@@ -233,7 +273,7 @@ def run() -> None:
         log.critical(str(exc))
         sys.exit(1)
 
-    # ── Validate skill selection (existing layer + Hard Stop 1b) ─────────────
+    # ── Validate skill selection ──────────────────────────────────────────────
     id_errors = validate_skill_id(skill_id, enabled_skills)
     if id_errors:
         msg = "; ".join(id_errors)
@@ -251,6 +291,10 @@ def run() -> None:
     skill_name = config.SKILL_NAMES[skill_id - 1]
     log.info("Running Skill %02d: %s", skill_id, skill_name)
     sheets.log_runtime(run_id, "INFO", f"Start — skill {skill_id}: {skill_name}", skill_id)
+
+    # ── Cycle tracking ───────────────────────────────────────────────────────
+    current_cycle = memory.get_current_cycle(enabled_skills)
+    log.info("Cycle: %d", current_cycle)
 
     # ── Crawl ────────────────────────────────────────────────────────────────
     log.info("Crawling %d pages…", len(config.SITE_PAGES))
@@ -299,7 +343,7 @@ def run() -> None:
         handle_failure(sheets, run_id, skill_id, f"Skill {skill_id} not in registry", phase="load")
         sys.exit(1)
 
-    # ── Hard Stop 7: enter execution mode (Caveman — suppress verbose context) ─
+    # ── Hard Stop 7: enter execution mode ────────────────────────────────────
     governance.enter_execution_mode()
 
     try:
@@ -310,10 +354,9 @@ def run() -> None:
         handle_failure(sheets, run_id, skill_id, msg, phase="execution")
         sys.exit(1)
 
-    # ── Hard Stop 7: exit execution mode — Humaniser (reporting) now active ───
     governance.exit_execution_mode()
 
-    # ── Validate skill output ────────────────────────────────────────────────
+    # ── Validate skill output ─────────────────────────────────────────────────
     result_errors = validate_skill_result(result)
     if result_errors:
         msg = "; ".join(result_errors)
@@ -324,7 +367,7 @@ def run() -> None:
     log.info(result.summary_line())
     log.info("Duration: %ds", duration)
 
-    # ── Persist findings ─────────────────────────────────────────────────────
+    # ── Persist findings ──────────────────────────────────────────────────────
     findings_dicts = result.findings_as_dicts()
 
     for finding in findings_dicts:
@@ -347,7 +390,7 @@ def run() -> None:
         except Exception as e:
             log.warning("Failed to persist finding: %s", e)
 
-    # ── Append run record ────────────────────────────────────────────────────
+    # ── Append run record ─────────────────────────────────────────────────────
     run_record = {
         "run_id": run_id,
         "date": now.isoformat(),
@@ -358,46 +401,91 @@ def run() -> None:
         "issues_critical": result.critical_count,
         "duration_s": duration,
         "status": "completed",
-        "notes": f"Group {config.ENABLED_SKILL_GROUP} | skill {skill_id}/23",
+        "notes": f"Group {config.ENABLED_SKILL_GROUP} | skill {skill_id}/23 | cycle {current_cycle}",
     }
     memory.append_run(run_record)
     sheets.append("seo_runs", list(run_record.values()))
 
-    # ── Score history ────────────────────────────────────────────────────────
-    memory.append_score(skill_id, skill_name, result.score, run_id)
+    # ── Score history ─────────────────────────────────────────────────────────
+    memory.append_score(skill_id, skill_name, result.score, run_id, cycle=current_cycle)
     scores = memory.load_score_history()
+    prev_score = next(
+        (s.get("prev_score") for s in reversed(scores) if s.get("skill_id") == skill_id and s.get("prev_score") is not None),
+        None,
+    )
+    delta = result.score - prev_score if prev_score is not None else 0
     sheets.append("seo_scores", [
         now.isoformat(), skill_id, skill_name, result.score,
-        result.score, 0, config.ENABLED_SKILL_GROUP, run_id,
+        prev_score or result.score, delta, current_cycle, run_id,
     ])
 
-    # ── Specialty tracking ───────────────────────────────────────────────────
+    # ── Specialty tracking ────────────────────────────────────────────────────
     if skill_id in (11, 23):
         for f in findings_dicts:
-            sheets.append("seo_ai_visibility", [
-                now.isoformat(), f.get("title", ""),
-                f.get("severity", ""), result.score,
-                f.get("description", "")[:300], run_id,
-            ])
+            ai_entry = {
+                "date": now.isoformat(), "check": f.get("title", ""),
+                "status": f.get("severity", ""), "score": result.score,
+                "notes": f.get("description", "")[:300], "run_id": run_id,
+            }
+            memory.append_ai_visibility(ai_entry)
+            sheets.append("seo_ai_visibility", list(ai_entry.values()))
+
     if skill_id in (5, 15):
         for rec in result.metadata.get("cwv_records", []):
             for metric, key in [("lcp", "lcp_ms"), ("cls", "cls"), ("ttfb", "ttfb_ms")]:
-                sheets.append("seo_cwv", [
-                    now.isoformat(), rec.get("url", ""), metric,
-                    rec.get(key, 0), "unknown", rec.get("strategy", "mobile"), run_id,
-                ])
+                cwv_entry = {
+                    "date": now.isoformat(), "url": rec.get("url", ""),
+                    "metric": metric, "value": rec.get(key, 0),
+                    "rating": "unknown", "device": rec.get("strategy", "mobile"),
+                    "run_id": run_id,
+                }
+                memory.append_cwv_record(cwv_entry)
+                sheets.append("seo_cwv", list(cwv_entry.values()))
 
-    # ── Dashboard snapshot ───────────────────────────────────────────────────
+    if skill_id == 20:
+        for f in findings_dicts:
+            comp_entry = {
+                "date": now.isoformat(), "competitor": "benchmark",
+                "metric": f.get("category", ""), "value": "",
+                "our_value": result.score, "gap": f.get("title", "")[:100],
+                "notes": f.get("description", "")[:200], "run_id": run_id,
+            }
+            memory.append_competitor_record(comp_entry)
+            sheets.append("seo_competitors", list(comp_entry.values()))
+
+    # ── Archive report to seo_reports ─────────────────────────────────────────
+    report_id = str(uuid.uuid4())[:8]
+    report_summary = (
+        f"Score: {result.score}/100 | Critical: {result.critical_count} | "
+        f"Findings: {len(findings_dicts)} | Cycle: {current_cycle}"
+    )
+    report_entry = {
+        "report_id": report_id,
+        "date": now.isoformat(),
+        "skill_id": skill_id,
+        "type": "daily-skill",
+        "title": f"Skill {skill_id:02d} — {skill_name}",
+        "summary": report_summary,
+        "file_path": f"seo/data/dashboard.json",
+        "run_id": run_id,
+    }
+    memory.append_report(report_entry)
+    sheets.append("seo_reports", list(report_entry.values()))
+
+    # ── Dashboard snapshot ─────────────────────────────────────────────────────
     issues = memory.load_issues()
     memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
     log.info("Dashboard snapshot written")
 
-    # ── Email report — Humaniser layer (post-execution only) ─────────────────
+    # ── Email report ──────────────────────────────────────────────────────────
     governance.assert_humaniser_scope("emailer.build_morning_brief")
-    html, text = emailer.build_morning_brief(run_record, findings_dicts, skill_name, result.score)
+    html, text = emailer.build_morning_brief(
+        run_record, findings_dicts, skill_name, result.score,
+        scores=scores, regressions=memory.detect_regressions(scores),
+        cycle=current_cycle,
+    )
     subject = (
-        f"[SEO] Group {config.ENABLED_SKILL_GROUP} | "
-        f"Skill {skill_id}/23 — {skill_name} | "
+        f"[SEO] Cycle {current_cycle} | Skill {skill_id}/23 — {skill_name} | "
         f"Score {result.score}/100 | {now.strftime('%b %d')}"
     )
     email_ok = emailer.send_report(subject, html, text)
@@ -408,18 +496,21 @@ def run() -> None:
         run_id,
     ])
 
-    # ── Save state ───────────────────────────────────────────────────────────
+    # ── Save state ─────────────────────────────────────────────────────────────
     memory.save_run_state(skill_id, run_id)
     sheets.log_runtime(
         run_id, "INFO",
         f"Complete — score={result.score} issues={len(findings_dicts)} "
-        f"crit={result.critical_count} duration={duration}s",
+        f"crit={result.critical_count} duration={duration}s cycle={current_cycle}",
         skill_id,
     )
 
     log.info("=" * 60)
-    log.info("COMPLETE  skill=%02d  score=%d  issues=%d  crit=%d  dur=%ds",
-             skill_id, result.score, len(findings_dicts), result.critical_count, duration)
+    log.info(
+        "COMPLETE  skill=%02d  score=%d  issues=%d  crit=%d  dur=%ds  cycle=%d",
+        skill_id, result.score, len(findings_dicts), result.critical_count,
+        duration, current_cycle,
+    )
     log.info("=" * 60)
 
 
