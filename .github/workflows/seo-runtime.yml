@@ -92,11 +92,12 @@ jobs:
       - name: Determine run mode
         id: run-mode
         run: |
-          # Monday 00:30 UTC cron triggers weekly summary; daily cron triggers skill
+          # Use github.event.schedule to reliably identify which cron expression fired.
+          # This is immune to execution delays that would break wall-clock time checks.
+          #   '30 0 * * 1' → weekly summary (Monday 00:30 UTC = 06:00 IST)
+          #   '0 23 * * *' → daily skill run (23:00 UTC = 04:30 IST)
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            HOUR=$(date -u +%H)
-            DOW=$(date -u +%u)
-            if [[ "$DOW" == "1" && "$HOUR" == "00" ]]; then
+            if [[ "${{ github.event.schedule }}" == "30 0 * * 1" ]]; then
               echo "mode=weekly" >> "$GITHUB_OUTPUT"
             else
               echo "mode=skill" >> "$GITHUB_OUTPUT"

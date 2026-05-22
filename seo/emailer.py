@@ -158,7 +158,7 @@ def build_morning_brief(
         recs_html += "</ul></div>"
 
     # Historical comparison
-    hist_block = _build_historical_comparison(scores, score, run_data.get("skill_id", 0))
+    hist_block = _build_historical_comparison(scores, run_data.get("skill_id", 0))
 
     # Regression alert
     reg_block = ""
@@ -168,7 +168,7 @@ def build_morning_brief(
             f"<td>{r['skill_name']}</td>"
             f"<td><span class='red'>{r['current_score']}</span></td>"
             f"<td><span class='tag'>{r['prev_score']}</span></td>"
-            f"<td style='color:#dc2626;font-weight:600'>{r['delta']:+d}</span></td></tr>"
+            f"<td style='color:#dc2626;font-weight:600'>{r['delta']:+d}</td></tr>"
             for r in regressions[:5]
         )
         reg_block = f"""<div class="card">
@@ -256,7 +256,7 @@ def build_morning_brief(
     return html, text
 
 
-def _build_historical_comparison(scores: list[dict], current_score: int, skill_id: int) -> str:
+def _build_historical_comparison(scores: list[dict], skill_id: int) -> str:
     """Compare current score with previous runs of the same skill."""
     if not scores or not skill_id:
         return ""
@@ -371,8 +371,6 @@ def build_weekly_summary(
         sc = sk_scores[-1].get("score", 0) if sk_scores else 0
         skills_html += f"<tr><td><span class='tag'>S{sid}</span></td><td>{sname}</td><td style='color:{_score_color(sc)};font-weight:600'>{sc}</td></tr>"
 
-    # Score trend for week
-    last7_scores = scores[-7:] if scores else []
     avg_score = weekly.get("avg_score", 0)
 
     # Top issues this week
