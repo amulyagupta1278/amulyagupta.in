@@ -1356,7 +1356,7 @@ function renderForecastDetail(fc) {
       <tr><td style="color:var(--muted)">Risk level</td>
           <td style="font-weight:700;color:${rc}">${(fc.risk_level||'?').toUpperCase()}</td></tr>
       <tr><td style="color:var(--muted)">Momentum</td>
-          <td>${(fc.momentum||'').title()} (${fc.avg_delta_recent>0?'+':''}${(fc.avg_delta_recent||0).toFixed(2)} pts/day)</td></tr>
+          <td>${toTitle(fc.momentum||'')} (${fc.avg_delta_recent>0?'+':''}${(fc.avg_delta_recent||0).toFixed(2)} pts/day)</td></tr>
       <tr><td style="color:var(--muted)">Confidence</td>
           <td>${(fc.confidence||'?').toUpperCase()} · ${fc.data_points||0} data points</td></tr>
     </table>
@@ -1522,10 +1522,9 @@ function scoreClass(s) {
   return s >= 80 ? 'pf-green' : s >= 50 ? 'pf-yellow' : 'pf-red';
 }
 
-/* ── String prototype helper for forecast detail ─────────────────────────── */
-String.prototype.title = function() {
-  return this.charAt(0).toUpperCase() + this.slice(1);
-};
+function toTitle(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+}
 
 /* ── Auto-refresh every 5 minutes ─────────────────────────────────────────── */
 setInterval(loadData, 5 * 60 * 1000);

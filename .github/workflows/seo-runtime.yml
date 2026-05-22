@@ -34,8 +34,10 @@ name: SEO Autonomous Runtime
 
 on:
   schedule:
-    # 23:00 UTC = 04:30 AM IST (UTC+5:30)
+    # 23:00 UTC = 04:30 AM IST (UTC+5:30) — daily SEO skill run
     - cron: '0 23 * * *'
+    # Sunday 23:00 UTC — triggers the weekly-summary job
+    - cron: '0 23 * * 0'
   workflow_dispatch:
     inputs:
       skill_override:

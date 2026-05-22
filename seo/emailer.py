@@ -1,5 +1,6 @@
 import smtplib
 import logging
+import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -106,6 +107,8 @@ def send_report(
             return True
         except Exception as e:
             log.warning("Email attempt %d failed: %s", attempt + 1, e)
+            if attempt < 2:
+                time.sleep(2 ** attempt)  # 1s, 2s
 
     log.error("Email delivery failed after 3 attempts")
     return False

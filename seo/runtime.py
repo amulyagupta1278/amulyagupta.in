@@ -16,6 +16,7 @@ Governance:
   - No direct commits to main; no auto-merge authority
 """
 
+import html as html_lib
 import logging
 import os
 import sys
@@ -144,7 +145,7 @@ def handle_failure(
       <tr><td style="padding:8px;color:#94a3b8;">Skill</td>
           <td style="padding:8px;">#{skill_id} — {skill_name}</td></tr>
       <tr><td style="padding:8px;color:#94a3b8;">Error</td>
-          <td style="padding:8px;color:#fca5a5;">{error[:400]}</td></tr>
+          <td style="padding:8px;color:#fca5a5;">{html_lib.escape(error[:400])}</td></tr>
       <tr><td style="padding:8px;color:#94a3b8;">Time (UTC)</td>
           <td style="padding:8px;">{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}</td></tr>
     </table>
@@ -394,19 +395,22 @@ def run() -> None:
 
     # ── Build enriched intelligence for reporting ────────────────────────────
     runs_history = memory.load_runs()
-    comparison = memory.get_historical_comparison(runs_history, scores)
-    forecast = memory.build_predictive_forecast(scores)
-    cycle_progress = memory.get_cycle_progress(runs_history, enabled_skills)
-    recurring = memory.detect_recurring_issues(issues)
-
-    log.info(
-        "Intelligence: trend=%s 7d-proj=%s cycle=%d/%d recurring=%d",
-        forecast.get("trend", "?"),
-        forecast.get("projected_score_7d", "?"),
-        cycle_progress.get("position", 0),
-        cycle_progress.get("total", 23),
-        len(recurring),
-    )
+    try:
+        comparison = memory.get_historical_comparison(runs_history, scores)
+        forecast = memory.build_predictive_forecast(scores)
+        cycle_progress = memory.get_cycle_progress(runs_history, enabled_skills)
+        recurring = memory.detect_recurring_issues(issues)
+        log.info(
+            "Intelligence: trend=%s 7d-proj=%s cycle=%d/%d recurring=%d",
+            forecast.get("trend", "?"),
+            forecast.get("projected_score_7d", "?"),
+            cycle_progress.get("position", 0),
+            cycle_progress.get("total", 23),
+            len(recurring),
+        )
+    except Exception as e:
+        log.warning("Intelligence enrichment failed (degraded mode): %s", e)
+        comparison, forecast, cycle_progress, recurring = {}, {}, {}, []
 
     # ── Critical incident alert — send immediately if criticals found ─────────
     if result.critical_count > 0:
