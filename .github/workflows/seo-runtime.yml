@@ -100,9 +100,9 @@ jobs:
           GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
-          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+          GMAIL_SENDER: ${{ secrets.EMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEEDKEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_REF: ${{ github.ref }}
@@ -163,8 +163,8 @@ jobs:
         env:
           SITE_URL: https://amulyagupta.in
           REPORT_EMAIL: amulyagupta2001@gmail.com
-          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GMAIL_SENDER: ${{ secrets.EMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SKILL_OVERRIDE: 'auto'
