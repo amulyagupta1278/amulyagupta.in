@@ -114,10 +114,10 @@ jobs:
       - name: Commit dashboard data
         if: always()
         run: |
-          # Hard Stop 2 — never push to main under any circumstance
+          # HS2 guard — skip data commit on protected branches (don't fail the run)
           if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "master" ]]; then
-            echo "HARD STOP 2: Refusing to push data commit to protected branch '${{ github.ref_name }}'."
-            exit 1
+            echo "[HS2] On protected branch '${{ github.ref_name }}' — data commit skipped. Artifacts preserved."
+            exit 0
           fi
           git config user.name "SEO Runtime Bot"
           git config user.email "seo-bot@amulyagupta.in"
