@@ -7,10 +7,36 @@
     "active_issues": 0,
     "critical_issues": 0,
     "warning_issues": 0,
-    "total_runs": 0
+    "total_runs": 0,
+    "recurring_issues": 0,
+    "cycle_number": 1,
+    "cycle_percent": 0
   },
   "recent_runs": [],
   "latest_findings": [],
   "score_history": [],
-  "active_issues_list": []
+  "active_issues_list": [],
+  "recurring_issues": [],
+  "cycle_progress": {
+    "position": 0,
+    "total": 23,
+    "percent": 0,
+    "cycle": 1,
+    "current_skill_id": null,
+    "skills_completed_this_cycle": 0,
+    "next_skill_id": 1
+  },
+  "forecast": {
+    "trend": "insufficient_data",
+    "projected_score_7d": null,
+    "projected_score_30d": null,
+    "confidence": "low",
+    "momentum": "neutral",
+    "risk_level": "unknown",
+    "slope_per_day": 0,
+    "data_points": 0,
+    "lowest_scoring_skills": [],
+    "highest_scoring_skills": []
+  },
+  "historical_comparison": {}
 }

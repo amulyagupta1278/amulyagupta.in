@@ -19,7 +19,7 @@ def fetch(url: str, timeout: int = 15) -> dict:
             "status": r.status_code,
             "elapsed_ms": elapsed,
             "content_type": r.headers.get("content-type", ""),
-            "html": r.text if "html" in r.headers.get("content-type", "") else "",
+            "html": r.text,  # always return full text; skills handle non-HTML types
             "headers": dict(r.headers),
             "redirect_url": r.url if r.url != url else None,
             "error": None,

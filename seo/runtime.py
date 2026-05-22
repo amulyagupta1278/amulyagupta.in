@@ -204,6 +204,9 @@ def run() -> None:
     sheets = SheetsClient()
     if not sheets.available:
         log.warning("Google Sheets unavailable — running without persistence")
+    elif config.FORCE_INIT:
+        log.info("FORCE_INIT=true — initialising all Google Sheets tabs")
+        sheets.initialize_all_sheets()
 
     # ── Hard Stop 3: verify at least one persistence layer is available ───────
     try:
@@ -387,6 +390,23 @@ def run() -> None:
                     now.isoformat(), rec.get("url", ""), metric,
                     rec.get(key, 0), "unknown", rec.get("strategy", "mobile"), run_id,
                 ])
+    if skill_id == 20:
+        for f in findings_dicts:
+            sheets.append("seo_competitors", [
+                now.isoformat(), "competitive-benchmark",
+                f.get("title", "")[:200],
+                f.get("severity", ""),
+                "", f.get("description", "")[:300],
+                f.get("recommendation", "")[:200], run_id,
+            ])
+
+    # ── Archive report entry ─────────────────────────────────────────────────
+    sheets.append("seo_reports", [
+        run_id, now.isoformat(), skill_id, "daily",
+        f"Skill {skill_id:02d}/23 — {skill_name}",
+        f"Score: {result.score}/100 | Issues: {len(findings_dicts)} | Critical: {result.critical_count}",
+        f"seo/data/runs.json", run_id,
+    ])
 
     # ── Dashboard snapshot ───────────────────────────────────────────────────
     issues = memory.load_issues()
