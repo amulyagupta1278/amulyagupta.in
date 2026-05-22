@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""Weekly SEO summary email — invoked by the weekly-summary workflow job."""
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import memory
+import emailer
+from sheets import SheetsClient
+
+sheets = SheetsClient()
+runs = memory.load_runs()
+issues = memory.load_issues()
+scores = memory.load_score_history()
+forecast = memory.build_predictive_forecast(scores)
+comparison = memory.get_historical_comparison(runs, scores)
+recurring = memory.detect_recurring_issues(issues)
+html, text = emailer.build_weekly_summary(runs, issues, scores, forecast, comparison, recurring)
+ok = emailer.send_report(
+    "[SEO WEEKLY] amulyagupta.in — Weekly Intelligence Summary",
+    html,
+    text,
+)
+print("Weekly summary sent." if ok else "Weekly summary email delivery failed.")

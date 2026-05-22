@@ -174,19 +174,4 @@ jobs:
           SKILL_OVERRIDE: 'auto'
           ENABLED_SKILL_GROUP: '3'
           SEND_WEEKLY_SUMMARY: 'true'
-        run: python -c "
-import sys, os
-sys.path.insert(0, '.')
-import memory, emailer
-from sheets import SheetsClient
-sheets = SheetsClient()
-runs = memory.load_runs()
-issues = memory.load_issues()
-scores = memory.load_score_history()
-forecast = memory.build_predictive_forecast(scores)
-comparison = memory.get_historical_comparison(runs, scores)
-recurring = memory.detect_recurring_issues(issues)
-html, text = emailer.build_weekly_summary(runs, issues, scores, forecast, comparison, recurring)
-emailer.send_report('[SEO WEEKLY] amulyagupta.in — Weekly Intelligence Summary', html, text)
-print('Weekly summary sent.')
-"
+        run: python weekly_summary.py
