@@ -26,10 +26,10 @@ name: SEO Autonomous Runtime
 #        Execution mode suppresses verbose context; Humaniser (emailer)
 #        runs post-execution only.
 #
-# Phased rollout — advance ENABLED_SKILL_GROUP as each phase stabilises:
+# Skill group advancement:
 #   Phase 1 (Group 1)  — Robots/Sitemap, Meta/OG, Internal Linking, Headings
 #   Phase 2 (Group 2)  — Crawl Audit, Schema, CWV, Images, Mobile, Page Speed
-#   Phase 3 (Group 3)  — All 23 skills active
+#   Phase 3 (Group 3)  — All 23 skills active  ← CURRENT DEFAULT
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -43,11 +43,16 @@ on:
         required: false
         default: 'auto'
       enabled_skill_group:
-        description: 'Skill group to activate: 1=Foundational, 2=+Technical, 3=+Advanced'
+        description: 'Skill group to activate: 1=Foundational, 2=+Technical, 3=+Advanced (all 23)'
         required: false
-        default: '1'
+        default: '3'
       force_init:
         description: 'Force re-initialise Sheets structure (use only on first deploy)'
+        required: false
+        type: boolean
+        default: false
+      send_weekly_summary:
+        description: 'Send a weekly SEO summary email in addition to the daily brief'
         required: false
         type: boolean
         default: false
@@ -62,7 +67,7 @@ concurrency:
 
 jobs:
   seo-runtime:
-    name: "SEO Skill Runtime (Group ${{ github.event.inputs.enabled_skill_group || '1' }})"
+    name: "SEO Skill Runtime — Group ${{ github.event.inputs.enabled_skill_group || '3' }} (All 23 Skills)"
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -71,7 +76,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -87,10 +92,11 @@ jobs:
         working-directory: seo
         env:
           SITE_URL: https://amulyagupta.in
-          REPORT_EMAIL: amulagupta2001@gmail.com
+          REPORT_EMAIL: amulyagupta2001@gmail.com
           SKILL_OVERRIDE: ${{ github.event.inputs.skill_override || 'auto' }}
-          ENABLED_SKILL_GROUP: ${{ github.event.inputs.enabled_skill_group || '1' }}
+          ENABLED_SKILL_GROUP: ${{ github.event.inputs.enabled_skill_group || '3' }}
           FORCE_INIT: ${{ github.event.inputs.force_init || 'false' }}
+          SEND_WEEKLY_SUMMARY: ${{ github.event.inputs.send_weekly_summary || 'false' }}
           GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
@@ -101,6 +107,8 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_REF: ${{ github.ref }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GOOGLE_SEARCH_CONSOLE_CREDENTIALS: ${{ secrets.GOOGLE_SEARCH_CONSOLE_CREDENTIALS }}
+          GOOGLE_ANALYTICS_CREDENTIALS: ${{ secrets.GOOGLE_ANALYTICS_CREDENTIALS }}
         run: python runtime.py
 
       - name: Commit dashboard data
@@ -117,7 +125,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No data changes to commit."
           else
-            git commit -m "chore(seo): update dashboard data [skip ci]"
+            git commit -m "chore(seo): update dashboard data — $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
             git push origin ${{ github.ref_name }} \
               || echo "Push failed — data preserved in artifact"
           fi
@@ -126,6 +134,55 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: seo-run-${{ github.run_number }}
+          name: seo-run-${{ github.run_number }}-${{ github.run_attempt }}
           path: seo/data/
           retention-days: 90
+
+  # ── Weekly Summary (every Monday 23:00 UTC = Tuesday 04:30 IST) ────────────
+  weekly-summary:
+    name: "SEO Weekly Summary Email"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'schedule' && github.event.schedule == '0 23 * * 0'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: seo/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r seo/requirements.txt
+
+      - name: Send weekly summary
+        working-directory: seo
+        env:
+          SITE_URL: https://amulyagupta.in
+          REPORT_EMAIL: amulyagupta2001@gmail.com
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SKILL_OVERRIDE: 'auto'
+          ENABLED_SKILL_GROUP: '3'
+          SEND_WEEKLY_SUMMARY: 'true'
+        run: python -c "
+import sys, os
+sys.path.insert(0, '.')
+import memory, emailer
+from sheets import SheetsClient
+sheets = SheetsClient()
+runs = memory.load_runs()
+issues = memory.load_issues()
+scores = memory.load_score_history()
+forecast = memory.build_predictive_forecast(scores)
+comparison = memory.get_historical_comparison(runs, scores)
+recurring = memory.detect_recurring_issues(issues)
+html, text = emailer.build_weekly_summary(runs, issues, scores, forecast, comparison, recurring)
+emailer.send_report('[SEO WEEKLY] amulyagupta.in — Weekly Intelligence Summary', html, text)
+print('Weekly summary sent.')
+"

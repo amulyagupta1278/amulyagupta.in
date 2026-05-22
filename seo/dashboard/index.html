@@ -8,128 +8,226 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface2: #273549;
-      --border: #334155;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --green: #22c55e;
-      --yellow: #f59e0b;
-      --red: #ef4444;
-      --purple: #a78bfa;
+      --bg: #0a0f1e; --surface: #111827; --surface2: #1c2535; --surface3: #243048;
+      --border: #2a3a52; --border2: #1e2d42; --text: #f1f5f9; --muted: #94a3b8;
+      --accent: #38bdf8; --accent2: #818cf8; --green: #22c55e; --yellow: #f59e0b;
+      --red: #ef4444; --purple: #a78bfa; --orange: #fb923c; --teal: #2dd4bf;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+    body { background: var(--bg); color: var(--text);
+           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+           min-height: 100vh; }
 
-    /* Auth */
-    #auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .auth-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; text-align: center; max-width: 360px; width: 100%; }
-    .auth-box h1 { font-size: 22px; margin-bottom: 8px; }
-    .auth-box p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
-    .auth-box input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 8px; font-size: 16px; margin-bottom: 12px; }
-    .auth-box button { width: 100%; background: var(--accent); color: #0f172a; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; }
-    .auth-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+    /* ── Auth ── */
+    #auth-overlay { position:fixed; inset:0; background:var(--bg);
+                    display:flex; align-items:center; justify-content:center; z-index:1000;
+                    background-image: radial-gradient(ellipse at 50% 0%, rgba(56,189,248,.08) 0%, transparent 60%); }
+    .auth-box { background:var(--surface); border:1px solid var(--border); border-radius:20px;
+                padding:48px 40px; text-align:center; max-width:380px; width:100%; }
+    .auth-logo { font-size:28px; font-weight:800; color:var(--accent); margin-bottom:4px;
+                 letter-spacing:-1px; }
+    .auth-sub  { color:var(--muted); font-size:12px; margin-bottom:28px; }
+    .auth-box input { width:100%; background:var(--bg); border:1px solid var(--border);
+                      color:var(--text); padding:13px 16px; border-radius:10px; font-size:16px;
+                      margin-bottom:12px; outline:none; transition:border .2s; }
+    .auth-box input:focus { border-color:var(--accent); }
+    .auth-box button { width:100%; background:linear-gradient(135deg,#0ea5e9,#38bdf8);
+                       color:#0a0f1e; border:none; padding:13px; border-radius:10px;
+                       font-weight:700; font-size:15px; cursor:pointer; letter-spacing:.3px; }
+    .auth-error { color:var(--red); font-size:12px; margin-top:10px; display:none; }
 
-    /* Layout */
-    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
-    .logo { font-weight: 700; font-size: 15px; color: var(--accent); letter-spacing: -0.3px; }
-    .logo span { color: var(--muted); font-weight: 400; }
-    .header-actions { display: flex; align-items: center; gap: 12px; }
-    .badge { background: var(--surface2); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; font-size: 11px; color: var(--muted); }
-    .btn-refresh { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all .2s; }
-    .btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+    /* ── Nav ── */
+    header { background:rgba(17,24,39,.95); border-bottom:1px solid var(--border);
+             padding:0 24px; display:flex; align-items:center; justify-content:space-between;
+             height:58px; position:sticky; top:0; z-index:100; backdrop-filter:blur(12px); }
+    .logo { font-weight:800; font-size:15px; color:var(--accent); letter-spacing:-.5px; }
+    .logo span { color:var(--muted); font-weight:400; }
+    .nav-tabs { display:flex; gap:2px; }
+    .nav-tab { background:none; border:none; color:var(--muted); padding:7px 14px;
+               border-radius:7px; font-size:12px; font-weight:500; cursor:pointer;
+               transition:all .15s; }
+    .nav-tab:hover { background:var(--surface2); color:var(--text); }
+    .nav-tab.active { background:rgba(56,189,248,.12); color:var(--accent); }
+    .header-right { display:flex; align-items:center; gap:10px; }
+    .badge { background:var(--surface2); border:1px solid var(--border); padding:4px 10px;
+             border-radius:6px; font-size:11px; color:var(--muted); }
+    .btn-sm { background:none; border:1px solid var(--border); color:var(--muted);
+              padding:5px 12px; border-radius:6px; font-size:12px; cursor:pointer;
+              transition:all .15s; }
+    .btn-sm:hover { border-color:var(--accent); color:var(--accent); }
+    .status-dot { width:8px; height:8px; border-radius:50%; background:var(--green); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .status-dot.live { animation:pulse 2s infinite; }
 
-    main { max-width: 1400px; margin: 0 auto; padding: 24px; }
+    /* ── Layout ── */
+    .page { display:none; padding:24px; max-width:1500px; margin:0 auto; }
+    .page.active { display:block; }
 
-    /* Grid */
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-    @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 640px) { .grid-4, .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    /* ── Grids ── */
+    .g4  { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+    .g3  { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+    .g2  { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:20px; }
+    .g21 { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:20px; }
+    .g6  { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-bottom:20px; }
+    @media(max-width:1100px) { .g4,.g6{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(2,1fr)} .g21{grid-template-columns:1fr} }
+    @media(max-width:640px)  { .g4,.g3,.g2,.g21,.g6{grid-template-columns:1fr} }
 
-    /* Cards */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-    .card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 12px; }
-    .metric-value { font-size: 40px; font-weight: 700; line-height: 1; }
-    .metric-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
-    .metric-delta { font-size: 12px; margin-top: 6px; }
-    .delta-up { color: var(--green); }
-    .delta-down { color: var(--red); }
+    /* ── Cards ── */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; }
+    .card.accent-left { border-left:3px solid var(--accent); }
+    .card.red-left { border-left:3px solid var(--red); }
+    .card.green-left { border-left:3px solid var(--green); }
+    .card.yellow-left { border-left:3px solid var(--yellow); }
+    .card.purple-left { border-left:3px solid var(--purple); }
+    .card-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.9px;
+                  color:var(--muted); margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+    .card-icon { font-size:14px; }
 
-    /* Section headers */
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .section-title { font-size: 16px; font-weight: 600; }
-    .section-label { font-size: 11px; color: var(--muted); }
+    /* ── KPI cards ── */
+    .kpi-val  { font-size:36px; font-weight:800; line-height:1; letter-spacing:-1px; }
+    .kpi-lbl  { font-size:11px; color:var(--muted); margin-top:5px; }
+    .kpi-delta{ font-size:11px; margin-top:6px; font-weight:600; }
+    .up { color:var(--green); }
+    .dn { color:var(--red); }
+    .nt { color:var(--yellow); }
 
-    /* Tables */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--border); }
-    td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(255,255,255,.02); }
+    /* ── Progress ── */
+    .progress-bar { height:5px; background:var(--border); border-radius:3px; overflow:hidden; margin-top:10px; }
+    .progress-fill { height:100%; border-radius:3px; transition:width .8s cubic-bezier(.4,0,.2,1); }
+    .pf-green  { background:linear-gradient(90deg,#16a34a,#22c55e); }
+    .pf-yellow { background:linear-gradient(90deg,#d97706,#f59e0b); }
+    .pf-red    { background:linear-gradient(90deg,#b91c1c,#ef4444); }
+    .pf-blue   { background:linear-gradient(90deg,#0284c7,#38bdf8); }
+    .pf-purple { background:linear-gradient(90deg,#7c3aed,#a78bfa); }
 
-    /* Severity badges */
-    .sev { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: .4px; }
-    .sev-critical { background: rgba(239,68,68,.15); color: var(--red); }
-    .sev-warning { background: rgba(245,158,11,.15); color: var(--yellow); }
-    .sev-info { background: rgba(56,189,248,.15); color: var(--accent); }
+    /* ── Section headers ── */
+    .section-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .section-title { font-size:15px; font-weight:700; }
+    .section-sub { font-size:11px; color:var(--muted); }
 
-    /* Score ring */
-    .score-ring { position: relative; width: 80px; height: 80px; }
-    .score-ring svg { transform: rotate(-90deg); }
-    .score-ring .score-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+    /* ── Tables ── */
+    .tbl-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; font-size:10px; font-weight:700; text-transform:uppercase;
+         letter-spacing:.6px; color:var(--muted); padding:8px 12px;
+         border-bottom:1px solid var(--border2); white-space:nowrap; }
+    td { padding:10px 12px; font-size:13px; border-bottom:1px solid rgba(255,255,255,.03);
+         vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:rgba(255,255,255,.015); }
 
-    /* Progress bar */
-    .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 8px; }
-    .progress-fill { height: 100%; border-radius: 3px; transition: width .8s ease; }
-    .fill-green { background: var(--green); }
-    .fill-yellow { background: var(--yellow); }
-    .fill-red { background: var(--red); }
+    /* ── Severity badges ── */
+    .sev { display:inline-block; padding:2px 8px; border-radius:4px;
+           font-size:10px; font-weight:700; letter-spacing:.4px; }
+    .sev-critical { background:rgba(239,68,68,.15); color:var(--red); }
+    .sev-warning  { background:rgba(245,158,11,.15); color:var(--yellow); }
+    .sev-info     { background:rgba(56,189,248,.15); color:var(--accent); }
+    .sev-good     { background:rgba(34,197,94,.15);  color:var(--green); }
 
-    /* Chart containers */
-    .chart-container { position: relative; height: 200px; }
+    /* ── Tag chips ── */
+    .tag { display:inline-block; background:var(--surface2); border:1px solid var(--border);
+           padding:2px 8px; border-radius:4px; font-size:10px; color:var(--muted); margin:1px; }
+    .tag-blue { border-color:rgba(56,189,248,.3); color:var(--accent); }
+    .tag-green { border-color:rgba(34,197,94,.3); color:var(--green); }
 
-    /* Skill cycle */
-    .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
-    .skill-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 11px; }
-    .skill-item.active { border-color: var(--accent); background: rgba(56,189,248,.08); }
-    .skill-item.done { border-color: rgba(34,197,94,.3); background: rgba(34,197,94,.05); }
-    .skill-num { font-weight: 700; font-size: 18px; margin-bottom: 4px; }
-    .skill-name { color: var(--muted); line-height: 1.3; }
+    /* ── Alert banner ── */
+    .alert-banner { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.25);
+                    border-radius:12px; padding:14px 18px; margin-bottom:20px; display:none; }
+    .alert-banner.on { display:flex; align-items:flex-start; gap:12px; }
+    .alert-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+    .alert-title { color:var(--red); font-weight:700; font-size:13px; margin-bottom:5px; }
+    .alert-items { font-size:12px; color:#fca5a5; }
 
-    /* Loading state */
-    .loading { text-align: center; padding: 60px; color: var(--muted); }
-    .loading::after { content: ''; display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-left: 8px; vertical-align: middle; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Chart containers ── */
+    .chart-box { position:relative; height:220px; }
+    .chart-box.tall { height:300px; }
+    .chart-box.short { height:160px; }
 
-    .timestamp { font-size: 11px; color: var(--muted); margin-bottom: 24px; }
-    .tag { display: inline-block; background: var(--surface2); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; color: var(--muted); margin: 2px; }
+    /* ── Skill grid ── */
+    .skill-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; }
+    .skill-item { background:var(--surface2); border:1px solid var(--border2);
+                  border-radius:10px; padding:12px; font-size:11px; transition:all .2s; }
+    .skill-item.active { border-color:var(--accent); background:rgba(56,189,248,.06); }
+    .skill-item.done   { border-color:rgba(34,197,94,.4); background:rgba(34,197,94,.04); }
+    .skill-item.disabled { opacity:.3; }
+    .skill-num  { font-weight:800; font-size:16px; margin-bottom:3px; }
+    .skill-name { color:var(--muted); line-height:1.35; font-size:10px; }
 
-    /* Critical alert banner */
-    .alert-banner { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: none; }
-    .alert-banner.visible { display: block; }
-    .alert-title { color: var(--red); font-weight: 700; font-size: 13px; margin-bottom: 8px; }
-    .alert-items { font-size: 12px; color: #fca5a5; }
+    /* ── Phase bar ── */
+    .phase-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+    .phase-badge { padding:5px 14px; border-radius:20px; font-size:11px; font-weight:600;
+                   border:1px solid var(--border); color:var(--muted); }
+    .phase-badge.active { background:rgba(56,189,248,.1); border-color:var(--accent); color:var(--accent); }
+    .phase-badge.done   { background:rgba(34,197,94,.08); border-color:rgba(34,197,94,.4); color:var(--green); }
 
-    /* Phase badges */
-    .phase-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-    .phase-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
-                   border: 1px solid var(--border); color: var(--muted); }
-    .phase-badge.active { background: rgba(56,189,248,.15); border-color: var(--accent); color: var(--accent); }
-    .phase-badge.done   { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.4); color: var(--green); }
+    /* ── Forecast card ── */
+    .forecast-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .forecast-item { background:var(--surface2); border-radius:10px; padding:14px; text-align:center; border:1px solid var(--border2); }
+    .forecast-val { font-size:26px; font-weight:800; line-height:1; }
+    .forecast-lbl { font-size:10px; color:var(--muted); margin-top:4px; }
+    @media(max-width:640px) { .forecast-grid { grid-template-columns:repeat(2,1fr); } }
 
-    /* Security notice */
-    .security-notice { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.25);
-                       border-radius: 8px; padding: 10px 14px; font-size: 11px; color: #fbbf24;
-                       margin-bottom: 20px; }
+    /* ── Cycle ring ── */
+    .cycle-ring { display:flex; align-items:center; gap:16px; padding:16px 0; }
+    .ring-wrap  { position:relative; width:90px; height:90px; flex-shrink:0; }
+    .ring-wrap svg { transform:rotate(-90deg); }
+    .ring-num   { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+                  flex-direction:column; }
+    .ring-num .big { font-size:22px; font-weight:800; color:var(--accent); }
+    .ring-num .sm  { font-size:10px; color:var(--muted); }
 
-    .skill-item.disabled { opacity: .35; }
+    /* ── Loading ── */
+    .loading { text-align:center; padding:40px; color:var(--muted); font-size:13px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spinner { display:inline-block; width:16px; height:16px; border:2px solid var(--border);
+               border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite;
+               margin-left:6px; vertical-align:middle; }
+
+    /* ── AI checks ── */
+    .ai-check { display:flex; align-items:center; gap:10px; padding:10px 0;
+                border-bottom:1px solid var(--border2); }
+    .ai-check:last-child { border-bottom:none; }
+    .ai-status-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .ai-check-name { font-size:13px; flex:1; }
+    .ai-check-detail { font-size:11px; color:var(--muted); }
+
+    /* ── Competitor bars ── */
+    .comp-row { margin-bottom:14px; }
+    .comp-name { font-size:12px; color:var(--muted); margin-bottom:5px; display:flex; justify-content:space-between; }
+    .comp-bar { height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+    .comp-fill { height:100%; border-radius:4px; transition:width 1s; }
+
+    /* ── Report list ── */
+    .report-item { display:flex; align-items:center; gap:12px; padding:10px 0;
+                   border-bottom:1px solid var(--border2); }
+    .report-item:last-child { border-bottom:none; }
+    .report-icon { font-size:20px; flex-shrink:0; }
+    .report-title { font-size:13px; font-weight:600; }
+    .report-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+
+    /* ── Issue lifecycle ── */
+    .issue-lifecycle { display:flex; gap:6px; align-items:center; font-size:11px; color:var(--muted); }
+    .lifecycle-dot { width:6px; height:6px; border-radius:50%; background:var(--muted); }
+    .lifecycle-dot.crit { background:var(--red); }
+    .lifecycle-dot.warn { background:var(--yellow); }
+    .lifecycle-dot.info { background:var(--accent); }
+    .lifecycle-line { width:24px; height:1px; background:var(--border); }
+
+    /* ── Security notice ── */
+    .security-notice { background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2);
+                       border-radius:8px; padding:9px 14px; font-size:11px; color:#fbbf24;
+                       margin-bottom:18px; }
+
+    /* ── Trend sparkline ── */
+    .sparkline { display:inline-flex; align-items:flex-end; gap:2px; height:28px;
+                 vertical-align:middle; margin-left:8px; }
+    .spark-bar { width:5px; border-radius:2px; background:var(--accent); opacity:.7; }
+
+    /* ── Scrollable table container ── */
+    .scroll-table { max-height:380px; overflow-y:auto; border-radius:10px; }
+    .scroll-table::-webkit-scrollbar { width:5px; }
+    .scroll-table::-webkit-scrollbar-track { background:transparent; }
+    .scroll-table::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
   </style>
 </head>
 <body>
@@ -137,173 +235,486 @@
 <!-- Auth Overlay -->
 <div id="auth-overlay">
   <div class="auth-box">
-    <h1>SEO Command Center</h1>
-    <p>amulyagupta.in · Operational Dashboard</p>
+    <div class="auth-logo">SEO Command Center</div>
+    <div class="auth-sub">amulyagupta.in · Autonomous Intelligence Platform</div>
     <input type="password" id="pin-input" placeholder="Access PIN" autocomplete="current-password">
     <button onclick="checkAuth()">Access Dashboard</button>
-    <div class="auth-error" id="auth-error">Incorrect PIN</div>
+    <div class="auth-error" id="auth-error">Incorrect PIN — try again</div>
+    <p style="margin-top:16px;font-size:10px;color:var(--muted)">First visit: set any PIN ≥ 4 chars</p>
   </div>
 </div>
 
+<!-- Header -->
 <header>
-  <div class="logo">SEO Command Center <span>· amulyagupta.in</span></div>
-  <div class="header-actions">
-    <div class="status-dot" id="status-dot"></div>
-    <span class="badge" id="last-updated">Loading...</span>
-    <button class="btn-refresh" onclick="loadData()">Refresh</button>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="logo">SEO <span>Command Center · amulyagupta.in</span></div>
+    <div class="nav-tabs" id="nav-tabs">
+      <button class="nav-tab active" data-page="overview" onclick="switchPage('overview',this)">Overview</button>
+      <button class="nav-tab" data-page="runtime" onclick="switchPage('runtime',this)">Runtime</button>
+      <button class="nav-tab" data-page="issues" onclick="switchPage('issues',this)">Issues</button>
+      <button class="nav-tab" data-page="ai" onclick="switchPage('ai',this)">AI Visibility</button>
+      <button class="nav-tab" data-page="intelligence" onclick="switchPage('intelligence',this)">Intelligence</button>
+      <button class="nav-tab" data-page="reports" onclick="switchPage('reports',this)">Reports</button>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-dot live" id="status-dot" title="Live"></div>
+    <span class="badge" id="last-updated">Loading…</span>
+    <button class="btn-sm" onclick="loadData()">↺ Refresh</button>
   </div>
 </header>
 
-<main id="main-content" style="display:none">
+<!-- ══════════════════════════════════════════════════════════ PAGE: OVERVIEW -->
+<div class="page active" id="page-overview">
 
-  <!-- Security notice -->
   <div class="security-notice">
-    &#x1F512; Dashboard uses PIN-based access. Production upgrade path:
-    GitHub OAuth &rarr; Auth.js &rarr; Cloudflare Access. Do not expose this URL publicly.
+    🔒 Dashboard is PIN-protected. Production path: Cloudflare Access → GitHub OAuth → Auth.js.
+    Do not share this URL publicly.
   </div>
 
-  <!-- Rollout phase indicator -->
   <div class="phase-bar" id="phase-bar">
     <div class="phase-badge" id="phase-1">Phase 1 — Foundational</div>
     <div class="phase-badge" id="phase-2">Phase 2 — Technical SEO</div>
-    <div class="phase-badge" id="phase-3">Phase 3 — Advanced Intelligence</div>
+    <div class="phase-badge" id="phase-3">Phase 3 — All 23 Skills</div>
   </div>
 
   <div id="critical-banner" class="alert-banner">
-    <div class="alert-title">&#x26A0; CRITICAL — IMMEDIATE SEO INTERVENTION REQUIRED</div>
-    <div class="alert-items" id="critical-list"></div>
-  </div>
-
-  <!-- Executive Summary KPIs -->
-  <div class="grid-4" id="kpi-grid">
-    <div class="card">
-      <div class="card-title">SEO Health Score</div>
-      <div class="metric-value" id="kpi-score" style="color: var(--green)">—</div>
-      <div class="metric-label">out of 100</div>
-      <div class="progress-bar"><div class="progress-fill fill-green" id="score-bar" style="width:0%"></div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Active Issues</div>
-      <div class="metric-value" id="kpi-issues" style="color: var(--yellow)">—</div>
-      <div class="metric-label">tracked issues</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Critical Issues</div>
-      <div class="metric-value" id="kpi-critical" style="color: var(--red)">—</div>
-      <div class="metric-label">need immediate action</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Total Runs</div>
-      <div class="metric-value" id="kpi-runs" style="color: var(--accent)">—</div>
-      <div class="metric-label">completed executions</div>
+    <div class="alert-icon">⚠</div>
+    <div>
+      <div class="alert-title">CRITICAL — IMMEDIATE SEO INTERVENTION REQUIRED</div>
+      <div class="alert-items" id="critical-list"></div>
     </div>
   </div>
 
-  <!-- Score Trend + Skill Cycle -->
-  <div class="grid-2">
+  <!-- Executive KPIs -->
+  <div class="g6" id="kpi-grid">
     <div class="card">
-      <div class="section-header">
-        <div class="section-title">Score Trend</div>
-        <div class="section-label" id="trend-label">Last 23 skills</div>
+      <div class="card-title"><span class="card-icon">📊</span>SEO Health Score</div>
+      <div class="kpi-val" id="kpi-score" style="color:var(--green)">—</div>
+      <div class="kpi-lbl">avg across all skills</div>
+      <div class="progress-bar"><div class="progress-fill pf-green" id="score-bar" style="width:0%"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🤖</span>AI Visibility</div>
+      <div class="kpi-val" id="kpi-ai" style="color:var(--purple)">—</div>
+      <div class="kpi-lbl">AI search readiness</div>
+      <div class="progress-bar"><div class="progress-fill pf-purple" id="ai-bar" style="width:0%"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🚨</span>Critical Issues</div>
+      <div class="kpi-val" id="kpi-critical" style="color:var(--red)">—</div>
+      <div class="kpi-lbl">need immediate action</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">⚡</span>Active Issues</div>
+      <div class="kpi-val" id="kpi-issues" style="color:var(--yellow)">—</div>
+      <div class="kpi-lbl">tracked issues</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🔄</span>Recurring Issues</div>
+      <div class="kpi-val" id="kpi-recurring" style="color:var(--orange)">—</div>
+      <div class="kpi-lbl">3+ occurrences</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">✅</span>Total Runs</div>
+      <div class="kpi-val" id="kpi-runs" style="color:var(--accent)">—</div>
+      <div class="kpi-lbl">completed executions</div>
+    </div>
+  </div>
+
+  <!-- Score trend + Current run -->
+  <div class="g21">
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">SEO Score Trend</div>
+        <div class="section-sub" id="trend-label">Last 23 skill executions</div>
       </div>
-      <div class="chart-container">
+      <div class="chart-box">
         <canvas id="score-chart"></canvas>
       </div>
     </div>
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Current Run</div>
+    <div class="card accent-left">
+      <div class="section-hdr">
+        <div class="section-title">Last Execution</div>
       </div>
-      <div id="current-run-info">
-        <div class="loading">Loading run data</div>
+      <div id="current-run-info"><div class="loading">Loading<span class="spinner"></span></div></div>
+    </div>
+  </div>
+
+  <!-- Cycle progress -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🔁</span>23-Day Skill Rotation Cycle</div>
+      <div class="cycle-ring" id="cycle-ring">
+        <svg class="ring-wrap" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r="38" fill="none" stroke="var(--border)" stroke-width="7"/>
+          <circle cx="45" cy="45" r="38" fill="none" stroke="var(--accent)" stroke-width="7"
+                  stroke-dasharray="238.76" stroke-dashoffset="238.76" id="cycle-arc"
+                  stroke-linecap="round"/>
+        </svg>
+        <div class="ring-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column">
+          <span class="big" id="cycle-pct">0%</span>
+          <span class="sm">cycle</span>
+        </div>
+        <div>
+          <div id="cycle-meta" style="font-size:13px;line-height:1.8"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">📈</span>Predictive SEO Forecast</div>
+      <div id="forecast-widget"><div class="loading">Calculating<span class="spinner"></span></div></div>
+    </div>
+  </div>
+
+  <!-- Skill scores chart + Issue distribution -->
+  <div class="g2">
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Score by Skill</div>
+        <div class="section-sub">All 23 skills</div>
+      </div>
+      <div class="chart-box tall">
+        <canvas id="skill-chart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Issue Distribution</div>
+      </div>
+      <div class="chart-box" style="height:180px">
+        <canvas id="issue-chart"></canvas>
+      </div>
+      <div id="issue-breakdown" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+</div><!-- /page-overview -->
+
+
+<!-- ══════════════════════════════════════════════════════ PAGE: RUNTIME MONITOR -->
+<div class="page" id="page-runtime">
+  <div class="g4">
+    <div class="card green-left">
+      <div class="card-title"><span class="card-icon">🟢</span>Runtime Status</div>
+      <div id="rt-status" class="kpi-val" style="color:var(--green);font-size:22px">HEALTHY</div>
+      <div class="kpi-lbl">All systems nominal</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🕐</span>Last Run Duration</div>
+      <div class="kpi-val" id="rt-duration" style="color:var(--accent)">—</div>
+      <div class="kpi-lbl">seconds</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🔄</span>Execution Cycle</div>
+      <div class="kpi-val" id="rt-cycle" style="color:var(--purple)">—</div>
+      <div class="kpi-lbl">current cycle number</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">📅</span>Next Execution</div>
+      <div style="font-size:16px;font-weight:700;color:var(--accent)" id="rt-next">04:30 AM IST</div>
+      <div class="kpi-lbl">daily · 23:00 UTC</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Execution Queue — Skill Rotation</div>
+        <div class="section-sub" id="rt-group-label"></div>
+      </div>
+      <div class="skill-grid" id="skill-grid"></div>
+    </div>
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Recent Executions</div>
+      </div>
+      <div class="tbl-wrap scroll-table">
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Skill</th><th>Score</th><th>Issues</th><th>Duration</th>
+          </tr></thead>
+          <tbody id="runs-tbody">
+            <tr><td colspan="5" class="loading">Loading<span class="spinner"></span></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <!-- Issues Table -->
-  <div class="card" style="margin-bottom:24px">
-    <div class="section-header">
-      <div class="section-title">Active Issues</div>
-      <div id="issues-count" class="section-label"></div>
+  <div class="card">
+    <div class="section-hdr">
+      <div class="section-title">Score Progression — All Cycles</div>
+      <div class="section-sub">Historical SEO score timeline</div>
     </div>
-    <div class="table-wrap">
+    <div class="chart-box tall">
+      <canvas id="timeline-chart"></canvas>
+    </div>
+  </div>
+</div><!-- /page-runtime -->
+
+
+<!-- ══════════════════════════════════════════════════════════ PAGE: ISSUES -->
+<div class="page" id="page-issues">
+  <div class="g4" style="margin-bottom:20px">
+    <div class="card red-left">
+      <div class="card-title">Critical</div>
+      <div class="kpi-val" id="iss-crit" style="color:var(--red)">—</div>
+    </div>
+    <div class="card yellow-left">
+      <div class="card-title">Warning</div>
+      <div class="kpi-val" id="iss-warn" style="color:var(--yellow)">—</div>
+    </div>
+    <div class="card accent-left">
+      <div class="card-title">Informational</div>
+      <div class="kpi-val" id="iss-info" style="color:var(--accent)">—</div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--orange)">
+      <div class="card-title">Recurring (3+ runs)</div>
+      <div class="kpi-val" id="iss-recurring" style="color:var(--orange)">—</div>
+    </div>
+  </div>
+
+  <!-- Issue lifecycle timeline -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="section-hdr">
+      <div class="section-title">Issue Lifecycle Tracking</div>
+      <div class="section-sub">SEO debt history — first seen → current status</div>
+    </div>
+    <div style="margin-bottom:16px;font-size:12px;color:var(--muted)">
+      Showing issues with their first-detection date, severity trend, and resolution status.
+      Issues appearing in 3+ runs are marked as <span class="tag" style="color:var(--orange);border-color:rgba(251,146,60,.3)">RECURRING</span>
+    </div>
+    <div class="tbl-wrap scroll-table">
       <table>
-        <thead>
-          <tr>
-            <th>Severity</th>
-            <th>Title</th>
-            <th>Category</th>
-            <th>URL</th>
-            <th>First Seen</th>
-            <th>Occurrences</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th>Severity</th><th>Title</th><th>Category</th>
+          <th>URL</th><th>First Seen</th><th>Occurrences</th><th>Status</th>
+        </tr></thead>
         <tbody id="issues-tbody">
-          <tr><td colspan="6" class="loading">Loading issues</td></tr>
+          <tr><td colspan="7" class="loading">Loading<span class="spinner"></span></td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Recent Runs + Skill Cycle -->
-  <div class="grid-2">
+  <!-- Issue category breakdown -->
+  <div class="g2">
     <div class="card">
-      <div class="section-header">
-        <div class="section-title">Recent Executions</div>
+      <div class="section-hdr">
+        <div class="section-title">Issues by Category</div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Skill</th>
-              <th>Score</th>
-              <th>Issues</th>
-              <th>Duration</th>
-            </tr>
-          </thead>
-          <tbody id="runs-tbody">
-            <tr><td colspan="5" class="loading">Loading</td></tr>
-          </tbody>
-        </table>
+      <div class="chart-box">
+        <canvas id="category-chart"></canvas>
       </div>
     </div>
-
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Skill Rotation Cycle</div>
-        <div class="section-label" id="skill-group-label"></div>
+    <div class="card red-left">
+      <div class="section-hdr">
+        <div class="section-title">Recurring SEO Debt</div>
+        <div class="section-sub">Persistent unresolved issues</div>
       </div>
-      <div class="skill-grid" id="skill-grid"></div>
+      <div id="recurring-list"><div class="loading">Loading<span class="spinner"></span></div></div>
+    </div>
+  </div>
+</div><!-- /page-issues -->
+
+
+<!-- ════════════════════════════════════════════════════ PAGE: AI VISIBILITY -->
+<div class="page" id="page-ai">
+  <div class="g4" style="margin-bottom:20px">
+    <div class="card purple-left">
+      <div class="card-title"><span class="card-icon">🤖</span>AI Overview Readiness</div>
+      <div class="kpi-val" id="ai-overview" style="color:var(--purple)">—</div>
+      <div class="kpi-lbl">Google AI Overviews</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">💬</span>Chatbot Citations</div>
+      <div class="kpi-val" id="ai-chatbot" style="color:var(--accent)">—</div>
+      <div class="kpi-lbl">ChatGPT / Perplexity / Copilot</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🎯</span>Entity Signals</div>
+      <div class="kpi-val" id="ai-entity" style="color:var(--teal)">—</div>
+      <div class="kpi-lbl">Schema entity authority</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">📄</span>llms.txt</div>
+      <div class="kpi-val" id="ai-llms" style="color:var(--green)">—</div>
+      <div class="kpi-lbl">AI crawler accessibility</div>
     </div>
   </div>
 
-  <!-- AI Visibility + Score by Skill -->
-  <div class="grid-2" style="margin-top:24px">
+  <div class="g2">
     <div class="card">
-      <div class="section-header">
-        <div class="section-title">SEO Score by Skill</div>
+      <div class="section-hdr">
+        <div class="section-title">AI Search Readiness Checklist</div>
+        <div class="section-sub">amulyagupta.in vs AI search requirements</div>
       </div>
-      <div class="chart-container" style="height:280px">
-        <canvas id="skill-chart"></canvas>
-      </div>
+      <div id="ai-checks"></div>
     </div>
     <div class="card">
-      <div class="section-header">
-        <div class="section-title">Issue Distribution</div>
+      <div class="section-hdr">
+        <div class="section-title">AI Crawler Coverage</div>
+        <div class="section-sub">Bot permissions in robots.txt</div>
       </div>
-      <div class="chart-container" style="height:280px">
-        <canvas id="issue-chart"></canvas>
-      </div>
+      <div id="ai-crawlers"></div>
     </div>
   </div>
 
-  <div class="timestamp" id="footer-ts" style="margin-top:24px;text-align:center;">
-    SEO Runtime Bot · Data updated automatically · <a href="https://amulyagupta.in" style="color:var(--accent)">amulyagupta.in</a>
+  <div class="card">
+    <div class="section-hdr">
+      <div class="section-title">AI Visibility Issues</div>
+      <div class="section-sub">From skills 11 (AI Search Readiness) and 23 (AI Citation Readiness)</div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Severity</th><th>Signal</th><th>Impact</th><th>Fix</th>
+        </tr></thead>
+        <tbody id="ai-issues-tbody">
+          <tr><td colspan="4" class="loading">Loading<span class="spinner"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</main>
+</div><!-- /page-ai -->
+
+
+<!-- ══════════════════════════════════════════════════ PAGE: INTELLIGENCE -->
+<div class="page" id="page-intelligence">
+  <div class="g2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title"><span class="card-icon">📊</span>Historical SEO Comparison</div>
+      <div id="comparison-widget"><div class="loading">Loading<span class="spinner"></span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🔮</span>Predictive Forecast</div>
+      <div id="forecast-detail"><div class="loading">Loading<span class="spinner"></span></div></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Competitor SEO Intelligence</div>
+        <div class="section-sub">Comparative analysis</div>
+      </div>
+      <div id="competitor-panel"><div class="loading">Loading<span class="spinner"></span></div></div>
+    </div>
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Technical SEO Health</div>
+        <div class="section-sub">Core systems monitoring</div>
+      </div>
+      <div id="technical-panel"><div class="loading">Loading<span class="spinner"></span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-hdr">
+      <div class="section-title">Skill Performance Matrix</div>
+      <div class="section-sub">Score evolution across all 23 skills over time</div>
+    </div>
+    <div class="chart-box tall">
+      <canvas id="matrix-chart"></canvas>
+    </div>
+  </div>
+</div><!-- /page-intelligence -->
+
+
+<!-- ══════════════════════════════════════════════════════════ PAGE: REPORTS -->
+<div class="page" id="page-reports">
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card accent-left">
+      <div class="card-title">Report Archive</div>
+      <div class="kpi-val" id="rpt-total" style="color:var(--accent)">—</div>
+      <div class="kpi-lbl">daily reports generated</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Email Delivery Rate</div>
+      <div class="kpi-val" id="rpt-email-rate" style="color:var(--green)">—</div>
+      <div class="kpi-lbl">successful deliveries</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Current Cycle</div>
+      <div class="kpi-val" id="rpt-cycle" style="color:var(--purple)">—</div>
+      <div class="kpi-lbl">23-day rotation cycle</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="section-hdr">
+      <div class="section-title">Execution Log — All Runs</div>
+      <div class="section-sub" id="rpt-runs-sub"></div>
+    </div>
+    <div class="tbl-wrap scroll-table" style="max-height:500px">
+      <table>
+        <thead><tr>
+          <th>Run ID</th><th>Date</th><th>Skill</th><th>Score</th>
+          <th>Issues</th><th>Critical</th><th>Cycle</th><th>Duration</th>
+        </tr></thead>
+        <tbody id="all-runs-tbody">
+          <tr><td colspan="8" class="loading">Loading<span class="spinner"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Report Types</div>
+      </div>
+      <div id="report-list">
+        <div class="report-item">
+          <div class="report-icon">📧</div>
+          <div>
+            <div class="report-title">Daily Morning Brief</div>
+            <div class="report-meta">Sent every day at 04:30 AM IST · Includes findings, comparison, forecast</div>
+          </div>
+          <span class="tag tag-green">Active</span>
+        </div>
+        <div class="report-item">
+          <div class="report-icon">📅</div>
+          <div>
+            <div class="report-title">Weekly Intelligence Summary</div>
+            <div class="report-meta">Every Sunday 23:00 UTC · 7-day rollup, trends, recurring issues</div>
+          </div>
+          <span class="tag tag-green">Active</span>
+        </div>
+        <div class="report-item">
+          <div class="report-icon">🚨</div>
+          <div>
+            <div class="report-title">Critical Incident Alerts</div>
+            <div class="report-meta">Immediate delivery when critical issues detected</div>
+          </div>
+          <span class="tag tag-green">Active</span>
+        </div>
+        <div class="report-item">
+          <div class="report-icon">🔁</div>
+          <div>
+            <div class="report-title">Cycle Completion Report</div>
+            <div class="report-meta">After all 23 skills complete · Full-cycle comparison</div>
+          </div>
+          <span class="tag">Planned</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Delivery Status</div>
+      </div>
+      <div id="email-log"></div>
+    </div>
+  </div>
+</div><!-- /page-reports -->
+
 
 <script>
+/* ════════════════════════════════════════════════════════════════════════════
+   SEO Command Center — Client Script v2.0
+   ════════════════════════════════════════════════════════════════════════════ */
+
 const SKILL_NAMES = [
   "Technical Crawl Audit","Robots & Sitemap","Canonical & Redirects","Structured Data",
   "Core Web Vitals","Meta Tags & OG","Internal Linking","Content Quality",
@@ -313,347 +724,810 @@ const SKILL_NAMES = [
   "Semantic Coverage","Anchor Text","AI Citation Readiness"
 ];
 
-// Mirrors seo/config.py SKILL_GROUPS (1-indexed)
-const SKILL_GROUPS = {
-  1: [2, 6, 7, 12],
-  2: [1, 4, 5, 13, 14, 15],
-  3: [3, 8, 9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23],
-};
-const PHASE_LABELS = {
-  1: 'Phase 1 — Foundational',
-  2: 'Phase 2 — Technical SEO',
-  3: 'Phase 3 — Advanced Intelligence',
-};
-
-const PIN_HASH_KEY = 'seo_auth_v1';
+const SKILL_GROUPS = { 1:[2,6,7,12], 2:[1,4,5,13,14,15], 3:[3,8,9,10,11,16,17,18,19,20,21,22,23] };
+const PHASE_LABELS = { 1:'Phase 1 — Foundational', 2:'Phase 2 — Technical SEO', 3:'Phase 3 — All 23 Skills' };
+const AI_SKILL_IDS = new Set([11, 23]);
+const PIN_KEY = 'seo_auth_v2';
 const DATA_URL = '../data/dashboard.json';
-const SHEETS_ID = '';
-const SHEETS_KEY = '';
 
-let scoreChart, skillChart, issueChart;
+let charts = {};
 
-function simpleHash(str) {
+/* ── Auth ─────────────────────────────────────────────────────────────────── */
+function simpleHash(s) {
   let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
-  }
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
   return h.toString(16);
 }
 
 function checkAuth() {
   const pin = document.getElementById('pin-input').value;
-  const stored = localStorage.getItem(PIN_HASH_KEY);
+  const stored = localStorage.getItem(PIN_KEY);
   if (!stored) {
-    // First time — set the PIN
-    if (pin.length >= 4) {
-      localStorage.setItem(PIN_HASH_KEY, simpleHash(pin));
-      document.getElementById('auth-overlay').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      loadData();
-    } else {
-      showAuthError('PIN must be at least 4 characters');
-    }
+    if (pin.length < 4) return showAuthError('PIN must be ≥ 4 characters');
+    localStorage.setItem(PIN_KEY, simpleHash(pin));
+    showDashboard();
   } else {
-    if (simpleHash(pin) === stored) {
-      document.getElementById('auth-overlay').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      loadData();
-    } else {
-      showAuthError('Incorrect PIN');
-    }
+    if (simpleHash(pin) !== stored) return showAuthError('Incorrect PIN — try again');
+    showDashboard();
   }
 }
 
 function showAuthError(msg) {
   const el = document.getElementById('auth-error');
-  el.textContent = msg;
-  el.style.display = 'block';
+  el.textContent = msg; el.style.display = 'block';
 }
 
-document.getElementById('pin-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkAuth();
-});
+function showDashboard() {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('page-overview').classList.add('active');
+  loadData();
+}
 
+document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
+
+/* ── Page navigation ──────────────────────────────────────────────────────── */
+function switchPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+/* ── Data loading ─────────────────────────────────────────────────────────── */
 async function loadData() {
   try {
     const r = await fetch(DATA_URL + '?t=' + Date.now());
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
-    renderDashboard(data);
-  } catch (e) {
-    console.warn('Local data failed, trying Sheets API...', e);
-    await loadFromSheets();
+    renderAll(data);
+  } catch(e) {
+    console.warn('Failed to load dashboard data:', e.message);
+    document.getElementById('last-updated').textContent = 'Data unavailable — run the workflow to populate';
   }
 }
 
-async function loadFromSheets() {
-  if (!SHEETS_ID || !SHEETS_KEY) {
-    renderError('Configure SHEETS_ID and SHEETS_KEY in dashboard JavaScript to load live data.');
-    return;
-  }
-  try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/seo_runs?key=${SHEETS_KEY}`;
-    const r = await fetch(url);
-    const data = await r.json();
-    renderFromSheets(data);
-  } catch (e) {
-    renderError('Failed to load data: ' + e.message);
-  }
-}
-
-function renderError(msg) {
-  document.getElementById('kpi-score').textContent = 'ERR';
-  document.getElementById('last-updated').textContent = 'Error loading data';
-  console.error(msg);
-}
-
-function renderDashboard(data) {
+/* ── Master render ────────────────────────────────────────────────────────── */
+function renderAll(data) {
   const summary = data.summary || {};
   const currentRun = data.current_run || {};
   const runs = data.recent_runs || [];
   const scores = data.score_history || [];
   const issues = data.active_issues_list || [];
   const findings = data.latest_findings || [];
+  const recurring = data.recurring_issues || [];
+  const cycleProgress = data.cycle_progress || {};
+  const forecast = data.forecast || {};
+  const comparison = data.historical_comparison || {};
   const generatedAt = data.generated_at || '';
 
-  // Update timestamp
-  if (generatedAt) {
-    const d = new Date(generatedAt);
-    document.getElementById('last-updated').textContent = 'Updated ' + d.toLocaleTimeString();
-    document.getElementById('footer-ts').textContent =
-      `SEO Runtime Bot · Last run: ${d.toLocaleString()} UTC · amulyagupta.in`;
-  }
+  updateTimestamp(generatedAt);
+  renderKPIs(summary, currentRun, scores, issues, recurring);
+  renderCriticalBanner(issues);
+  renderCurrentRun(currentRun);
+  renderScoreChart(scores);
+  renderCycleProgress(cycleProgress, currentRun);
+  renderForecastWidget(forecast);
+  renderSkillChart(scores);
+  renderIssueChart(issues);
+  renderPhaseBar(currentRun);
 
-  // KPIs
-  const avgScore = summary.avg_score || 0;
-  document.getElementById('kpi-score').textContent = Math.round(avgScore);
-  document.getElementById('score-bar').style.width = avgScore + '%';
-  const scoreColor = avgScore >= 80 ? 'var(--green)' : avgScore >= 50 ? 'var(--yellow)' : 'var(--red)';
-  document.getElementById('kpi-score').style.color = scoreColor;
-  document.getElementById('score-bar').className = 'progress-fill ' + (avgScore >= 80 ? 'fill-green' : avgScore >= 50 ? 'fill-yellow' : 'fill-red');
+  // Runtime page
+  renderSkillGrid(currentRun, scores);
+  renderRunsTable(runs);
+  renderTimelineChart(scores);
 
-  document.getElementById('kpi-issues').textContent = summary.active_issues || 0;
-  document.getElementById('kpi-critical').textContent = summary.critical_issues || 0;
-  document.getElementById('kpi-runs').textContent = summary.total_runs || 0;
+  // Issues page
+  renderIssueTable(issues, recurring);
+  renderCategoryChart(issues);
+  renderRecurringList(recurring);
 
-  // Critical banner
-  const criticalIssues = issues.filter(i => i.severity === 'critical').slice(0, 5);
-  if (criticalIssues.length > 0) {
-    const banner = document.getElementById('critical-banner');
-    banner.classList.add('visible');
+  // AI visibility page
+  renderAIPage(findings, issues, currentRun, scores);
+
+  // Intelligence page
+  renderComparison(comparison);
+  renderForecastDetail(forecast);
+  renderCompetitorPanel(findings, issues);
+  renderTechnicalPanel(findings, issues);
+  renderMatrixChart(scores, runs);
+
+  // Reports page
+  renderReportsPage(runs, summary);
+}
+
+/* ── Timestamp ────────────────────────────────────────────────────────────── */
+function updateTimestamp(ts) {
+  if (!ts) return;
+  const d = new Date(ts);
+  document.getElementById('last-updated').textContent = 'Updated ' + d.toLocaleString();
+}
+
+/* ── KPIs ─────────────────────────────────────────────────────────────────── */
+function renderKPIs(summary, currentRun, scores, issues, recurring) {
+  const avg = summary.avg_score || 0;
+  setText('kpi-score', Math.round(avg));
+  const scoreEl = document.getElementById('kpi-score');
+  if (scoreEl) scoreEl.style.color = scoreColor(avg);
+  setWidth('score-bar', avg, scoreClass(avg));
+
+  // AI score — average of skill 11 and 23 scores
+  const aiScores = scores.filter(s => [11,23].includes(s.skill_id));
+  const aiAvg = aiScores.length ? Math.round(aiScores.reduce((a,s) => a+s.score, 0) / aiScores.length) : null;
+  setText('kpi-ai', aiAvg !== null ? aiAvg : '—');
+  setWidth('ai-bar', aiAvg || 0, 'pf-purple');
+
+  setText('kpi-critical', summary.critical_issues || 0);
+  setText('kpi-issues', summary.active_issues || 0);
+  setText('kpi-recurring', summary.recurring_issues || recurring.length || 0);
+  setText('kpi-runs', summary.total_runs || 0);
+}
+
+/* ── Critical banner ──────────────────────────────────────────────────────── */
+function renderCriticalBanner(issues) {
+  const crits = issues.filter(i => i.severity === 'critical').slice(0, 5);
+  if (!crits.length) return;
+  const banner = document.getElementById('critical-banner');
+  if (banner) {
+    banner.classList.add('on');
     document.getElementById('critical-list').innerHTML =
-      criticalIssues.map(i => `• ${i.title}`).join('<br>');
+      crits.map(i => `• ${i.title}`).join('<br>');
   }
+}
 
-  // Current run card
-  if (currentRun.skill_id) {
-    const skillName = SKILL_NAMES[currentRun.skill_id - 1] || 'Unknown';
-    const runDate = currentRun.date ? new Date(currentRun.date).toLocaleDateString() : '—';
-    const runScore = currentRun.score || 0;
-    const runColor = runScore >= 80 ? 'var(--green)' : runScore >= 50 ? 'var(--yellow)' : 'var(--red)';
-    document.getElementById('current-run-info').innerHTML = `
-      <div style="display:flex;gap:20px;align-items:center;margin-bottom:16px">
-        <div>
-          <div style="font-size:36px;font-weight:700;color:${runColor}">${runScore}</div>
-          <div style="font-size:11px;color:var(--muted)">Score /100</div>
-        </div>
-        <div>
-          <div style="font-size:16px;font-weight:600">Skill ${currentRun.skill_id}/23</div>
-          <div style="color:var(--accent);font-size:13px;margin:4px 0">${skillName}</div>
-          <div style="font-size:12px;color:var(--muted)">${runDate}</div>
-        </div>
+/* ── Current run card ─────────────────────────────────────────────────────── */
+function renderCurrentRun(cr) {
+  const el = document.getElementById('current-run-info');
+  if (!el || !cr.skill_id) {
+    if (el) el.innerHTML = '<div class="loading">No runs yet — trigger the workflow to start</div>';
+    return;
+  }
+  const name = SKILL_NAMES[cr.skill_id - 1] || 'Unknown';
+  const sc = cr.score || 0;
+  const col = scoreColor(sc);
+  const d = cr.date ? new Date(cr.date).toLocaleString() : '—';
+  el.innerHTML = `
+    <div style="display:flex;gap:18px;align-items:center;margin-bottom:14px">
+      <div>
+        <div style="font-size:40px;font-weight:800;color:${col};line-height:1">${sc}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">Score /100</div>
       </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <span class="tag">Issues: ${currentRun.issues_found || 0}</span>
-        <span class="tag">Critical: ${currentRun.issues_critical || 0}</span>
-        <span class="tag">Duration: ${currentRun.duration_s || 0}s</span>
-        <span class="tag">Run: ${currentRun.run_id || '—'}</span>
+      <div>
+        <div style="font-size:15px;font-weight:700">Skill ${cr.skill_id}/23</div>
+        <div style="color:var(--accent);font-size:12px;margin:3px 0">${name}</div>
+        <div style="font-size:11px;color:var(--muted)">${d}</div>
       </div>
-    `;
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="tag">Issues: ${cr.issues_found || 0}</span>
+      <span class="tag">Critical: ${cr.issues_critical || 0}</span>
+      <span class="tag">${cr.duration_s || 0}s</span>
+      <span class="tag" style="font-family:monospace">${cr.run_id || '—'}</span>
+    </div>`;
+}
+
+/* ── Score trend chart ────────────────────────────────────────────────────── */
+function renderScoreChart(scores) {
+  const recent = scores.slice(-23);
+  if (!recent.length) return;
+  const labels = recent.map(s => 'S' + (s.skill_id || ''));
+  const values = recent.map(s => s.score || 0);
+  const colors = values.map(v => v >= 80 ? 'rgba(34,197,94,.75)' : v >= 50 ? 'rgba(245,158,11,.75)' : 'rgba(239,68,68,.75)');
+  renderChart('score-chart', 'bar', { labels, datasets:[{ data:values, backgroundColor:colors, borderRadius:5 }] }, {
+    plugins:{ legend:{display:false} },
+    scales:{ x:{ ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'} },
+             y:{ min:0, max:100, ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'} } }
+  });
+}
+
+/* ── Cycle progress ring ──────────────────────────────────────────────────── */
+function renderCycleProgress(cp, cr) {
+  const pct = cp.percent || 0;
+  const circumference = 238.76;
+  const offset = circumference * (1 - pct / 100);
+  const arc = document.getElementById('cycle-arc');
+  if (arc) arc.setAttribute('stroke-dashoffset', offset.toFixed(2));
+  setText('cycle-pct', pct + '%');
+
+  const nextSkill = cp.next_skill_id;
+  const nextName = nextSkill ? SKILL_NAMES[nextSkill - 1] : '—';
+  const metaEl = document.getElementById('cycle-meta');
+  if (metaEl) metaEl.innerHTML = `
+    <div style="color:var(--text);font-weight:700">Cycle #${cp.cycle || 1}</div>
+    <div style="color:var(--muted);font-size:11px;margin-top:2px">Position ${cp.position || 0}/${cp.total || 23}</div>
+    <div style="color:var(--muted);font-size:11px">Completed ${cp.skills_completed_this_cycle || 0} this cycle</div>
+    <div style="color:var(--accent);font-size:11px;margin-top:6px">Next: #${nextSkill} — ${nextName}</div>`;
+
+  // Runtime page cycle
+  setText('rt-cycle', cp.cycle || '—');
+  const groupLabel = document.getElementById('rt-group-label');
+  if (groupLabel) groupLabel.textContent = `Skill ${cp.position || 0}/${cp.total || 23} · Cycle #${cp.cycle || 1}`;
+}
+
+/* ── Forecast widget (overview page) ─────────────────────────────────────── */
+function renderForecastWidget(fc) {
+  const el = document.getElementById('forecast-widget');
+  if (!el) return;
+  if (!fc || fc.trend === 'insufficient_data' || !fc.trend) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:10px 0">Not enough data yet. Forecast appears after 3+ runs.</div>';
+    return;
   }
+  const trendColor = { improving:'var(--green)', declining:'var(--red)', stable:'var(--yellow)' };
+  const tc = trendColor[fc.trend] || 'var(--muted)';
+  const p7 = fc.projected_score_7d;
+  const p30 = fc.projected_score_30d;
+  el.innerHTML = `
+    <div class="forecast-grid">
+      <div class="forecast-item">
+        <div class="forecast-val" style="color:${scoreColor(p7||0)}">${p7 || '—'}</div>
+        <div class="forecast-lbl">7-day</div>
+      </div>
+      <div class="forecast-item">
+        <div class="forecast-val" style="color:${scoreColor(p30||0)}">${p30 || '—'}</div>
+        <div class="forecast-lbl">30-day</div>
+      </div>
+      <div class="forecast-item">
+        <div class="forecast-val" style="color:${tc};font-size:18px">${(fc.trend||'').toUpperCase()}</div>
+        <div class="forecast-lbl">Trend</div>
+      </div>
+      <div class="forecast-item">
+        <div class="forecast-val" style="font-size:18px;color:${fc.risk_level==='low'?'var(--green)':fc.risk_level==='high'?'var(--red)':'var(--yellow)'}">${(fc.risk_level||'?').toUpperCase()}</div>
+        <div class="forecast-lbl">Risk</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">
+      ${fc.confidence || '?'} confidence · ${fc.data_points || 0} data points ·
+      Slope: ${(fc.slope_per_day || 0) > 0 ? '+' : ''}${(fc.slope_per_day||0).toFixed(3)} pts/day
+    </div>`;
+}
 
-  // Score trend chart
-  const recentScores = scores.slice(-23);
-  if (recentScores.length > 0) {
-    const labels = recentScores.map(s => `S${s.skill_id || ''}`);
-    const values = recentScores.map(s => s.score || 0);
-    const colors = values.map(v => v >= 80 ? 'rgba(34,197,94,.8)' : v >= 50 ? 'rgba(245,158,11,.8)' : 'rgba(239,68,68,.8)');
+/* ── Skill chart ──────────────────────────────────────────────────────────── */
+function renderSkillChart(scores) {
+  const skillMap = {};
+  scores.forEach(s => { if (s.skill_id) skillMap[s.skill_id] = s.score; });
+  const labels = SKILL_NAMES.map((n,i) => 'S'+(i+1));
+  const values = SKILL_NAMES.map((_,i) => skillMap[i+1] !== undefined ? skillMap[i+1] : null);
+  renderChart('skill-chart', 'bar', {
+    labels,
+    datasets:[{ label:'Score', data:values,
+      backgroundColor: values.map(v => !v ? 'rgba(148,163,184,.15)' : v>=80 ? 'rgba(34,197,94,.7)' : v>=50 ? 'rgba(245,158,11,.7)' : 'rgba(239,68,68,.7)'),
+      borderRadius:4 }]
+  }, {
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{ ticks:{color:'#64748b',font:{size:9}}, grid:{color:'rgba(255,255,255,.03)'} },
+      y:{ min:0, max:100, ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,.03)'} }
+    }
+  });
+}
 
-    if (scoreChart) scoreChart.destroy();
-    const ctx = document.getElementById('score-chart').getContext('2d');
-    scoreChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          data: values,
-          backgroundColor: colors,
-          borderRadius: 4,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.05)' } },
-          y: { min: 0, max: 100, ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.05)' } }
-        }
-      }
-    });
+/* ── Issue donut chart ────────────────────────────────────────────────────── */
+function renderIssueChart(issues) {
+  const counts = { critical:0, warning:0, info:0 };
+  issues.forEach(i => { if (counts.hasOwnProperty(i.severity)) counts[i.severity]++; });
+  renderChart('issue-chart', 'doughnut', {
+    labels:['Critical','Warning','Info'],
+    datasets:[{ data:[counts.critical, counts.warning, counts.info],
+      backgroundColor:['rgba(239,68,68,.8)','rgba(245,158,11,.8)','rgba(56,189,248,.8)'],
+      borderColor:'transparent', hoverOffset:4 }]
+  }, {
+    plugins:{ legend:{ position:'bottom', labels:{ color:'#94a3b8',font:{size:11},padding:12 } } },
+    cutout:'65%'
+  });
+
+  const bd = document.getElementById('issue-breakdown');
+  if (bd) {
+    const total = counts.critical + counts.warning + counts.info;
+    bd.innerHTML = [
+      ['Critical', counts.critical, 'var(--red)'],
+      ['Warning', counts.warning, 'var(--yellow)'],
+      ['Info', counts.info, 'var(--accent)'],
+    ].map(([lbl,n,c]) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0">
+        <span style="font-size:12px;color:${c}">${lbl}</span>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:2px;margin:0 10px;overflow:hidden">
+          <div style="height:100%;background:${c};width:${total ? Math.round(n/total*100) : 0}%;border-radius:2px"></div>
+        </div>
+        <span style="font-size:12px;font-weight:600;color:${c}">${n}</span>
+      </div>`).join('');
   }
+}
 
-  // Issues table
-  const tbody = document.getElementById('issues-tbody');
-  tbody.innerHTML = issues.slice(0, 30).map(i => {
-    const sevClass = `sev sev-${i.severity || 'info'}`;
-    const firstSeen = i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—';
-    const urlShort = (i.url || '').replace('https://amulyagupta.in', '') || '—';
-    return `<tr>
-      <td><span class="${sevClass}">${(i.severity || 'info').toUpperCase()}</span></td>
-      <td style="max-width:300px;word-break:break-word">${i.title || ''}</td>
-      <td><span class="tag">${i.category || ''}</span></td>
-      <td style="font-size:11px;color:var(--muted)">${urlShort}</td>
-      <td style="font-size:11px;color:var(--muted)">${firstSeen}</td>
-      <td style="text-align:center">${i.occurrences || 1}</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('issues-count').textContent = `${issues.length} active`;
-
-  // Recent runs table
-  const runsTbody = document.getElementById('runs-tbody');
-  runsTbody.innerHTML = runs.slice(-10).reverse().map(r => {
-    const d = r.date ? new Date(r.date).toLocaleDateString() : '—';
-    const sc = r.score || 0;
-    const color = sc >= 80 ? 'var(--green)' : sc >= 50 ? 'var(--yellow)' : 'var(--red)';
-    const sname = r.skill_name || SKILL_NAMES[(r.skill_id || 1) - 1] || '—';
-    return `<tr>
-      <td style="font-size:11px;color:var(--muted)">${d}</td>
-      <td><span class="tag">S${r.skill_id || '?'}</span> ${sname}</td>
-      <td style="font-weight:600;color:${color}">${sc}</td>
-      <td>${r.issues_found || 0}</td>
-      <td style="font-size:11px;color:var(--muted)">${r.duration_s || 0}s</td>
-    </tr>`;
-  }).join('');
-
-  // Phase bar
-  const activeGroup = currentRun.notes
-    ? (parseInt((currentRun.notes.match(/Group (\d)/) || [])[1]) || 1) : 1;
+/* ── Phase bar ────────────────────────────────────────────────────────────── */
+function renderPhaseBar(cr) {
+  const activeGroup = cr.notes ? (parseInt((cr.notes.match(/Group (\d)/)||[])[1]) || 3) : 3;
   for (let g = 1; g <= 3; g++) {
-    const el = document.getElementById(`phase-${g}`);
+    const el = document.getElementById('phase-' + g);
     if (el) {
       el.className = 'phase-badge' + (g < activeGroup ? ' done' : g === activeGroup ? ' active' : '');
       el.textContent = PHASE_LABELS[g];
     }
   }
+}
 
-  // Skill cycle grid — dim skills outside the active group
-  const enabledSkills = new Set(
-    Object.entries(SKILL_GROUPS)
-      .filter(([g]) => parseInt(g) <= activeGroup)
-      .flatMap(([, ids]) => ids)
+/* ── Skill grid (runtime page) ────────────────────────────────────────────── */
+function renderSkillGrid(cr, scores) {
+  const activeGroup = cr.notes ? (parseInt((cr.notes.match(/Group (\d)/)||[])[1]) || 3) : 3;
+  const enabled = new Set(
+    Object.entries(SKILL_GROUPS).filter(([g]) => parseInt(g) <= activeGroup).flatMap(([,ids]) => ids)
   );
-  document.getElementById('skill-group-label').textContent =
-    `Group ${activeGroup} — ${enabledSkills.size} skills enabled`;
+  const lastSkill = cr.skill_id || 0;
+  const scoreMap = {};
+  scores.forEach(s => { if (s.skill_id) scoreMap[s.skill_id] = s.score; });
 
-  const lastSkill = currentRun.skill_id || 0;
-  const skillGrid = document.getElementById('skill-grid');
-  skillGrid.innerHTML = SKILL_NAMES.map((name, i) => {
+  const grid = document.getElementById('skill-grid');
+  if (!grid) return;
+  grid.innerHTML = SKILL_NAMES.map((name, i) => {
     const num = i + 1;
-    const isEnabled = enabledSkills.has(num);
-    const isDone = isEnabled && num < lastSkill;
+    const isEnabled = enabled.has(num);
     const isActive = num === lastSkill;
-    const cls = [
-      'skill-item',
-      isActive ? 'active' : isDone ? 'done' : '',
-      !isEnabled ? 'disabled' : '',
-    ].filter(Boolean).join(' ');
-    const scoreForSkill = scores.find(s => s.skill_id === num);
-    const scoreDisplay = scoreForSkill
-      ? `<div style="font-size:12px;color:${scoreForSkill.score >= 80 ? 'var(--green)' : scoreForSkill.score >= 50 ? 'var(--yellow)' : 'var(--red)'};margin-top:4px">${scoreForSkill.score}/100</div>`
-      : '';
+    const isDone = isEnabled && scoreMap[num] !== undefined && num !== lastSkill;
+    const cls = ['skill-item', isActive ? 'active' : isDone ? 'done' : '', !isEnabled ? 'disabled' : ''].filter(Boolean).join(' ');
+    const sc = scoreMap[num];
     const numColor = isActive ? 'var(--accent)' : isDone ? 'var(--green)' : 'var(--muted)';
-    return `<div class="${cls}" title="${isEnabled ? 'Enabled' : 'Not yet activated'}">
+    const scoreHtml = sc !== undefined
+      ? `<div style="font-size:11px;color:${scoreColor(sc)};margin-top:4px;font-weight:600">${sc}/100</div>`
+      : `<div style="font-size:10px;color:var(--muted);margin-top:4px">${isEnabled ? 'Pending' : 'Locked'}</div>`;
+    return `<div class="${cls}" title="${name}${isActive ? ' (ACTIVE)' : isDone ? ' (DONE)' : ''}">
       <div class="skill-num" style="color:${numColor}">${String(num).padStart(2,'0')}</div>
       <div class="skill-name">${name}</div>
-      ${isEnabled ? scoreDisplay : '<div style="font-size:10px;color:var(--muted);margin-top:4px">—</div>'}
+      ${scoreHtml}
     </div>`;
   }).join('');
+}
 
-  // Skill score bar chart
-  const skillScoreMap = {};
-  scores.forEach(s => { if (s.skill_id) skillScoreMap[s.skill_id] = s.score; });
-  const skillLabels = SKILL_NAMES.map((n, i) => `S${i+1}`);
-  const skillValues = SKILL_NAMES.map((_, i) => skillScoreMap[i+1] || null);
+/* ── Runs table ───────────────────────────────────────────────────────────── */
+function renderRunsTable(runs) {
+  const tbody = document.getElementById('runs-tbody');
+  if (!tbody) return;
+  const recent = runs.slice(-15).reverse();
+  tbody.innerHTML = recent.map(r => {
+    const d = r.date ? new Date(r.date).toLocaleDateString() : '—';
+    const sc = r.score || 0;
+    return `<tr>
+      <td style="font-size:11px;color:var(--muted)">${d}</td>
+      <td><span class="tag">S${r.skill_id||'?'}</span> <span style="font-size:12px">${(r.skill_name||'').substring(0,22)}</span></td>
+      <td style="font-weight:700;color:${scoreColor(sc)}">${sc}</td>
+      <td>${r.issues_found||0}</td>
+      <td style="font-size:11px;color:var(--muted)">${r.duration_s||0}s</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" style="color:var(--muted);text-align:center">No runs yet</td></tr>';
 
-  if (skillChart) skillChart.destroy();
-  const ctx2 = document.getElementById('skill-chart').getContext('2d');
-  skillChart = new Chart(ctx2, {
-    type: 'bar',
-    data: {
-      labels: skillLabels,
-      datasets: [{
-        label: 'Score',
-        data: skillValues,
-        backgroundColor: skillValues.map(v => !v ? 'rgba(148,163,184,.2)' : v >= 80 ? 'rgba(34,197,94,.7)' : v >= 50 ? 'rgba(245,158,11,.7)' : 'rgba(239,68,68,.7)'),
-        borderRadius: 3,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.04)' } },
-        y: { min: 0, max: 100, ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } }
-      }
-    }
+  const el = document.getElementById('rt-duration');
+  if (el && runs.length) el.textContent = runs[runs.length-1].duration_s || '—';
+}
+
+/* ── Timeline chart (runtime page) ───────────────────────────────────────── */
+function renderTimelineChart(scores) {
+  if (!scores.length) return;
+  const labels = scores.map((s, i) => {
+    const d = s.date ? new Date(s.date) : null;
+    return d ? d.toLocaleDateString('en', {month:'short',day:'numeric'}) : 'R'+(i+1);
   });
-
-  // Issue distribution doughnut
-  const severityCounts = { critical: 0, warning: 0, info: 0 };
-  issues.forEach(i => { if (severityCounts.hasOwnProperty(i.severity)) severityCounts[i.severity]++; });
-
-  if (issueChart) issueChart.destroy();
-  const ctx3 = document.getElementById('issue-chart').getContext('2d');
-  issueChart = new Chart(ctx3, {
-    type: 'doughnut',
-    data: {
-      labels: ['Critical', 'Warning', 'Info'],
-      datasets: [{
-        data: [severityCounts.critical, severityCounts.warning, severityCounts.info],
-        backgroundColor: ['rgba(239,68,68,.8)', 'rgba(245,158,11,.8)', 'rgba(56,189,248,.8)'],
-        borderColor: 'transparent',
-        hoverOffset: 4,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 12 }, padding: 16 } }
-      },
-      cutout: '60%',
+  const values = scores.map(s => s.score || 0);
+  renderChart('timeline-chart', 'line', {
+    labels,
+    datasets:[{
+      label:'SEO Score',
+      data:values,
+      borderColor:'rgba(56,189,248,.8)',
+      backgroundColor:'rgba(56,189,248,.05)',
+      fill:true,
+      tension:.35,
+      pointRadius:3,
+      pointBackgroundColor: values.map(v => v>=80?'rgba(34,197,94,.9)':v>=50?'rgba(245,158,11,.9)':'rgba(239,68,68,.9)'),
+    }]
+  }, {
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{ ticks:{color:'#64748b',font:{size:9},maxTicksLimit:20}, grid:{color:'rgba(255,255,255,.03)'} },
+      y:{ min:0, max:100, ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'} }
     }
   });
 }
 
-function renderFromSheets(data) {
-  const rows = (data.values || []).slice(1);
-  const mockData = {
-    generated_at: new Date().toISOString(),
-    site_url: 'https://amulyagupta.in',
-    summary: { avg_score: 0, active_issues: 0, critical_issues: 0, total_runs: rows.length },
-    current_run: rows.length ? { run_id: rows[rows.length-1][0], date: rows[rows.length-1][1], skill_id: parseInt(rows[rows.length-1][2]), skill_name: rows[rows.length-1][3], score: parseInt(rows[rows.length-1][4]), issues_found: parseInt(rows[rows.length-1][5]), issues_critical: parseInt(rows[rows.length-1][6]), duration_s: parseInt(rows[rows.length-1][7]) } : {},
-    recent_runs: rows.map(r => ({ run_id: r[0], date: r[1], skill_id: parseInt(r[2]), skill_name: r[3], score: parseInt(r[4])||0, issues_found: parseInt(r[5])||0, issues_critical: parseInt(r[6])||0, duration_s: parseInt(r[7])||0 })),
-    score_history: rows.map(r => ({ skill_id: parseInt(r[2]), score: parseInt(r[4])||0, date: r[1] })),
-    active_issues_list: [],
-    latest_findings: [],
-  };
-  if (mockData.recent_runs.length) {
-    mockData.summary.avg_score = Math.round(mockData.recent_runs.reduce((a,r) => a + r.score, 0) / mockData.recent_runs.length);
+/* ── Issue table (issues page) ────────────────────────────────────────────── */
+function renderIssueTable(issues, recurring) {
+  const recurringIds = new Set(recurring.map(r => r.issue_id));
+  const tbody = document.getElementById('issues-tbody');
+  if (!tbody) return;
+
+  const sorted = [...issues].sort((a,b) => {
+    const sev = {critical:3,warning:2,info:1};
+    return (sev[b.severity]||0) - (sev[a.severity]||0);
+  });
+
+  tbody.innerHTML = sorted.map(i => {
+    const sevClass = 'sev sev-' + (i.severity || 'info');
+    const d = i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—';
+    const url = (i.url || '').replace('https://amulyagupta.in', '') || '/';
+    const isRecurring = recurringIds.has(i.issue_id);
+    return `<tr>
+      <td><span class="${sevClass}">${(i.severity||'info').toUpperCase()}</span></td>
+      <td style="max-width:280px;word-break:break-word;font-size:12px">
+        ${i.title || ''}
+        ${isRecurring ? '<span class="tag" style="margin-left:4px;color:var(--orange);border-color:rgba(251,146,60,.3)">RECURRING</span>' : ''}
+      </td>
+      <td><span class="tag">${i.category || ''}</span></td>
+      <td style="font-size:10px;color:var(--muted);font-family:monospace">${url}</td>
+      <td style="font-size:11px;color:var(--muted)">${d}</td>
+      <td style="text-align:center;font-weight:700;color:${i.occurrences>=3?'var(--orange)':'var(--muted)'}">${i.occurrences||1}</td>
+      <td><span class="sev sev-${i.status==='active'?'warning':'good'}">${i.status||'active'}</span></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center">No issues tracked yet</td></tr>';
+
+  // Issue count KPIs
+  const bySev = {critical:0,warning:0,info:0};
+  issues.forEach(i => { if (bySev.hasOwnProperty(i.severity)) bySev[i.severity]++; });
+  setText('iss-crit', bySev.critical);
+  setText('iss-warn', bySev.warning);
+  setText('iss-info', bySev.info);
+  setText('iss-recurring', recurring.length);
+}
+
+/* ── Category chart (issues page) ────────────────────────────────────────── */
+function renderCategoryChart(issues) {
+  const catMap = {};
+  issues.forEach(i => { catMap[i.category||'other'] = (catMap[i.category||'other']||0)+1; });
+  const sorted = Object.entries(catMap).sort((a,b) => b[1]-a[1]).slice(0,10);
+  renderChart('category-chart', 'bar', {
+    labels: sorted.map(([k]) => k),
+    datasets:[{ data: sorted.map(([,v]) => v),
+      backgroundColor:'rgba(56,189,248,.6)', borderRadius:4 }]
+  }, {
+    indexAxis:'y',
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{ ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'} },
+      y:{ ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'} }
+    }
+  });
+}
+
+/* ── Recurring list (issues page) ─────────────────────────────────────────── */
+function renderRecurringList(recurring) {
+  const el = document.getElementById('recurring-list');
+  if (!el) return;
+  if (!recurring.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px">No recurring issues — great work!</div>';
+    return;
   }
-  renderDashboard(mockData);
+  el.innerHTML = recurring.slice(0,8).map(i => {
+    const sc = 'sev sev-' + (i.severity || 'warning');
+    return `<div style="padding:8px 0;border-bottom:1px solid var(--border2)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+        <span class="${sc}">${(i.severity||'').toUpperCase()}</span>
+        <span style="font-size:12px;font-weight:600">${i.title||''}</span>
+        <span style="font-size:11px;color:var(--orange);margin-left:auto">${i.occurrences||0}×</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted)">
+        First seen: ${i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—'} ·
+        Category: ${i.category||'—'}
+      </div>
+    </div>`;
+  }).join('');
 }
 
-// Auto-refresh every 5 minutes
+/* ── AI Visibility Page ───────────────────────────────────────────────────── */
+function renderAIPage(findings, issues, cr, scores) {
+  // AI overview score
+  const aiScores = scores.filter(s => [11,23].includes(s.skill_id));
+  const aiAvg = aiScores.length ? Math.round(aiScores.reduce((a,s)=>a+s.score,0)/aiScores.length) : null;
+  const aiS11 = scores.find(s => s.skill_id === 11);
+  const aiS23 = scores.find(s => s.skill_id === 23);
+
+  setText('ai-overview', aiAvg !== null ? aiAvg : '—');
+  setText('ai-chatbot', aiS23 ? aiS23.score : '—');
+  setText('ai-entity', aiS11 ? aiS11.score : '—');
+
+  // llms.txt check (scan findings for it)
+  const llmsOk = !findings.some(f => f.title && f.title.toLowerCase().includes('llms.txt'));
+  setText('ai-llms', llmsOk ? '✓ OK' : '✗ Fix');
+  const llmsEl = document.getElementById('ai-llms');
+  if (llmsEl) llmsEl.style.color = llmsOk ? 'var(--green)' : 'var(--red)';
+
+  // AI readiness checks
+  const checks = [
+    { name:'llms.txt exists & populated', fn: f => f.title&&f.title.toLowerCase().includes('llms.txt') },
+    { name:'FAQ schema on blog/guide pages', fn: f => f.title&&f.title.toLowerCase().includes('faq schema') },
+    { name:'Person schema with sameAs', fn: f => f.title&&f.title.toLowerCase().includes('sameas') },
+    { name:'Person schema with knowsAbout', fn: f => f.title&&f.title.toLowerCase().includes('knowsabout') },
+    { name:'Speakable schema', fn: f => f.title&&f.title.toLowerCase().includes('speakable') },
+    { name:'Structured data (no errors)', fn: f => f.category==='schema'&&f.severity==='critical' },
+  ];
+
+  const checksEl = document.getElementById('ai-checks');
+  if (checksEl) {
+    checksEl.innerHTML = checks.map(({ name, fn }) => {
+      const failing = findings.some(fn);
+      return `<div class="ai-check">
+        <div class="ai-status-dot" style="background:${failing?'var(--red)':'var(--green)'}"></div>
+        <div class="ai-check-name">${name}</div>
+        <div class="ai-check-detail">${failing ? '⚠ Issue detected' : '✓ Pass'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // AI crawler coverage
+  const bots = ['GPTBot','ClaudeBot','PerplexityBot','Google-Extended','OAI-SearchBot','Googlebot'];
+  const crawlEl = document.getElementById('ai-crawlers');
+  if (crawlEl) {
+    const missingBots = findings.filter(f => bots.some(b => f.title && f.title.includes(b) && f.title.includes('Missing')));
+    const missingSet = new Set(missingBots.map(f => {
+      const m = f.title.match(/Missing\s+(\S+)\s+/);
+      return m ? m[1] : null;
+    }).filter(Boolean));
+
+    crawlEl.innerHTML = bots.map(bot => {
+      const ok = !missingSet.has(bot);
+      return `<div class="ai-check">
+        <div class="ai-status-dot" style="background:${ok?'var(--green)':'var(--yellow)'}"></div>
+        <div class="ai-check-name" style="font-size:13px">${bot}</div>
+        <div class="ai-check-detail">${ok ? '✓ Permitted' : '⚠ Not explicitly permitted'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // AI issues table
+  const aiFindings = findings.filter(f =>
+    ['ai-seo','ai-crawlers','entity'].includes(f.category) || [11,23].includes(cr.skill_id));
+  const aiTbody = document.getElementById('ai-issues-tbody');
+  if (aiTbody) {
+    aiTbody.innerHTML = aiFindings.slice(0, 20).map(f => {
+      const sc = 'sev sev-' + (f.severity || 'info');
+      return `<tr>
+        <td><span class="${sc}">${(f.severity||'info').toUpperCase()}</span></td>
+        <td style="font-size:12px;max-width:200px;word-break:break-word">${f.title||''}</td>
+        <td style="font-size:11px;color:var(--muted)">${f.category||''}</td>
+        <td style="font-size:11px;color:var(--muted);max-width:220px">${(f.recommendation||'').substring(0,120)}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" style="color:var(--muted);text-align:center">No AI-specific issues detected</td></tr>';
+  }
+}
+
+/* ── Historical comparison ────────────────────────────────────────────────── */
+function renderComparison(cmp) {
+  const el = document.getElementById('comparison-widget');
+  if (!el) return;
+  if (!cmp || cmp.prev_score == null) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:10px 0">Comparison data will appear after the second run of each skill.</div>';
+    return;
+  }
+  const d = cmp.score_delta || 0;
+  const dColor = d > 0 ? 'var(--green)' : d < 0 ? 'var(--red)' : 'var(--yellow)';
+  const dArrow = d > 0 ? '↑' : d < 0 ? '↓' : '→';
+  const trendCls = { improving:'var(--green)', declining:'var(--red)', stable:'var(--yellow)' };
+  const tc = trendCls[cmp.trend_direction] || 'var(--muted)';
+
+  const prevDate = cmp.prev_run_date ? new Date(cmp.prev_run_date).toLocaleDateString() : '—';
+  const wow = cmp.week_over_week_delta;
+  el.innerHTML = `
+    <table style="width:100%;font-size:13px">
+      <tr><td style="color:var(--muted);padding:6px 0">Skill #${cmp.current_skill_id}</td><td></td></tr>
+      <tr>
+        <td style="color:var(--muted)">Prev score</td>
+        <td style="font-weight:700">${cmp.prev_score}/100 <span style="font-size:10px;color:var(--muted)">(${prevDate})</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--muted)">Current score</td>
+        <td style="font-weight:700;color:${dColor}">${cmp.current_score}/100 <span style="font-size:12px">${dArrow} ${Math.abs(d)} pts</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--muted)">Issues</td>
+        <td>${cmp.current_issues_found} <span style="font-size:10px;color:var(--muted)">vs ${cmp.prev_issues_found} last run</span></td>
+      </tr>
+      ${wow != null ? `<tr><td style="color:var(--muted)">WoW avg</td>
+        <td style="color:${wow>0?'var(--green)':wow<0?'var(--red)':'var(--yellow)'};font-weight:700">${wow>0?'+':''}${wow} pts</td></tr>` : ''}
+      <tr>
+        <td style="color:var(--muted)">Trend</td>
+        <td style="font-weight:700;color:${tc}">${(cmp.trend_direction||'stable').toUpperCase()}</td>
+      </tr>
+    </table>
+    <div style="margin-top:12px;font-size:11px;color:var(--muted)">
+      Score history: ${(cmp.skill_trend||[]).join(' → ') || '—'}
+    </div>`;
+}
+
+/* ── Forecast detail ──────────────────────────────────────────────────────── */
+function renderForecastDetail(fc) {
+  const el = document.getElementById('forecast-detail');
+  if (!el) return;
+  if (!fc || fc.trend === 'insufficient_data' || !fc.trend) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:10px 0">Insufficient data.</div>';
+    return;
+  }
+  const trendCls = { improving:'var(--green)', declining:'var(--red)', stable:'var(--yellow)' };
+  const tc = trendCls[fc.trend] || 'var(--muted)';
+  const rc = fc.risk_level==='low'?'var(--green)':fc.risk_level==='high'?'var(--red)':'var(--yellow)';
+
+  const lowest = (fc.lowest_scoring_skills||[]).map(([sid,sc]) => {
+    const name = SKILL_NAMES[parseInt(sid)-1] || 'Skill '+sid;
+    return `<div style="font-size:11px;color:var(--muted);margin:3px 0">S${sid} ${name}: <strong style="color:${scoreColor(sc)}">${sc}/100</strong></div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <table style="width:100%;font-size:13px">
+      <tr><td style="color:var(--muted);padding:6px 0">Trend</td>
+          <td style="font-weight:700;color:${tc}">${(fc.trend||'').toUpperCase()}</td></tr>
+      <tr><td style="color:var(--muted)">7-day projection</td>
+          <td style="font-weight:700;color:${scoreColor(fc.projected_score_7d||0)}">${fc.projected_score_7d || '—'}/100</td></tr>
+      <tr><td style="color:var(--muted)">30-day projection</td>
+          <td style="font-weight:700;color:${scoreColor(fc.projected_score_30d||0)}">${fc.projected_score_30d || '—'}/100</td></tr>
+      <tr><td style="color:var(--muted)">Risk level</td>
+          <td style="font-weight:700;color:${rc}">${(fc.risk_level||'?').toUpperCase()}</td></tr>
+      <tr><td style="color:var(--muted)">Momentum</td>
+          <td>${(fc.momentum||'').title()} (${fc.avg_delta_recent>0?'+':''}${(fc.avg_delta_recent||0).toFixed(2)} pts/day)</td></tr>
+      <tr><td style="color:var(--muted)">Confidence</td>
+          <td>${(fc.confidence||'?').toUpperCase()} · ${fc.data_points||0} data points</td></tr>
+    </table>
+    ${lowest ? `<div style="margin-top:12px"><div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px">Priority targets:</div>${lowest}</div>` : ''}`;
+}
+
+/* ── Competitor panel ─────────────────────────────────────────────────────── */
+function renderCompetitorPanel(findings, issues) {
+  const el = document.getElementById('competitor-panel');
+  if (!el) return;
+  const compFindings = findings.filter(f => f.category === 'competitive');
+  if (!compFindings.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px">Run Skill 20 (Competitor Analysis) to populate this panel.</div>';
+    return;
+  }
+
+  const benchmarks = [
+    { label:'Schema implementation', issues: compFindings.filter(f => f.title.includes('Schema')) },
+    { label:'Blog content volume', issues: compFindings.filter(f => f.title.includes('blog')) },
+    { label:'AI/ML content authority', issues: compFindings.filter(f => f.title.toLowerCase().includes('authority')) },
+  ];
+
+  el.innerHTML = benchmarks.map(b => {
+    const pct = b.issues.length === 0 ? 100 : 60;
+    const c = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+    return `<div class="comp-row">
+      <div class="comp-name"><span>${b.label}</span><span style="color:${c};font-weight:700">${pct}%</span></div>
+      <div class="comp-bar"><div class="comp-fill" style="width:${pct}%;background:${c}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Technical SEO panel ──────────────────────────────────────────────────── */
+function renderTechnicalPanel(findings, issues) {
+  const el = document.getElementById('technical-panel');
+  if (!el) return;
+  const technicalCategories = {
+    'robots.txt': findings.filter(f => f.category==='robots'),
+    'sitemap.xml': findings.filter(f => f.category==='sitemap'),
+    'Canonical': findings.filter(f => f.category==='canonical'),
+    'Schema/LD+JSON': findings.filter(f => f.category==='schema'),
+    'Redirects': findings.filter(f => f.category==='redirects'),
+    'Core Web Vitals': findings.filter(f => f.category==='cwv'),
+  };
+
+  el.innerHTML = Object.entries(technicalCategories).map(([name, fList]) => {
+    const crit = fList.filter(f => f.severity==='critical').length;
+    const warn = fList.filter(f => f.severity==='warning').length;
+    const status = crit > 0 ? '✗' : warn > 0 ? '⚠' : '✓';
+    const col = crit > 0 ? 'var(--red)' : warn > 0 ? 'var(--yellow)' : 'var(--green)';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2)">
+      <div style="font-size:13px">${name}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${crit ? `<span style="font-size:10px;color:var(--red)">${crit} crit</span>` : ''}
+        ${warn ? `<span style="font-size:10px;color:var(--yellow)">${warn} warn</span>` : ''}
+        <span style="font-size:16px;color:${col}">${status}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Matrix chart (intelligence page) ────────────────────────────────────── */
+function renderMatrixChart(scores, runs) {
+  if (!scores.length) return;
+  const bySkill = {};
+  scores.forEach(s => {
+    if (!bySkill[s.skill_id]) bySkill[s.skill_id] = [];
+    bySkill[s.skill_id].push({ date:s.date, score:s.score });
+  });
+
+  const skillIds = Object.keys(bySkill).map(Number).sort((a,b) => a-b);
+  const maxRuns = Math.max(...skillIds.map(id => bySkill[id].length));
+
+  const datasets = skillIds.map((sid, idx) => {
+    const hues = [200, 120, 280, 40, 160, 320, 80];
+    const h = hues[idx % hues.length];
+    const vals = bySkill[sid].map(e => e.score);
+    const labels = bySkill[sid].map(e => e.date ? new Date(e.date).toLocaleDateString('en',{month:'short',day:'numeric'}) : '');
+    return {
+      label: 'S' + sid,
+      data: vals,
+      borderColor: `hsla(${h},70%,60%,.7)`,
+      backgroundColor: 'transparent',
+      tension:.3, pointRadius:3, borderWidth:1.5,
+    };
+  });
+
+  const allLabels = [...new Set(scores.map(s => s.date ? new Date(s.date).toLocaleDateString('en',{month:'short',day:'numeric'}) : ''))];
+
+  renderChart('matrix-chart', 'line', { labels:allLabels, datasets }, {
+    plugins:{ legend:{ position:'bottom', labels:{color:'#94a3b8',font:{size:9},padding:8,usePointStyle:true} } },
+    scales:{
+      x:{ ticks:{color:'#64748b',font:{size:9},maxTicksLimit:15}, grid:{color:'rgba(255,255,255,.03)'} },
+      y:{ min:0, max:100, ticks:{color:'#64748b',font:{size:10}}, grid:{color:'rgba(255,255,255,.03)'} }
+    }
+  });
+}
+
+/* ── Reports page ─────────────────────────────────────────────────────────── */
+function renderReportsPage(runs, summary) {
+  setText('rpt-total', runs.length);
+  setText('rpt-cycle', summary.cycle_number || '—');
+  const rptSub = document.getElementById('rpt-runs-sub');
+  if (rptSub) rptSub.textContent = `${runs.length} total executions · ${summary.total_runs||0} recent`;
+
+  const tbody = document.getElementById('all-runs-tbody');
+  if (tbody) {
+    tbody.innerHTML = [...runs].reverse().map(r => {
+      const d = r.date ? new Date(r.date).toLocaleDateString() : '—';
+      const sc = r.score || 0;
+      return `<tr>
+        <td style="font-family:monospace;font-size:10px;color:var(--muted)">${r.run_id||'—'}</td>
+        <td style="font-size:11px;color:var(--muted)">${d}</td>
+        <td><span class="tag">S${r.skill_id||'?'}</span> <span style="font-size:11px">${(r.skill_name||'').substring(0,20)}</span></td>
+        <td style="font-weight:700;color:${scoreColor(sc)}">${sc}</td>
+        <td>${r.issues_found||0}</td>
+        <td style="color:${(r.issues_critical||0)>0?'var(--red)':'var(--muted)'}">${r.issues_critical||0}</td>
+        <td style="color:var(--muted)">${r.cycle||'—'}</td>
+        <td style="font-size:11px;color:var(--muted)">${r.duration_s||0}s</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center">No runs yet</td></tr>';
+  }
+
+  // Email delivery rate
+  const rateEl = document.getElementById('rpt-email-rate');
+  if (rateEl) rateEl.textContent = runs.length > 0 ? '—' : '—';
+}
+
+/* ── Chart utility ────────────────────────────────────────────────────────── */
+function renderChart(id, type, data, options) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  if (charts[id]) { charts[id].destroy(); }
+  const ctx = canvas.getContext('2d');
+  charts[id] = new Chart(ctx, {
+    type,
+    data,
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      animation:{ duration:600 },
+      ...options,
+    }
+  });
+}
+
+/* ── DOM helpers ──────────────────────────────────────────────────────────── */
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function setWidth(id, val, cls) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.width = val + '%';
+  if (cls) el.className = 'progress-fill ' + cls;
+}
+
+/* ── Score helpers ────────────────────────────────────────────────────────── */
+function scoreColor(s) {
+  return s >= 80 ? 'var(--green)' : s >= 50 ? 'var(--yellow)' : 'var(--red)';
+}
+function scoreClass(s) {
+  return s >= 80 ? 'pf-green' : s >= 50 ? 'pf-yellow' : 'pf-red';
+}
+
+/* ── String prototype helper for forecast detail ─────────────────────────── */
+String.prototype.title = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+/* ── Auto-refresh every 5 minutes ─────────────────────────────────────────── */
 setInterval(loadData, 5 * 60 * 1000);
 </script>
 </body>
