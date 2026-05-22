@@ -7,9 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import memory
 import emailer
-from sheets import SheetsClient
 
-sheets = SheetsClient()
 runs = memory.load_runs()
 issues = memory.load_issues()
 scores = memory.load_score_history()

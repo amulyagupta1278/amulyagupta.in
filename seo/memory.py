@@ -196,7 +196,11 @@ def get_historical_comparison(runs: list, scores: list) -> dict:
 
     avg_last_week = sum(last_week_scores) / len(last_week_scores) if last_week_scores else None
     avg_prev_week = sum(prev_week_scores) / len(prev_week_scores) if prev_week_scores else None
-    week_delta = round(avg_last_week - avg_prev_week, 1) if avg_last_week and avg_prev_week else None
+    week_delta = (
+        round(avg_last_week - avg_prev_week, 1)
+        if avg_last_week is not None and avg_prev_week is not None
+        else None
+    )
 
     # Score trend for this skill (last 3 cycles)
     skill_trend = [s["score"] for s in skill_scores[-3:]] if skill_scores else []
@@ -204,21 +208,22 @@ def get_historical_comparison(runs: list, scores: list) -> dict:
         "declining" if len(skill_trend) >= 2 and skill_trend[-1] < skill_trend[-2] else "stable"
     )
 
+    prev_score = prev_same_skill.get("score") if prev_same_skill else None
+    prev_issues = prev_same_skill.get("issues_found") if prev_same_skill else None
+
     return {
         "current_skill_id": skill_id,
         "current_score": current.get("score", 0),
-        "prev_score": prev_same_skill.get("score") if prev_same_skill else None,
-        "score_delta": (current.get("score", 0) - prev_same_skill.get("score", 0))
-                       if prev_same_skill else None,
+        "prev_score": prev_score,
+        "score_delta": (current.get("score", 0) - prev_score) if prev_score is not None else None,
         "prev_run_date": prev_same_skill.get("date") if prev_same_skill else None,
-        "prev_issues_found": prev_same_skill.get("issues_found") if prev_same_skill else None,
+        "prev_issues_found": prev_issues,
         "current_issues_found": current.get("issues_found", 0),
-        "issue_delta": (current.get("issues_found", 0) - prev_same_skill.get("issues_found", 0))
-                       if prev_same_skill else None,
+        "issue_delta": (current.get("issues_found", 0) - prev_issues) if prev_issues is not None else None,
         "skill_trend": skill_trend,
         "trend_direction": trend_direction,
-        "avg_score_last_7d": round(avg_last_week, 1) if avg_last_week else None,
-        "avg_score_prev_7d": round(avg_prev_week, 1) if avg_prev_week else None,
+        "avg_score_last_7d": round(avg_last_week, 1) if avg_last_week is not None else None,
+        "avg_score_prev_7d": round(avg_prev_week, 1) if avg_prev_week is not None else None,
         "week_over_week_delta": week_delta,
         "total_runs_completed": len(runs),
         "cycle_number": get_cycle_number(),
@@ -380,18 +385,18 @@ def build_weekly_summary_data(runs: list, scores: list, issues: dict) -> dict:
         elif two_weeks_ago <= d < week_ago:
             prev_week_runs.append(r)
 
-    this_week_scores = [r["score"] for r in this_week_runs if r.get("score")]
-    prev_week_scores = [r["score"] for r in prev_week_runs if r.get("score")]
+    this_week_scores = [r["score"] for r in this_week_runs if r.get("score") is not None]
+    prev_week_scores = [r["score"] for r in prev_week_runs if r.get("score") is not None]
 
     avg_this = round(sum(this_week_scores) / len(this_week_scores), 1) if this_week_scores else 0
     avg_prev = round(sum(prev_week_scores) / len(prev_week_scores), 1) if prev_week_scores else 0
 
     active_issues = [i for i in issues.values() if i.get("status") == "active"]
-    new_this_week = [
-        i for i in active_issues
-        if _parse_date(i.get("first_seen", "")) is not None
-        and _parse_date(i["first_seen"]) >= week_ago
-    ]
+    new_this_week = []
+    for i in active_issues:
+        d = _parse_date(i.get("first_seen", ""))
+        if d is not None and d >= week_ago:
+            new_this_week.append(i)
     critical_issues = [i for i in active_issues if i.get("severity") == "critical"]
     recurring = detect_recurring_issues(issues)
 
@@ -399,10 +404,10 @@ def build_weekly_summary_data(runs: list, scores: list, issues: dict) -> dict:
     skills_run = [{"skill_id": r["skill_id"], "skill_name": r.get("skill_name", ""), "score": r["score"]}
                   for r in this_week_runs]
 
-    # Top improvements and regressions
-    score_changes = [(s, s.get("delta", 0)) for s in scores[-7:] if s.get("delta")]
-    improvements = [(s["skill_name"], s["delta"]) for s, d in score_changes if d > 0]
-    regressions = [(s["skill_name"], s["delta"]) for s, d in score_changes if d < 0]
+    # Top improvements and regressions (delta=0 is neutral, not a regression)
+    score_changes = [(s, s.get("delta", 0)) for s in scores[-7:] if s.get("delta") is not None]
+    improvements = [(s["skill_name"], d) for s, d in score_changes if d > 0]
+    regressions = [(s["skill_name"], d) for s, d in score_changes if d < 0]
 
     return {
         "period_start": week_ago.strftime("%b %d"),

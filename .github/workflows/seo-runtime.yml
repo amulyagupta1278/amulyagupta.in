@@ -34,10 +34,14 @@ name: SEO Autonomous Runtime
 
 on:
   schedule:
-    # Single daily schedule: 23:00 UTC = 04:30 AM IST (UTC+5:30)
-    # The weekly-summary job checks the day-of-week in bash (Sunday = day 7)
-    # to avoid depending on a second schedule entry or github.event.schedule.
+    # Daily trigger (23:00 UTC = 04:30 IST) — drives the seo-runtime job.
+    # The seo-runtime job condition excludes the Sunday-only trigger below
+    # to prevent double-execution on Sundays.
     - cron: '0 23 * * *'
+    # Sunday-only trigger — drives the weekly-summary job exclusively.
+    # Using a separate cron (rather than a bash date check) means github.event.schedule
+    # is set at dispatch time, immune to runner backlog timezone races.
+    - cron: '0 23 * * 0'
   workflow_dispatch:
     inputs:
       skill_override:
@@ -47,7 +51,12 @@ on:
       enabled_skill_group:
         description: 'Skill group: 1=Foundational, 2=+Technical, 3=+Advanced (all 23)'
         required: false
+        type: choice
         default: '3'
+        options:
+          - '1'
+          - '2'
+          - '3'
       force_init:
         description: 'Force re-initialise Sheets structure (use only on first deploy)'
         required: false
@@ -73,6 +82,11 @@ jobs:
     name: "SEO Skill Runtime — Group ${{ github.event.inputs.enabled_skill_group || '3' }} (All 23 Skills)"
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # Exclude the Sunday-only cron trigger (0 23 * * 0) to prevent this job
+    # from running twice on Sundays. It runs on the daily cron and on manual dispatch.
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '0 23 * * *') ||
+      github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout repository
@@ -146,16 +160,15 @@ jobs:
           retention-days: 90
 
   # ── Weekly Summary (Sundays 23:00 UTC = Monday 04:30 IST) ───────────────────
-  # Runs every day via the shared daily schedule but skips email unless Sunday
-  # or explicitly triggered via workflow_dispatch send_weekly_summary=true.
-  # Using a bash day-of-week check (date +%u = 7 for Sunday) avoids any
-  # dependence on github.event.schedule string matching.
+  # Triggered only by the Sunday-only cron (0 23 * * 0) or manual dispatch.
+  # Using github.event.schedule (set at dispatch time) is immune to runner
+  # backlog timezone races that would affect a bash date +%u check.
   weekly-summary:
     name: "SEO Weekly Summary Email"
     runs-on: ubuntu-latest
     timeout-minutes: 20
     if: >-
-      github.event_name == 'schedule' ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 23 * * 0') ||
       (github.event_name == 'workflow_dispatch' &&
        github.event.inputs.send_weekly_summary == 'true')
 
@@ -185,13 +198,4 @@ jobs:
           SKILL_OVERRIDE: 'auto'
           ENABLED_SKILL_GROUP: '3'
           SEND_WEEKLY_SUMMARY: 'true'
-        run: |
-          # Only send email on Sundays (date +%u = 7) or when manually triggered.
-          DAY_OF_WEEK=$(date -u +%u)
-          MANUAL="${{ github.event.inputs.send_weekly_summary }}"
-          if [ "$DAY_OF_WEEK" = "7" ] || [ "$MANUAL" = "true" ]; then
-            echo "Sending weekly SEO summary (day=$DAY_OF_WEEK, manual=$MANUAL)..."
-            python weekly_summary.py
-          else
-            echo "Weekly summary skipped -- not Sunday (day=$DAY_OF_WEEK) and not manual trigger."
-          fi
+        run: python weekly_summary.py
