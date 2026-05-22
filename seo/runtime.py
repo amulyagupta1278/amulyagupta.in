@@ -16,6 +16,7 @@ Governance:
   - No direct commits to main; no auto-merge authority
 """
 
+import html as html_lib
 import logging
 import os
 import sys
@@ -144,7 +145,7 @@ def handle_failure(
       <tr><td style="padding:8px;color:#94a3b8;">Skill</td>
           <td style="padding:8px;">#{skill_id} — {skill_name}</td></tr>
       <tr><td style="padding:8px;color:#94a3b8;">Error</td>
-          <td style="padding:8px;color:#fca5a5;">{error[:400]}</td></tr>
+          <td style="padding:8px;color:#fca5a5;">{html_lib.escape(error[:400])}</td></tr>
       <tr><td style="padding:8px;color:#94a3b8;">Time (UTC)</td>
           <td style="padding:8px;">{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}</td></tr>
     </table>
@@ -389,17 +390,60 @@ def run() -> None:
 
     # ── Dashboard snapshot ───────────────────────────────────────────────────
     issues = memory.load_issues()
-    memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
+    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
     log.info("Dashboard snapshot written")
+
+    # ── Build enriched intelligence for reporting ────────────────────────────
+    runs_history = memory.load_runs()
+    try:
+        comparison = memory.get_historical_comparison(runs_history, scores)
+        forecast = memory.build_predictive_forecast(scores)
+        cycle_progress = memory.get_cycle_progress(runs_history, enabled_skills)
+        recurring = memory.detect_recurring_issues(issues)
+        log.info(
+            "Intelligence: trend=%s 7d-proj=%s cycle=%d/%d recurring=%d",
+            forecast.get("trend", "?"),
+            forecast.get("projected_score_7d", "?"),
+            cycle_progress.get("position", 0),
+            cycle_progress.get("total", 23),
+            len(recurring),
+        )
+    except Exception as e:
+        log.warning("Intelligence enrichment failed (degraded mode): %s", e)
+        comparison, forecast, cycle_progress, recurring = {}, {}, {}, []
+
+    # ── Critical incident alert — send immediately if criticals found ─────────
+    if result.critical_count > 0:
+        governance.assert_humaniser_scope("emailer.build_critical_incident_alert")
+        try:
+            alert_html, alert_text = emailer.build_critical_incident_alert(
+                run_id, skill_id, findings_dicts
+            )
+            emailer.send_report(
+                f"[SEO CRITICAL] {result.critical_count} critical issue(s) — "
+                f"Skill {skill_id} | {skill_name} | {now.strftime('%b %d')}",
+                alert_html,
+                alert_text,
+            )
+        except Exception as e:
+            log.warning("Critical alert email failed: %s", e)
 
     # ── Email report — Humaniser layer (post-execution only) ─────────────────
     governance.assert_humaniser_scope("emailer.build_morning_brief")
-    html, text = emailer.build_morning_brief(run_record, findings_dicts, skill_name, result.score)
+    html, text = emailer.build_morning_brief(
+        run_record, findings_dicts, skill_name, result.score,
+        comparison=comparison,
+        forecast=forecast,
+        cycle_progress=cycle_progress,
+        recurring=recurring,
+    )
+    status_icon = "✓" if result.score >= 80 else "⚠" if result.score >= 50 else "✗"
     subject = (
-        f"[SEO] Group {config.ENABLED_SKILL_GROUP} | "
-        f"Skill {skill_id}/23 — {skill_name} | "
+        f"[SEO {status_icon}] Skill {skill_id:02d}/23 — {skill_name} | "
         f"Score {result.score}/100 | {now.strftime('%b %d')}"
     )
+    if result.critical_count > 0:
+        subject = f"[SEO CRITICAL] " + subject.lstrip("[SEO ✗] ")
     email_ok = emailer.send_report(subject, html, text)
     sheets.append("seo_emails", [
         now.isoformat(), config.REPORT_EMAIL, subject,

@@ -1,7 +1,7 @@
 import os
 
 SITE_URL = os.environ.get("SITE_URL", "https://amulyagupta.in").rstrip("/")
-REPORT_EMAIL = os.environ.get("REPORT_EMAIL", "amulagupta2001@gmail.com")
+REPORT_EMAIL = os.environ.get("REPORT_EMAIL", "amulyagupta2001@gmail.com")
 GMAIL_SENDER = os.environ.get("GMAIL_SENDER", "")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 PAGESPEED_API_KEY = os.environ.get("PAGESPEED_API_KEY", "")
@@ -10,10 +10,13 @@ GOOGLE_SERVICE_ACCOUNT_JSON = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
 GOOGLE_SHEETS_API_KEY = os.environ.get("GOOGLE_SHEETS_API_KEY", "")
 SKILL_OVERRIDE = os.environ.get("SKILL_OVERRIDE", "auto")
 FORCE_INIT = os.environ.get("FORCE_INIT", "false").lower() == "true"
+SEND_WEEKLY_SUMMARY = os.environ.get("SEND_WEEKLY_SUMMARY", "false").lower() == "true"
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY", "")
 GITHUB_REF = os.environ.get("GITHUB_REF", "")
 IS_MANUAL_DISPATCH = os.environ.get("GITHUB_EVENT_NAME", "schedule") == "workflow_dispatch"
+GOOGLE_SEARCH_CONSOLE_CREDENTIALS = os.environ.get("GOOGLE_SEARCH_CONSOLE_CREDENTIALS", "")
+GOOGLE_ANALYTICS_CREDENTIALS = os.environ.get("GOOGLE_ANALYTICS_CREDENTIALS", "")
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
@@ -102,7 +105,7 @@ SKILL_GROUPS: dict[int, list[int]] = {
     3: [3, 8, 9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23],  # Advanced
 }
 
-ENABLED_SKILL_GROUP = int(os.environ.get("ENABLED_SKILL_GROUP", "1"))
+ENABLED_SKILL_GROUP = int(os.environ.get("ENABLED_SKILL_GROUP", "3"))
 
 
 def get_enabled_skills() -> list[int]:

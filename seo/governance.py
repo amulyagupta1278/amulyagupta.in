@@ -91,26 +91,30 @@ _PROTECTED_BRANCHES = frozenset({"main", "master"})
 
 
 def enforce_no_direct_push(github_ref: str | None) -> None:
-    """Abort if the runtime is executing on a protected branch."""
+    """
+    HS2: Warn if executing on a protected branch.
+
+    GitHub scheduled workflows always run on the default branch (main), so we
+    must NOT abort here — execution is safe and read-only.  The actual guard
+    against committing or pushing to main lives in the workflow bash step
+    ("Commit dashboard data"), which skips the push on protected branches.
+    """
     ref = (github_ref or "").removeprefix("refs/heads/")
     if ref in _PROTECTED_BRANCHES:
-        _raise(
-            2,
-            f"Runtime executing on protected branch '{ref}'.\n"
-            "The SEO runtime NEVER pushes directly to main or master.\n"
-            "All site remediation must follow the PR-only model:\n"
-            "  Runtime → Generate Recommendation → Create PR\n"
-            "  → Human Review → Manual Approval → Manual Merge",
+        log.warning(
+            "[HS2] Running on protected branch '%s'. "
+            "Execution proceeds (read-only audit). "
+            "Data commits to this branch are blocked by the workflow bash guard.",
+            ref,
         )
-    log.info("[HS2] Branch '%s' is not protected — PR-only model confirmed", ref)
+    else:
+        log.info("[HS2] Branch '%s' — PR-only model confirmed", ref)
+    log.info("[HS2] Auto-merge authority: NONE — runtime never pushes site changes directly")
 
 
 def assert_no_auto_merge_authority() -> None:
     """Declaration: the runtime has no merge authority. Logs confirmation."""
-    log.info(
-        "[HS2] Auto-merge authority: NONE — runtime creates PRs only, "
-        "never merges, never approves its own PRs, never deploys autonomously"
-    )
+    log.info("[HS2] Auto-merge authority: NONE — runtime creates PRs only, never self-merges")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
