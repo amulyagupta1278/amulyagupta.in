@@ -183,14 +183,16 @@ def get_historical_comparison(runs: list, scores: list) -> dict:
         except Exception:
             return None
 
-    last_week_scores = [
-        s["score"] for s in scores
-        if _parse_date(s.get("date", "")) and week_ago <= _parse_date(s["date"]) <= now
-    ]
-    prev_week_scores = [
-        s["score"] for s in scores
-        if _parse_date(s.get("date", "")) and two_weeks_ago <= _parse_date(s["date"]) < week_ago
-    ]
+    last_week_scores = []
+    prev_week_scores = []
+    for s in scores:
+        d = _parse_date(s.get("date", ""))
+        if d is None:
+            continue
+        if week_ago <= d <= now:
+            last_week_scores.append(s["score"])
+        elif two_weeks_ago <= d < week_ago:
+            prev_week_scores.append(s["score"])
 
     avg_last_week = sum(last_week_scores) / len(last_week_scores) if last_week_scores else None
     avg_prev_week = sum(prev_week_scores) / len(prev_week_scores) if prev_week_scores else None
@@ -367,8 +369,16 @@ def build_weekly_summary_data(runs: list, scores: list, issues: dict) -> dict:
         except Exception:
             return None
 
-    this_week_runs = [r for r in runs if _parse_date(r.get("date", "")) and _parse_date(r["date"]) >= week_ago]
-    prev_week_runs = [r for r in runs if _parse_date(r.get("date", "")) and two_weeks_ago <= _parse_date(r["date"]) < week_ago]
+    this_week_runs = []
+    prev_week_runs = []
+    for r in runs:
+        d = _parse_date(r.get("date", ""))
+        if d is None:
+            continue
+        if d >= week_ago:
+            this_week_runs.append(r)
+        elif two_weeks_ago <= d < week_ago:
+            prev_week_runs.append(r)
 
     this_week_scores = [r["score"] for r in this_week_runs if r.get("score")]
     prev_week_scores = [r["score"] for r in prev_week_runs if r.get("score")]
@@ -377,7 +387,11 @@ def build_weekly_summary_data(runs: list, scores: list, issues: dict) -> dict:
     avg_prev = round(sum(prev_week_scores) / len(prev_week_scores), 1) if prev_week_scores else 0
 
     active_issues = [i for i in issues.values() if i.get("status") == "active"]
-    new_this_week = [i for i in active_issues if _parse_date(i.get("first_seen", "")) and _parse_date(i["first_seen"]) >= week_ago]
+    new_this_week = [
+        i for i in active_issues
+        if _parse_date(i.get("first_seen", "")) is not None
+        and _parse_date(i["first_seen"]) >= week_ago
+    ]
     critical_issues = [i for i in active_issues if i.get("severity") == "critical"]
     recurring = detect_recurring_issues(issues)
 

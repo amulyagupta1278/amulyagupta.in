@@ -67,13 +67,15 @@ def get_all_links(soup: BeautifulSoup, base_url: str = SITE_URL) -> dict:
 
 def extract_json_ld(soup: BeautifulSoup) -> list[dict]:
     import json
+    import logging
+    _log = logging.getLogger("seo.crawler")
     schemas = []
     for script in soup.find_all("script", type="application/ld+json"):
         try:
             data = json.loads(script.string or "")
             schemas.append(data if isinstance(data, dict) else {"@graph": data})
-        except Exception:
-            pass
+        except Exception as exc:
+            _log.debug("JSON-LD parse failed: %s", exc)
     return schemas
 
 

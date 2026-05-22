@@ -22,4 +22,8 @@ ok = emailer.send_report(
     html,
     text,
 )
-print("Weekly summary sent." if ok else "Weekly summary email delivery failed.")
+if ok:
+    print("Weekly summary sent.")
+else:
+    print("Weekly summary email delivery failed.", file=sys.stderr)
+    sys.exit(1)

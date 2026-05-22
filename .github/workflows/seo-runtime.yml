@@ -8,7 +8,7 @@ name: SEO Autonomous Runtime
 #
 #   HS2  NO_AUTO_MERGE_OR_DIRECT_PUSH
 #        Runtime never merges PRs, never pushes to main, never self-approves.
-#        All remediation: Runtime → PR → Human Review → Manual Merge.
+#        All remediation: Runtime -> PR -> Human Review -> Manual Merge.
 #
 #   HS3  DASHBOARD_AND_OBSERVABILITY_REQUIRED
 #        Local JSON + Google Sheets persistence; dashboard auto-refreshes.
@@ -27,25 +27,25 @@ name: SEO Autonomous Runtime
 #        runs post-execution only.
 #
 # Skill group advancement:
-#   Phase 1 (Group 1)  — Robots/Sitemap, Meta/OG, Internal Linking, Headings
-#   Phase 2 (Group 2)  — Crawl Audit, Schema, CWV, Images, Mobile, Page Speed
-#   Phase 3 (Group 3)  — All 23 skills active  ← CURRENT DEFAULT
+#   Phase 1 (Group 1)  -- Robots/Sitemap, Meta/OG, Internal Linking, Headings
+#   Phase 2 (Group 2)  -- Crawl Audit, Schema, CWV, Images, Mobile, Page Speed
+#   Phase 3 (Group 3)  -- All 23 skills active  <- CURRENT DEFAULT
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
   schedule:
-    # 23:00 UTC = 04:30 AM IST (UTC+5:30) — daily SEO skill run
+    # Single daily schedule: 23:00 UTC = 04:30 AM IST (UTC+5:30)
+    # The weekly-summary job checks the day-of-week in bash (Sunday = day 7)
+    # to avoid depending on a second schedule entry or github.event.schedule.
     - cron: '0 23 * * *'
-    # Sunday 23:00 UTC — triggers the weekly-summary job
-    - cron: '0 23 * * 0'
   workflow_dispatch:
     inputs:
       skill_override:
-        description: 'Force a specific skill (1–23) or leave blank for auto-rotation'
+        description: 'Force a specific skill (1-23) or leave blank for auto-rotation'
         required: false
         default: 'auto'
       enabled_skill_group:
-        description: 'Skill group to activate: 1=Foundational, 2=+Technical, 3=+Advanced (all 23)'
+        description: 'Skill group: 1=Foundational, 2=+Technical, 3=+Advanced (all 23)'
         required: false
         default: '3'
       force_init:
@@ -68,6 +68,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # ── Daily SEO skill execution ────────────────────────────────────────────────
   seo-runtime:
     name: "SEO Skill Runtime — Group ${{ github.event.inputs.enabled_skill_group || '3' }} (All 23 Skills)"
     runs-on: ubuntu-latest
@@ -101,7 +102,6 @@ jobs:
           SEND_WEEKLY_SUMMARY: ${{ github.event.inputs.send_weekly_summary || 'false' }}
           GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
           GMAIL_SENDER: ${{ secrets.EMAIL_USERNAME }}
           GMAIL_APP_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           PAGESPEED_API_KEY: ${{ secrets.PAGESPEEDKEY }}
@@ -116,22 +116,24 @@ jobs:
       - name: Commit dashboard data
         if: always()
         run: |
-          # HS2 note: seo/data/ contains only JSON observability telemetry (dashboard.json,
-          # runs.json, issues.json, scores.json).  These are NOT site-content files; they
-          # are the operational persistence layer (spec §9).  Committing them to any branch
-          # is safe and required for the live dashboard to receive fresh data.
-          # Site-content files (HTML, CSS, robots.txt, sitemap.xml, schema) are NEVER
-          # touched here — they go through the mandatory PR → human-review → manual-merge
-          # workflow enforced by the Python governance layer (governance.py HS2).
+          # seo/data/ contains only JSON observability telemetry (dashboard.json,
+          # runs.json, issues.json, scores.json) — NOT site-content files.
+          # These are the operational persistence layer required for the live
+          # dashboard. Site-content changes (HTML, CSS, robots.txt, etc.) go
+          # through the PR -> human-review -> manual-merge path enforced by
+          # governance.py HS2 and are never touched here.
           git config user.name "SEO Runtime Bot"
           git config user.email "seo-bot@amulyagupta.in"
           git add seo/data/ 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "No data changes to commit."
           else
-            git commit -m "chore(seo): update dashboard telemetry — $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
-            git push origin HEAD:${{ github.ref_name }} \
-              || echo "Push failed — data preserved in artifact"
+            git commit -m "chore(seo): update dashboard telemetry -- $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "Dashboard data pushed successfully."
+            else
+              echo "::warning::git push failed -- dashboard data NOT updated in repo. Artifact preserved."
+            fi
           fi
 
       - name: Upload run artifacts
@@ -140,14 +142,23 @@ jobs:
         with:
           name: seo-run-${{ github.run_number }}-${{ github.run_attempt }}
           path: seo/data/
+          if-no-files-found: warn
           retention-days: 90
 
-  # ── Weekly Summary (every Monday 23:00 UTC = Tuesday 04:30 IST) ────────────
+  # ── Weekly Summary (Sundays 23:00 UTC = Monday 04:30 IST) ───────────────────
+  # Runs every day via the shared daily schedule but skips email unless Sunday
+  # or explicitly triggered via workflow_dispatch send_weekly_summary=true.
+  # Using a bash day-of-week check (date +%u = 7 for Sunday) avoids any
+  # dependence on github.event.schedule string matching.
   weekly-summary:
     name: "SEO Weekly Summary Email"
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.event_name == 'schedule' && github.event.schedule == '0 23 * * 0'
+    if: >-
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.event.inputs.send_weekly_summary == 'true')
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -174,4 +185,13 @@ jobs:
           SKILL_OVERRIDE: 'auto'
           ENABLED_SKILL_GROUP: '3'
           SEND_WEEKLY_SUMMARY: 'true'
-        run: python weekly_summary.py
+        run: |
+          # Only send email on Sundays (date +%u = 7) or when manually triggered.
+          DAY_OF_WEEK=$(date -u +%u)
+          MANUAL="${{ github.event.inputs.send_weekly_summary }}"
+          if [ "$DAY_OF_WEEK" = "7" ] || [ "$MANUAL" = "true" ]; then
+            echo "Sending weekly SEO summary (day=$DAY_OF_WEEK, manual=$MANUAL)..."
+            python weekly_summary.py
+          else
+            echo "Weekly summary skipped -- not Sunday (day=$DAY_OF_WEEK) and not manual trigger."
+          fi

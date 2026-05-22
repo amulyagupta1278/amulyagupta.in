@@ -56,7 +56,12 @@ def enforce_one_skill_per_day(last_run_date: str | None, is_manual_dispatch: boo
         return  # First-ever run
 
     try:
-        last_date = datetime.fromisoformat(last_run_date).date()
+        dt = datetime.fromisoformat(last_run_date)
+        # Normalize to UTC date whether or not the stored string has a tz offset.
+        if dt.tzinfo is not None:
+            last_date = dt.astimezone(timezone.utc).date()
+        else:
+            last_date = dt.date()  # stored as utcnow() so no tz suffix
     except (ValueError, TypeError):
         return  # Unparseable date — don't block on metadata corruption
 
