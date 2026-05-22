@@ -387,6 +387,34 @@ def run() -> None:
                     now.isoformat(), rec.get("url", ""), metric,
                     rec.get(key, 0), "unknown", rec.get("strategy", "mobile"), run_id,
                 ])
+    if skill_id == 20:
+        comp_meta = result.metadata
+        for bench, val in [
+            ("schema_types_found", len(comp_meta.get("own_schema_types", []))),
+            ("blog_pages_count", comp_meta.get("blog_pages", 0)),
+        ]:
+            sheets.append("seo_competitors", [
+                now.isoformat(), "self-benchmark", bench,
+                val, val, 0,
+                f"Skill 20 self-assessment: {bench}={val}",
+                run_id,
+            ])
+
+    # ── Report archive ───────────────────────────────────────────────────────
+    report_summary = (
+        f"Score {result.score}/100 | Issues {len(findings_dicts)} | "
+        f"Critical {result.critical_count} | Duration {duration}s"
+    )
+    sheets.append("seo_reports", [
+        str(uuid.uuid4())[:8],
+        now.isoformat(),
+        skill_id,
+        "daily_skill_audit",
+        f"Skill {skill_id:02d}/23 — {skill_name}",
+        report_summary,
+        "",
+        run_id,
+    ])
 
     # ── Dashboard snapshot ───────────────────────────────────────────────────
     issues = memory.load_issues()
