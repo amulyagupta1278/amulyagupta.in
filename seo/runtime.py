@@ -35,6 +35,7 @@ import governance
 import memory
 from governance import HardStopViolation
 from sheets import SheetsClient
+from github_issue import create_findings_issue
 
 logging.basicConfig(
     level=logging.INFO,
@@ -362,6 +363,8 @@ def run() -> None:
         "issues_critical": result.critical_count,
         "duration_s": duration,
         "status": "completed",
+        "email_sent": False,   # updated below after send attempt
+        "github_issue": None,  # updated below if issue created
         "notes": f"Group {config.ENABLED_SKILL_GROUP} | skill {skill_id}/23",
     }
     memory.append_run(run_record)
@@ -448,6 +451,19 @@ def run() -> None:
         except Exception as e:
             log.warning("Critical alert email failed: %s", e)
 
+        # ── GitHub Issue — track critical findings for human review ───────────
+        # Spec §19: Runtime → Detect Issue → Generate Proposed Fix →
+        #           Create Tracking Issue → Human Review → Manual Resolution
+        try:
+            issue_url = create_findings_issue(
+                run_id, skill_id, skill_name, result.score, findings_dicts
+            )
+            if issue_url:
+                run_record["github_issue"] = issue_url
+                log.info("Critical findings issue: %s", issue_url)
+        except Exception as e:
+            log.warning("GitHub issue creation failed (non-fatal): %s", e)
+
     # ── Email report — Humaniser layer (post-execution only) ─────────────────
     governance.assert_humaniser_scope("emailer.build_morning_brief")
     html, text = emailer.build_morning_brief(
@@ -465,6 +481,7 @@ def run() -> None:
     if result.critical_count > 0:
         subject = f"[SEO CRITICAL] " + subject.lstrip("[SEO ✗] ")
     email_ok = emailer.send_report(subject, html, text)
+    run_record["email_sent"] = email_ok
     sheets.append("seo_emails", [
         now.isoformat(), config.REPORT_EMAIL, subject,
         "sent" if email_ok else "failed",

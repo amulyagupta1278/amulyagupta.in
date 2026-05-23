@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-19T00:00:00",
+  "generated_at": null,
   "site_url": "https://amulyagupta.in",
   "current_run": {},
   "summary": {
@@ -10,7 +10,9 @@
     "total_runs": 0,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 0
+    "cycle_percent": 0,
+    "email_delivery_rate": null,
+    "github_issues_created": 0
   },
   "recent_runs": [],
   "latest_findings": [],

@@ -625,7 +625,7 @@
 
 <!-- ══════════════════════════════════════════════════════════ PAGE: REPORTS -->
 <div class="page" id="page-reports">
-  <div class="g3" style="margin-bottom:20px">
+  <div class="g4" style="margin-bottom:20px">
     <div class="card accent-left">
       <div class="card-title">Report Archive</div>
       <div class="kpi-val" id="rpt-total" style="color:var(--accent)">—</div>
@@ -635,6 +635,11 @@
       <div class="card-title">Email Delivery Rate</div>
       <div class="kpi-val" id="rpt-email-rate" style="color:var(--green)">—</div>
       <div class="kpi-lbl">successful deliveries</div>
+    </div>
+    <div class="card red-left">
+      <div class="card-title">GitHub Issues Created</div>
+      <div class="kpi-val" id="rpt-gh-issues" style="color:var(--red)">—</div>
+      <div class="kpi-lbl">critical findings tracked</div>
     </div>
     <div class="card">
       <div class="card-title">Current Cycle</div>
@@ -652,10 +657,11 @@
       <table>
         <thead><tr>
           <th>Run ID</th><th>Date</th><th>Skill</th><th>Score</th>
-          <th>Issues</th><th>Critical</th><th>Cycle</th><th>Duration</th>
+          <th>Issues</th><th>Critical</th><th>Email</th><th>Issue</th>
+          <th>Cycle</th><th>Duration</th>
         </tr></thead>
         <tbody id="all-runs-tbody">
-          <tr><td colspan="8" class="loading">Loading<span class="spinner"></span></td></tr>
+          <tr><td colspan="10" class="loading">Loading<span class="spinner"></span></td></tr>
         </tbody>
       </table>
     </div>
@@ -925,6 +931,7 @@ function renderAll(data) {
 
   // Reports page
   renderReportsPage(runs, summary);
+  renderEmailLog(runs);
 
   // Memory page
   renderMemoryPage(scores, runs, issues, recurring);
@@ -1561,6 +1568,11 @@ function renderReportsPage(runs, summary) {
     tbody.innerHTML = [...runs].reverse().map(r => {
       const d = r.date ? new Date(r.date).toLocaleDateString() : '—';
       const sc = r.score || 0;
+      const emailIcon = r.email_sent === true ? '✓' : r.email_sent === false ? '✗' : '—';
+      const emailColor = r.email_sent === true ? 'var(--green)' : r.email_sent === false ? 'var(--red)' : 'var(--muted)';
+      const issueLink = r.github_issue
+        ? `<a href="${r.github_issue}" target="_blank" style="color:var(--accent);font-size:10px">#GH</a>`
+        : '—';
       return `<tr>
         <td style="font-family:monospace;font-size:10px;color:var(--muted)">${r.run_id||'—'}</td>
         <td style="font-size:11px;color:var(--muted)">${d}</td>
@@ -1568,15 +1580,25 @@ function renderReportsPage(runs, summary) {
         <td style="font-weight:700;color:${scoreColor(sc)}">${sc}</td>
         <td>${r.issues_found||0}</td>
         <td style="color:${(r.issues_critical||0)>0?'var(--red)':'var(--muted)'}">${r.issues_critical||0}</td>
+        <td style="color:${emailColor};font-weight:600">${emailIcon}</td>
+        <td>${issueLink}</td>
         <td style="color:var(--muted)">${r.cycle||'—'}</td>
         <td style="font-size:11px;color:var(--muted)">${r.duration_s||0}s</td>
       </tr>`;
-    }).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center">No runs yet</td></tr>';
+    }).join('') || '<tr><td colspan="10" style="color:var(--muted);text-align:center">No runs yet</td></tr>';
   }
 
-  // Email delivery rate
+  // Email delivery rate from summary
   const rateEl = document.getElementById('rpt-email-rate');
-  if (rateEl) rateEl.textContent = runs.length > 0 ? '—' : '—';
+  if (rateEl) {
+    const rate = summary.email_delivery_rate;
+    rateEl.textContent = rate != null ? rate + '%' : '—';
+    rateEl.style.color = rate >= 90 ? 'var(--green)' : rate >= 70 ? 'var(--yellow)' : 'var(--red)';
+  }
+
+  // GitHub issues created
+  const ghEl = document.getElementById('rpt-gh-issues');
+  if (ghEl) ghEl.textContent = summary.github_issues_created || 0;
 }
 
 /* ── Chart utility ────────────────────────────────────────────────────────── */
@@ -1735,6 +1757,32 @@ function renderMemoryPage(scores, runs, issues, recurring) {
       }).join('');
     }
   }
+}
+
+/* ── Email delivery log (reports page) ───────────────────────────────────── */
+function renderEmailLog(runs) {
+  const el = document.getElementById('email-log');
+  if (!el) return;
+  const tracked = runs.filter(r => 'email_sent' in r).slice(-10).reverse();
+  if (!tracked.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px">Email tracking begins after the first run.</div>';
+    return;
+  }
+  el.innerHTML = tracked.map(r => {
+    const ok = r.email_sent === true;
+    const d = r.date ? new Date(r.date).toLocaleDateString() : '—';
+    const name = (r.skill_name || '').substring(0, 24);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2)">
+      <div>
+        <div style="font-size:12px;font-weight:600">${d} — S${r.skill_id} ${name}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px">
+          ${r.run_id || '—'}
+          ${r.github_issue ? ` · <a href="${r.github_issue}" target="_blank" style="color:var(--accent)">GitHub Issue</a>` : ''}
+        </div>
+      </div>
+      <span class="sev ${ok ? 'sev-good' : 'sev-critical'}">${ok ? 'SENT' : 'FAILED'}</span>
+    </div>`;
+  }).join('');
 }
 
 /* ── Auto-refresh every 5 minutes ─────────────────────────────────────────── */

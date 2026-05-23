@@ -452,6 +452,12 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
     # Historical comparison
     comparison = get_historical_comparison(recent_runs, scores)
 
+    # Email delivery stats from run history
+    all_runs = load_runs()
+    email_sent = sum(1 for r in all_runs if r.get("email_sent") is True)
+    email_total = sum(1 for r in all_runs if "email_sent" in r)
+    email_rate = round(email_sent / email_total * 100) if email_total > 0 else None
+
     snapshot = {
         "generated_at": now,
         "site_url": "https://amulyagupta.in",
@@ -465,6 +471,8 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
             "recurring_issues": len(recurring),
             "cycle_number": cycle_progress.get("cycle", 1),
             "cycle_percent": cycle_progress.get("percent", 0),
+            "email_delivery_rate": email_rate,
+            "github_issues_created": sum(1 for r in all_runs if r.get("github_issue")),
         },
         "recent_runs": recent_runs,
         "latest_findings": findings[:50],
