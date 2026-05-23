@@ -1,0 +1,15 @@
+[
+  {
+    "run_id": "012c18e9",
+    "date": "2026-05-23T23:58:31.365415",
+    "skill_id": 1,
+    "skill_name": "Technical Crawl Audit",
+    "score": 100,
+    "issues_found": 0,
+    "issues_critical": 0,
+    "duration_s": 11,
+    "status": "completed",
+    "notes": "Group 3 | skill 1/23",
+    "cycle": 1
+  }
+]
