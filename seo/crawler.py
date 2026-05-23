@@ -14,22 +14,24 @@ def fetch(url: str, timeout: int = 15) -> dict:
     try:
         r = SESSION.get(url, timeout=timeout, allow_redirects=True)
         elapsed = int((time.time() - start) * 1000)
+        content_type = r.headers.get("content-type", "")
         return {
             "url": url,
             "status": r.status_code,
             "elapsed_ms": elapsed,
-            "content_type": r.headers.get("content-type", ""),
-            "html": r.text if "html" in r.headers.get("content-type", "") else "",
+            "content_type": content_type,
+            "html": r.text if "html" in content_type else "",
+            "text": r.text,
             "headers": dict(r.headers),
             "redirect_url": r.url if r.url != url else None,
             "error": None,
         }
     except requests.exceptions.Timeout:
         return {"url": url, "status": 0, "elapsed_ms": timeout * 1000,
-                "content_type": "", "html": "", "headers": {}, "redirect_url": None, "error": "timeout"}
+                "content_type": "", "html": "", "text": "", "headers": {}, "redirect_url": None, "error": "timeout"}
     except Exception as e:
         return {"url": url, "status": 0, "elapsed_ms": int((time.time() - start) * 1000),
-                "content_type": "", "html": "", "headers": {}, "redirect_url": None, "error": str(e)}
+                "content_type": "", "html": "", "text": "", "headers": {}, "redirect_url": None, "error": str(e)}
 
 
 def parse(html: str, base_url: str = SITE_URL) -> BeautifulSoup:

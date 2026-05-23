@@ -88,7 +88,6 @@ class Skill10KeywordOptimization(BaseSEOSkill):
                 ))
 
             # Check in URL
-            kw_slug = primary_kw.replace(" ", "-").replace(" ", "_")
             if any(part in url_lower for part in primary_kw.split()):
                 page_score += 1
 

@@ -24,7 +24,7 @@ class Skill11AISearchReadiness(BaseSEOSkill):
                 recommendation="Create /llms.txt with structured summary of site content for AI crawlers.",
             ))
         else:
-            content = llms.get("html", "")
+            content = llms.get("text", "")
             if len(content) < 200:
                 score -= 10
                 findings.append(Finding(
@@ -113,7 +113,7 @@ class Skill11AISearchReadiness(BaseSEOSkill):
         # Check for AI crawler permissions in robots.txt
         robots = crawler.fetch(f"{SITE_URL}/robots.txt")
         if robots["status"] == 200:
-            content = robots.get("html", "")
+            content = robots.get("text", "")
             for bot in ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "OAI-SearchBot"]:
                 if bot.lower() not in content.lower():
                     findings.append(Finding(

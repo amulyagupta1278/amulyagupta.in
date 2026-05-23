@@ -16,7 +16,7 @@ class Skill16Indexation(BaseSEOSkill):
 
         # Fetch sitemap once, reuse across all page checks
         sm_result = crawler.fetch(f"{SITE_URL}/sitemap.xml")
-        sitemap_content = sm_result.get("html", "") if sm_result["status"] == 200 else ""
+        sitemap_content = sm_result.get("text", "") if sm_result["status"] == 200 else ""
 
         for page in pages:
             url = page["url"]

@@ -299,8 +299,7 @@
 <div class="page active" id="page-overview">
 
   <div class="security-notice">
-    🔒 Dashboard is PIN-protected. Production path: Cloudflare Access → GitHub OAuth → Auth.js.
-    Do not share this URL publicly.
+    🔒 Dashboard is PIN-protected. Data refreshes live from Google Sheets on every daily run.
   </div>
 
   <div class="phase-bar" id="phase-bar">
@@ -863,7 +862,7 @@ function updateTimestamp(ts) {
   const el = document.getElementById('last-updated');
   if (!el || !ts) return;
   // Don't overwrite if loadData already set a meaningful label
-  if (el.textContent && !el.textContent.startsWith('Loading') && !el.textContent.startsWith('Snapshot: 2026')) return;
+  if (el.textContent && !el.textContent.startsWith('Loading')) return;
   el.textContent = 'Updated ' + new Date(ts).toLocaleString();
 }
 

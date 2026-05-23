@@ -111,7 +111,7 @@ class Skill23AICitationReadiness(BaseSEOSkill):
         # llms.txt citation readiness
         llms = crawler.fetch(f"{SITE_URL}/llms.txt")
         if llms["status"] == 200:
-            content = llms.get("html", "")
+            content = llms.get("text", "")
             if "github.com" not in content or "linkedin.com" not in content:
                 findings.append(Finding(
                     title="llms.txt missing authoritative profile links",

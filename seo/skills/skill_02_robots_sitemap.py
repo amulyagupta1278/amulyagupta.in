@@ -24,7 +24,7 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                 recommendation="Create and serve a valid robots.txt file at the root of the domain.",
             ))
         else:
-            rb_content = rb.get("html", "")
+            rb_content = rb.get("text", "")
             if not rb_content.strip():
                 findings.append(Finding(
                     title="robots.txt is empty",
@@ -44,7 +44,7 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                         url=f"{SITE_URL}/robots.txt",
                         recommendation="Add 'Sitemap: https://amulyagupta.in/sitemap.xml' to robots.txt.",
                     ))
-                if re.search(r"disallow\s*:\s*/\s*$", rb_content, re.IGNORECASE | re.MULTILINE):
+                if re.search(r"^\s*disallow\s*:\s*/$", rb_content, re.IGNORECASE | re.MULTILINE):
                     findings.append(Finding(
                         title="robots.txt disallows all crawling",
                         description="'Disallow: /' blocks all search engine crawlers.",
@@ -76,7 +76,7 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                 recommendation="Create a valid sitemap.xml and submit it to Google Search Console.",
             ))
         else:
-            sm_content = sm.get("html", "")
+            sm_content = sm.get("text", "")
             try:
                 root = ET.fromstring(sm_content)
                 ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}

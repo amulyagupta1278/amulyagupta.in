@@ -334,7 +334,7 @@ class Skill18SearchConsole(BaseSEOSkill):
         # Sitemap accessibility and lastmod
         sm_resp = crawler.fetch(f"{SITE_URL}/sitemap.xml")
         if sm_resp["status"] == 200:
-            sm_content = sm_resp.get("html", "")
+            sm_content = sm_resp.get("text", "")
             url_count = sm_content.count("<url>")
             has_lastmod = "<lastmod>" in sm_content
 
