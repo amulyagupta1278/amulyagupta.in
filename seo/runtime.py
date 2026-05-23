@@ -48,6 +48,44 @@ MIN_HEALTHY_PAGES = max(1, len(config.SITE_PAGES) // 2)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Secrets Status Logger
+# ─────────────────────────────────────────────────────────────────────────────
+
+_SECRET_MAP = {
+    "GOOGLE_SHEETS_SPREADSHEET_ID":       (config.GOOGLE_SHEETS_SPREADSHEET_ID,      "required",  "Google Sheets persistence"),
+    "GOOGLE_SERVICE_ACCOUNT_JSON":        (config.GOOGLE_SERVICE_ACCOUNT_JSON,        "required",  "Google Sheets auth"),
+    "GMAIL_SENDER":                       (config.GMAIL_SENDER,                       "required",  "Email delivery"),
+    "GMAIL_APP_PASSWORD":                 (config.GMAIL_APP_PASSWORD,                 "required",  "Email delivery"),
+    "PAGESPEED_API_KEY":                  (config.PAGESPEED_API_KEY,                  "optional",  "Skills 5 & 15 (CWV / PageSpeed)"),
+    "GOOGLE_SEARCH_CONSOLE_CREDENTIALS":  (config.GOOGLE_SEARCH_CONSOLE_CREDENTIALS,  "optional",  "Skill 18 live GSC data"),
+    "GOOGLE_ANALYTICS_CREDENTIALS":       (config.GOOGLE_ANALYTICS_CREDENTIALS,       "optional",  "Skill 19 live GA4 data"),
+}
+
+
+def log_secrets_status() -> bool:
+    """
+    Log which secrets are configured vs absent.
+    Returns True if all *required* secrets are present.
+    Runs at startup so every execution has a clear audit trail.
+    """
+    ok = True
+    log.info("─" * 60)
+    log.info("SECRETS STATUS")
+    log.info("─" * 60)
+    for name, (value, tier, purpose) in _SECRET_MAP.items():
+        present = bool(value)
+        icon = "✓" if present else ("✗" if tier == "required" else "–")
+        level = logging.INFO if present else (logging.ERROR if tier == "required" else logging.WARNING)
+        log.log(level, "  %s  %-45s  [%s]  %s", icon, name, tier, purpose)
+        if not present and tier == "required":
+            ok = False
+    if not ok:
+        log.error("One or more REQUIRED secrets are missing — platform will run in degraded mode")
+    log.info("─" * 60)
+    return ok
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Validation Layer
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -185,6 +223,9 @@ def run() -> None:
         enabled_skills,
     )
     log.info("=" * 60)
+
+    # Log which secrets are configured — produces a clear audit trail on every run
+    log_secrets_status()
 
     if not enabled_skills:
         log.error("No skills enabled — set ENABLED_SKILL_GROUP ≥ 1")

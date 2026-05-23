@@ -64,8 +64,10 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: seo-runtime
-  cancel-in-progress: false
+  # Scheduled runs cancel a stalled previous run so tomorrow's job isn't blocked.
+  # Manual dispatches never cancel each other (unique group per run).
+  group: ${{ github.event_name == 'workflow_dispatch' && format('seo-manual-{0}', github.run_id) || 'seo-runtime' }}
+  cancel-in-progress: true
 
 jobs:
   seo-runtime:

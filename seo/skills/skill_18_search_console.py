@@ -17,11 +17,15 @@ Falls back to rich static analysis when credentials are absent:
 
 import json
 import logging
+import socket
 from datetime import datetime, timedelta
 
 import crawler
 from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL, GOOGLE_SEARCH_CONSOLE_CREDENTIALS
+
+# Default socket timeout for GSC API calls — prevents infinite hangs on slow responses
+_API_TIMEOUT_S = 45
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +47,7 @@ def _build_service():
     if not GOOGLE_SEARCH_CONSOLE_CREDENTIALS:
         return None
     try:
+        import httplib2
         from google.oauth2 import service_account
         from googleapiclient.discovery import build
 
@@ -50,7 +55,10 @@ def _build_service():
         credentials = service_account.Credentials.from_service_account_info(
             creds_data, scopes=_GSC_SCOPES
         )
-        return build("searchconsole", "v1", credentials=credentials, cache_discovery=False)
+        # Apply socket-level timeout so a hung API call doesn't stall the workflow
+        http = httplib2.Http(timeout=_API_TIMEOUT_S)
+        return build("searchconsole", "v1", credentials=credentials,
+                     http=http, cache_discovery=False)
     except Exception as e:
         log.warning("GSC API init failed: %s", e)
         return None
