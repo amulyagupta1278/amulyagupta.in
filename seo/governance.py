@@ -95,9 +95,15 @@ def enforce_no_direct_push(github_ref: str | None) -> None:
     HS2: Warn if executing on a protected branch.
 
     GitHub scheduled workflows always run on the default branch (main), so we
-    must NOT abort here — execution is safe and read-only.  The actual guard
-    against committing or pushing to main lives in the workflow bash step
-    ("Commit dashboard data"), which skips the push on protected branches.
+    must NOT abort here — execution is safe and read-only.
+
+    The workflow "Commit dashboard data" step enforces the real HS2 boundary:
+      - seo/data/*.json  (operational telemetry)  → always committed, any branch
+      - All other files  (site source code)        → blocked; only via PR + review
+
+    This two-tier model lets the rotation state (state.json) and dashboard data
+    (dashboard.json, runs.json, etc.) persist between daily runs on main, while
+    ensuring no site code is ever auto-pushed without human approval.
     """
     ref = (github_ref or "").removeprefix("refs/heads/")
     if ref in _PROTECTED_BRANCHES:

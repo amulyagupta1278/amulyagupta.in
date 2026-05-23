@@ -118,20 +118,32 @@ jobs:
       - name: Commit dashboard data
         if: always()
         run: |
-          # HS2 guard — skip data commit on protected branches (don't fail the run)
-          if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "master" ]]; then
-            echo "[HS2] On protected branch '${{ github.ref_name }}' — data commit skipped. Artifacts preserved."
-            exit 0
-          fi
           git config user.name "SEO Runtime Bot"
           git config user.email "seo-bot@amulyagupta.in"
           git add seo/data/ 2>/dev/null || true
+
           if git diff --staged --quiet; then
             echo "No data changes to commit."
-          else
-            git commit -m "chore(seo): update dashboard data — $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
-            git push origin ${{ github.ref_name }} \
-              || echo "Push failed — data preserved in artifact"
+            exit 0
+          fi
+
+          # ── HS2 safety check ──────────────────────────────────────────────
+          # The runtime is allowed to commit ONLY files inside seo/data/
+          # (operational telemetry: state.json, runs.json, issues.json, scores.json,
+          # dashboard.json).  Any file outside seo/data/ staged here is a
+          # governance violation — hard abort, reset staging area, fail the step.
+          NON_DATA=$(git diff --staged --name-only | grep -v "^seo/data/" || true)
+          if [[ -n "$NON_DATA" ]]; then
+            echo "[HS2] BLOCKED: files outside seo/data/ staged — aborting commit"
+            echo "$NON_DATA"
+            git reset HEAD
+            exit 1
+          fi
+          # ─────────────────────────────────────────────────────────────────
+
+          git commit -m "chore(seo): update dashboard data — $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
+          git push origin ${{ github.ref_name }} \
+            || echo "Push failed — data preserved in artifact (branch may be protected)"
           fi
 
       - name: Upload run artifacts
