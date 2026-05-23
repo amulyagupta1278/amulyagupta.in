@@ -218,6 +218,35 @@
                        border-radius:8px; padding:9px 14px; font-size:11px; color:#fbbf24;
                        margin-bottom:18px; }
 
+    /* ── Settings modal ── */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:500;
+                     display:flex; align-items:center; justify-content:center;
+                     backdrop-filter:blur(4px); }
+    .modal-box { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+                 padding:28px 32px; max-width:480px; width:calc(100% - 40px); }
+    .modal-title { font-size:16px; font-weight:700; margin-bottom:6px; }
+    .modal-sub { font-size:12px; color:var(--muted); margin-bottom:20px; line-height:1.6; }
+    .modal-field { margin-bottom:14px; }
+    .modal-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px;
+                   color:var(--muted); margin-bottom:6px; display:block; }
+    .modal-input { width:100%; background:var(--bg); border:1px solid var(--border);
+                   color:var(--text); padding:10px 13px; border-radius:8px; font-size:13px;
+                   font-family:monospace; outline:none; transition:border .2s; box-sizing:border-box; }
+    .modal-input:focus { border-color:var(--accent); }
+    .modal-actions { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+    .btn-primary { flex:1; min-width:120px; background:linear-gradient(135deg,#0ea5e9,#38bdf8);
+                   color:#0a0f1e; border:none; padding:11px; border-radius:8px;
+                   font-weight:700; font-size:13px; cursor:pointer; }
+    .btn-ghost { background:none; border:1px solid var(--border); color:var(--muted);
+                 padding:11px 16px; border-radius:8px; font-size:13px; cursor:pointer; transition:.15s; }
+    .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+    .conn-notice { font-size:12px; margin-top:12px; padding:9px 13px; border-radius:8px;
+                   line-height:1.55; display:none; }
+    .conn-ok   { background:rgba(34,197,94,.08);  color:#22c55e; border:1px solid rgba(34,197,94,.2);  display:block; }
+    .conn-fail { background:rgba(239,68,68,.08);  color:#ef4444; border:1px solid rgba(239,68,68,.2);  display:block; }
+    .ds-badge  { font-size:11px; padding:4px 10px; border-radius:6px; background:var(--surface2);
+                 border:1px solid var(--border); font-weight:600; letter-spacing:.2px; }
+
     /* ── Trend sparkline ── */
     .sparkline { display:inline-flex; align-items:flex-end; gap:2px; height:28px;
                  vertical-align:middle; margin-left:8px; }
@@ -259,7 +288,9 @@
   </div>
   <div class="header-right">
     <div class="status-dot live" id="status-dot" title="Live"></div>
+    <span class="ds-badge" id="data-source" style="color:var(--muted)">● Loading…</span>
     <span class="badge" id="last-updated">Loading…</span>
+    <button class="btn-sm" onclick="openSettings()" title="Connect to Google Sheets live data">⚙ Connect Sheets</button>
     <button class="btn-sm" onclick="loadData()">↺ Refresh</button>
   </div>
 </header>
@@ -774,18 +805,7 @@ function switchPage(id, btn) {
   if (btn) btn.classList.add('active');
 }
 
-/* ── Data loading ─────────────────────────────────────────────────────────── */
-async function loadData() {
-  try {
-    const r = await fetch(DATA_URL + '?t=' + Date.now());
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const data = await r.json();
-    renderAll(data);
-  } catch(e) {
-    console.warn('Failed to load dashboard data:', e.message);
-    document.getElementById('last-updated').textContent = 'Data unavailable — run the workflow to populate';
-  }
-}
+/* ── Data loading (implementation below, after Sheets layer) ──────────────── */
 
 /* ── Master render ────────────────────────────────────────────────────────── */
 function renderAll(data) {
@@ -838,9 +858,13 @@ function renderAll(data) {
 
 /* ── Timestamp ────────────────────────────────────────────────────────────── */
 function updateTimestamp(ts) {
-  if (!ts) return;
-  const d = new Date(ts);
-  document.getElementById('last-updated').textContent = 'Updated ' + d.toLocaleString();
+  // loadData() sets the timestamp with richer context (source, run time, etc.)
+  // This function is called by renderAll; only update if loadData hasn't already set it.
+  const el = document.getElementById('last-updated');
+  if (!el || !ts) return;
+  // Don't overwrite if loadData already set a meaningful label
+  if (el.textContent && !el.textContent.startsWith('Loading') && !el.textContent.startsWith('Snapshot: 2026')) return;
+  el.textContent = 'Updated ' + new Date(ts).toLocaleString();
 }
 
 /* ── KPIs ─────────────────────────────────────────────────────────────────── */
@@ -1528,6 +1552,268 @@ function toTitle(s) {
 
 /* ── Auto-refresh every 5 minutes ─────────────────────────────────────────── */
 setInterval(loadData, 5 * 60 * 1000);
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   GOOGLE SHEETS LIVE DATA LAYER
+   ══════════════════════════════════════════════════════════════════════════════
+   When configured, the dashboard fetches all operational data directly from the
+   Google Sheets database on every load/refresh — bypassing the committed JSON
+   snapshot entirely.  Credentials are stored in localStorage (never sent to any
+   server other than sheets.googleapis.com).
+
+   Requirements:
+     1. Google Sheets API key (restricted to sheets.googleapis.com, read-only)
+     2. Spreadsheet ID from the sheet URL
+     3. The spreadsheet must be shared as "Anyone with link can view"
+        (or the API key must be authorised for private access via OAuth,
+         which requires a backend — use the simple path first)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const SHEETS_CFG_KEY = 'seo_sheets_v2';
+
+function getSheetsConfig() {
+  try { return JSON.parse(localStorage.getItem(SHEETS_CFG_KEY) || 'null'); }
+  catch { return null; }
+}
+
+function saveSheetsConfig(spreadsheetId, apiKey) {
+  localStorage.setItem(SHEETS_CFG_KEY, JSON.stringify({ spreadsheetId, apiKey, savedAt: new Date().toISOString() }));
+}
+
+/* ── Fetch a single sheet tab and convert rows→objects ────────────────────── */
+async function fetchSheetTab(spreadsheetId, apiKey, tabName) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(tabName)}!A:Z?key=${apiKey}`;
+  const r = await fetch(url);
+  if (r.status === 403) throw new Error('API key lacks read permission — check key restrictions and spreadsheet sharing settings');
+  if (r.status === 404) throw new Error('Spreadsheet not found — check the Spreadsheet ID');
+  if (!r.ok) throw new Error(`Sheets API returned HTTP ${r.status}`);
+  const { values } = await r.json();
+  if (!values || values.length < 2) return [];
+  const headers = values[0];
+  return values.slice(1).map(row =>
+    Object.fromEntries(headers.map((h, i) => [h, row[i] !== undefined ? row[i] : '']))
+  );
+}
+
+/* ── Transform raw Sheets rows into dashboard.json shape ─────────────────── */
+function sheetsToSnapshot(runs, issues, scores) {
+  const parseI = (v) => parseInt(v) || 0;
+  const parseF = (v) => parseFloat(v) || 0;
+
+  const runsP = (runs||[]).map(r => ({
+    ...r, skill_id:parseI(r.skill_id), score:parseI(r.score),
+    issues_found:parseI(r.issues_found), issues_critical:parseI(r.issues_critical),
+    duration_s:parseI(r.duration_s),
+  }));
+  const scoresP = (scores||[]).map(s => ({
+    ...s, skill_id:parseI(s.skill_id), score:parseI(s.score), delta:parseI(s.delta), cycle:parseI(s.cycle)||1,
+  }));
+  const issuesP = (issues||[]).map(i => ({ ...i, skill_id:parseI(i.skill_id), occurrences:parseI(i.occurrences)||1 }));
+
+  const activeIssues  = issuesP.filter(i => i.status === 'active');
+  const criticalIssues= activeIssues.filter(i => i.severity === 'critical');
+  const warningIssues = activeIssues.filter(i => i.severity === 'warning');
+  const recurringIssues=activeIssues.filter(i => i.occurrences >= 3).sort((a,b) => b.occurrences - a.occurrences);
+
+  const recentRuns  = runsP.slice(-30);
+  const currentRun  = recentRuns[recentRuns.length - 1] || {};
+  const recent23    = scoresP.slice(-23);
+  const avgScore    = recent23.length ? recent23.reduce((a,s)=>a+s.score,0)/recent23.length : 0;
+
+  const lastSkill   = parseI(currentRun.skill_id);
+  const cycleN      = parseI(currentRun.cycle)||1;
+  const pos         = lastSkill > 0 ? lastSkill : 0;
+  const nextSkill   = lastSkill > 0 ? (lastSkill % 23) + 1 : 1;
+
+  return {
+    generated_at: new Date().toISOString(),
+    _source: 'google_sheets',
+    site_url: 'https://amulyagupta.in',
+    current_run: currentRun,
+    summary: {
+      avg_score: Math.round(avgScore * 10) / 10,
+      active_issues: activeIssues.length,
+      critical_issues: criticalIssues.length,
+      warning_issues: warningIssues.length,
+      total_runs: runsP.length,
+      recurring_issues: recurringIssues.length,
+      cycle_number: cycleN,
+      cycle_percent: Math.round(pos / 23 * 100),
+    },
+    recent_runs: recentRuns,
+    latest_findings: activeIssues.slice(0, 50),
+    score_history: scoresP.slice(-46),
+    active_issues_list: activeIssues.slice(0, 100).sort((a,b) => {
+      const o = {critical:0, warning:1, info:2};
+      return (o[a.severity]??2) - (o[b.severity]??2);
+    }),
+    recurring_issues: recurringIssues.slice(0, 20),
+    cycle_progress: {
+      position: pos, total: 23, percent: Math.round(pos/23*100),
+      cycle: cycleN, current_skill_id: lastSkill,
+      skills_completed_this_cycle: pos, next_skill_id: nextSkill,
+    },
+    forecast: _computeForecast(scoresP),
+    historical_comparison: {},
+  };
+}
+
+function _computeForecast(scores) {
+  if (scores.length < 3) return { trend:'insufficient_data', projected_score_7d:null, projected_score_30d:null, confidence:'low', momentum:'neutral', risk_level:'unknown', slope_per_day:0, data_points:scores.length, lowest_scoring_skills:[], highest_scoring_skills:[] };
+  const r = scores.slice(-23), n = r.length, vals = r.map(s=>s.score);
+  const xM = (n-1)/2, yM = vals.reduce((a,b)=>a+b,0)/n;
+  const num = vals.reduce((s,v,i)=>s+(i-xM)*(v-yM),0), den = vals.reduce((s,_,i)=>s+(i-xM)**2,0);
+  const slope = den ? num/den : 0, cur = vals[n-1];
+  const p7 = Math.min(100,Math.max(0,Math.round((cur+slope*7)*10)/10));
+  const p30= Math.min(100,Math.max(0,Math.round((cur+slope*30)*10)/10));
+  const trend = slope > 0.2 ? 'improving' : slope < -0.2 ? 'declining' : 'stable';
+  const deltas = vals.slice(1).map((v,i)=>v-vals[i]), recent5 = deltas.slice(-5);
+  const avgDelta = recent5.length ? recent5.reduce((a,b)=>a+b,0)/recent5.length : 0;
+  const byCat = {}; r.forEach(s=>{ if(s.skill_id) byCat[s.skill_id]=s.score; });
+  return { trend, slope_per_day:Math.round(slope*1000)/1000, current_score:cur,
+    projected_score_7d:p7, projected_score_30d:p30, avg_delta_recent:Math.round(avgDelta*100)/100,
+    confidence: n>=20?'high':n>=10?'medium':'low',
+    momentum: avgDelta>1?'positive':avgDelta<-1?'negative':'neutral',
+    risk_level: r.filter(s=>s.score<50).length/n > 0.3 ? 'high' : 'low',
+    data_points:n,
+    lowest_scoring_skills: Object.entries(byCat).sort((a,b)=>a[1]-b[1]).slice(0,3),
+    highest_scoring_skills: Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,3),
+  };
+}
+
+/* ── setDataSource badge ─────────────────────────────────────────────────── */
+function setDataSource(state, detail) {
+  const el = document.getElementById('data-source');
+  if (!el) return;
+  const MAP = {
+    loading: ['● Loading…',            '#64748b'],
+    sheets:  ['● Live — Google Sheets', '#22c55e'],
+    json:    ['● Cached snapshot',      '#f59e0b'],
+    error:   ['⚠ Data error',           '#ef4444'],
+  };
+  const [label, color] = MAP[state] || MAP.error;
+  el.textContent = detail ? label + ' — ' + detail : label;
+  el.style.color = color;
+}
+
+/* ── Rewritten loadData ──────────────────────────────────────────────────── */
+async function loadData() {
+  setDataSource('loading');
+  const cfg = getSheetsConfig();
+
+  if (cfg && cfg.spreadsheetId && cfg.apiKey) {
+    try {
+      const [runs, issues, scores] = await Promise.all([
+        fetchSheetTab(cfg.spreadsheetId, cfg.apiKey, 'seo_runs'),
+        fetchSheetTab(cfg.spreadsheetId, cfg.apiKey, 'seo_issues'),
+        fetchSheetTab(cfg.spreadsheetId, cfg.apiKey, 'seo_scores'),
+      ]);
+      const snapshot = sheetsToSnapshot(runs, issues, scores);
+      renderAll(snapshot);
+      const updatedAt = runs.length ? (runs[runs.length-1].date || '') : '';
+      document.getElementById('last-updated').textContent =
+        updatedAt ? 'Last run: ' + new Date(updatedAt).toLocaleString() : 'Live from Sheets';
+      setDataSource('sheets');
+      return;
+    } catch(e) {
+      console.warn('Sheets fetch failed:', e.message);
+      setDataSource('error');
+      // Fall through to JSON snapshot
+    }
+  }
+
+  // Fallback: committed JSON snapshot
+  try {
+    const r = await fetch(DATA_URL + '?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    renderAll(data);
+    const ts = data.generated_at ? new Date(data.generated_at).toLocaleString() : 'No runs yet';
+    document.getElementById('last-updated').textContent = 'Snapshot: ' + ts;
+    setDataSource('json');
+  } catch(e) {
+    console.warn('JSON load failed:', e.message);
+    setDataSource('error');
+    document.getElementById('last-updated').textContent = 'No data — run the SEO workflow first';
+  }
+}
+
+/* ── Settings modal logic ─────────────────────────────────────────────────── */
+function openSettings() {
+  const cfg = getSheetsConfig();
+  if (cfg) {
+    document.getElementById('cfg-sheet-id').value = cfg.spreadsheetId || '';
+    // Don't pre-fill API key for security
+  }
+  document.getElementById('conn-notice').className = 'conn-notice';
+  document.getElementById('conn-notice').textContent = '';
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+
+async function testAndSaveSheets() {
+  const id  = document.getElementById('cfg-sheet-id').value.trim();
+  const key = document.getElementById('cfg-api-key').value.trim();
+  const notice = document.getElementById('conn-notice');
+  notice.className = 'conn-notice'; notice.textContent = 'Testing connection…'; notice.style.display='block';
+
+  if (!id || !key) {
+    notice.className = 'conn-notice conn-fail';
+    notice.textContent = 'Please enter both the Spreadsheet ID and API Key.';
+    return;
+  }
+  try {
+    const rows = await fetchSheetTab(id, key, 'seo_runs');
+    saveSheetsConfig(id, key);
+    notice.className = 'conn-notice conn-ok';
+    notice.textContent = `✓ Connected — ${rows.length} run(s) found in seo_runs. Reloading dashboard…`;
+    setTimeout(() => {
+      document.getElementById('settings-modal').style.display = 'none';
+      loadData();
+    }, 1400);
+  } catch(e) {
+    notice.className = 'conn-notice conn-fail';
+    notice.textContent = '✗ ' + e.message;
+  }
+}
+
+function disconnectSheets() {
+  localStorage.removeItem(SHEETS_CFG_KEY);
+  document.getElementById('cfg-sheet-id').value = '';
+  document.getElementById('cfg-api-key').value = '';
+  document.getElementById('settings-modal').style.display = 'none';
+  loadData();
+}
 </script>
+
+<!-- ══ Settings Modal ═══════════════════════════════════════════════════════ -->
+<div id="settings-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <div class="modal-title">Connect to Google Sheets</div>
+    <div class="modal-sub">
+      Enter your Spreadsheet ID and a read-only Google Sheets API key.
+      The dashboard will fetch live data directly from your operational SEO database
+      on every load — no more cached snapshots.<br><br>
+      <strong>Requirements:</strong> Create a Google Sheets API key in Google Cloud Console,
+      restrict it to the Sheets API, then share your spreadsheet as
+      <em>"Anyone with link → Viewer"</em>.
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Spreadsheet ID</label>
+      <input class="modal-input" id="cfg-sheet-id" type="text"
+             placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Google Sheets API Key (read-only)</label>
+      <input class="modal-input" id="cfg-api-key" type="password" placeholder="AIzaSy…">
+    </div>
+    <div id="conn-notice" class="conn-notice"></div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="testAndSaveSheets()">Test & Connect</button>
+      <button class="btn-ghost"   onclick="disconnectSheets()">Disconnect</button>
+      <button class="btn-ghost"   onclick="document.getElementById('settings-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
