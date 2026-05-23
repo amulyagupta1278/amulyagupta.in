@@ -474,7 +474,7 @@ def build_morning_brief(
 
   <div class="footer">
     SEO Runtime Bot 2.0 &nbsp;·&nbsp; amulyagupta.in &nbsp;·&nbsp;
-    <a href="https://amulyagupta.in/seo/dashboard/">Dashboard</a> &nbsp;·&nbsp;
+    <a href="https://amulyagupta.in/admin/seo/">Dashboard</a> &nbsp;·&nbsp;
     Automated Report — Do Not Reply
   </div>
 </div></body></html>"""

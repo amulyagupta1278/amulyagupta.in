@@ -7,7 +7,6 @@ GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 PAGESPEED_API_KEY = os.environ.get("PAGESPEED_API_KEY", "")
 GOOGLE_SHEETS_SPREADSHEET_ID = os.environ.get("GOOGLE_SHEETS_SPREADSHEET_ID", "")
 GOOGLE_SERVICE_ACCOUNT_JSON = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
-GOOGLE_SHEETS_API_KEY = os.environ.get("GOOGLE_SHEETS_API_KEY", "")
 SKILL_OVERRIDE = os.environ.get("SKILL_OVERRIDE", "auto")
 FORCE_INIT = os.environ.get("FORCE_INIT", "false").lower() == "true"
 SEND_WEEKLY_SUMMARY = os.environ.get("SEND_WEEKLY_SUMMARY", "false").lower() == "true"
@@ -105,7 +104,14 @@ SKILL_GROUPS: dict[int, list[int]] = {
     3: [3, 8, 9, 10, 11, 16, 17, 18, 19, 20, 21, 22, 23],  # Advanced
 }
 
-ENABLED_SKILL_GROUP = int(os.environ.get("ENABLED_SKILL_GROUP", "3"))
+try:
+    ENABLED_SKILL_GROUP = int(os.environ.get("ENABLED_SKILL_GROUP", "3"))
+    if ENABLED_SKILL_GROUP not in (1, 2, 3):
+        raise ValueError(f"must be 1, 2, or 3; got {ENABLED_SKILL_GROUP}")
+except (ValueError, TypeError) as _e:
+    import sys as _sys
+    print(f"FATAL: invalid ENABLED_SKILL_GROUP: {_e}", file=_sys.stderr)
+    _sys.exit(1)
 
 
 def get_enabled_skills() -> list[int]:

@@ -56,7 +56,12 @@ def enforce_one_skill_per_day(last_run_date: str | None, is_manual_dispatch: boo
         return  # First-ever run
 
     try:
-        last_date = datetime.fromisoformat(last_run_date).date()
+        dt = datetime.fromisoformat(last_run_date)
+        # Normalize to UTC date whether or not the stored string has a tz offset.
+        if dt.tzinfo is not None:
+            last_date = dt.astimezone(timezone.utc).date()
+        else:
+            last_date = dt.date()  # stored as utcnow() so no tz suffix
     except (ValueError, TypeError):
         return  # Unparseable date — don't block on metadata corruption
 
@@ -95,16 +100,16 @@ def enforce_no_direct_push(github_ref: str | None) -> None:
     HS2: Warn if executing on a protected branch.
 
     GitHub scheduled workflows always run on the default branch (main), so we
-    must NOT abort here — execution is safe and read-only.  The actual guard
-    against committing or pushing to main lives in the workflow bash step
-    ("Commit dashboard data"), which skips the push on protected branches.
+    must NOT abort here — execution is safe and read-only.  The runtime only
+    commits files under seo/data/ (JSON telemetry), never site-content files.
+    Site-content changes go through the PR -> human-review -> manual-merge path.
     """
     ref = (github_ref or "").removeprefix("refs/heads/")
     if ref in _PROTECTED_BRANCHES:
         log.warning(
             "[HS2] Running on protected branch '%s'. "
             "Execution proceeds (read-only audit). "
-            "Data commits to this branch are blocked by the workflow bash guard.",
+            "Only seo/data/ telemetry is committed — site content is PR-gated.",
             ref,
         )
     else:

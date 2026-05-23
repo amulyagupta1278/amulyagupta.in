@@ -19,7 +19,7 @@ def fetch(url: str, timeout: int = 15) -> dict:
             "status": r.status_code,
             "elapsed_ms": elapsed,
             "content_type": r.headers.get("content-type", ""),
-            "html": r.text if "html" in r.headers.get("content-type", "") else "",
+            "html": r.text,  # always return full text; skills handle non-HTML types
             "headers": dict(r.headers),
             "redirect_url": r.url if r.url != url else None,
             "error": None,
@@ -67,13 +67,15 @@ def get_all_links(soup: BeautifulSoup, base_url: str = SITE_URL) -> dict:
 
 def extract_json_ld(soup: BeautifulSoup) -> list[dict]:
     import json
+    import logging
+    _log = logging.getLogger("seo.crawler")
     schemas = []
     for script in soup.find_all("script", type="application/ld+json"):
         try:
             data = json.loads(script.string or "")
             schemas.append(data if isinstance(data, dict) else {"@graph": data})
-        except Exception:
-            pass
+        except Exception as exc:
+            _log.debug("JSON-LD parse failed: %s", exc)
     return schemas
 
 
