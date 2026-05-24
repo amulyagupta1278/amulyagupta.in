@@ -359,6 +359,7 @@ def build_morning_brief(
     forecast: dict = None,
     cycle_progress: dict = None,
     recurring: list = None,
+    pr_url: str = None,
 ) -> tuple[str, str]:
     date_str = datetime.utcnow().strftime("%A, %B %d, %Y")
     run_id = run_data.get("run_id", "—")
@@ -408,6 +409,23 @@ def build_morning_brief(
         recs_html = f"""<div class="card">
           <div class="card-title">Strategic Recommendations</div>
           <ul style="margin:0;padding-left:20px">{items}</ul>
+        </div>"""
+
+    # PR link block
+    pr_block = ""
+    if pr_url:
+        pr_block = f"""<div class="card" style="border-left:3px solid #22c55e;">
+          <div class="card-title">&#x1F527; Auto-Fix PR Generated</div>
+          <p style="font-size:13px;margin:0 0 8px;">
+            The SEO runtime detected auto-fixable issues and opened a draft pull request
+            with proposed code changes. Review and merge when ready.
+          </p>
+          <a href="{pr_url}" style="display:inline-block;background:linear-gradient(135deg,#16a34a,#22c55e);
+             color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;
+             text-decoration:none;">Review PR &rarr;</a>
+          <p style="font-size:11px;color:#64748b;margin:10px 0 0;">
+            &#x26A0; Human review required — the runtime never auto-merges.
+          </p>
         </div>"""
 
     html = f"""<!DOCTYPE html>
@@ -472,6 +490,9 @@ def build_morning_brief(
   <!-- Recommendations -->
   {recs_html}
 
+  <!-- Auto-Fix PR -->
+  {pr_block}
+
   <div class="footer">
     SEO Runtime Bot 2.0 &nbsp;·&nbsp; amulyagupta.in &nbsp;·&nbsp;
     <a href="https://amulyagupta.in/admin/seo/">Dashboard</a> &nbsp;·&nbsp;
@@ -502,6 +523,8 @@ def build_morning_brief(
             f"  7-day projection: {forecast.get('projected_score_7d','?')}/100\n"
             f"  30-day projection: {forecast.get('projected_score_30d','?')}/100\n"
         )
+    if pr_url:
+        text += f"\nAUTO-FIX PR GENERATED:\n  {pr_url}\n  Review and merge to apply SEO fixes.\n"
 
     return html, text
 

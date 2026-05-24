@@ -33,6 +33,7 @@ import crawler
 import emailer
 import governance
 import memory
+import pr_generator
 from governance import HardStopViolation
 from sheets import SheetsClient
 
@@ -351,6 +352,25 @@ def run() -> None:
         except Exception as e:
             log.warning("Failed to persist finding: %s", e)
 
+    # ── Auto-fix PR generation ────────────────────────────────────────────────
+    # Propose fixes for auto-fixable findings via GitHub PR. Never auto-merges.
+    # Runs before run_record so pr_url is included in the dashboard snapshot.
+    pr_url: str | None = None
+    if findings_dicts:
+        try:
+            pr_url = pr_generator.generate_and_open_pr(
+                run_id=run_id,
+                skill_id=skill_id,
+                skill_name=skill_name,
+                findings=findings_dicts,
+            )
+            if pr_url:
+                log.info("PR generator: fix PR opened → %s", pr_url)
+            else:
+                log.info("PR generator: no auto-fixable issues or no fixes needed")
+        except Exception as e:
+            log.warning("PR generator failed (non-fatal): %s", e)
+
     # ── Append run record ────────────────────────────────────────────────────
     run_record = {
         "run_id": run_id,
@@ -363,16 +383,18 @@ def run() -> None:
         "duration_s": duration,
         "status": "completed",
         "notes": f"Group {config.ENABLED_SKILL_GROUP} | skill {skill_id}/23",
+        "pr_url": pr_url or "",
     }
     memory.append_run(run_record)
     sheets.append("seo_runs", list(run_record.values()))
 
     # ── Score history ────────────────────────────────────────────────────────
-    memory.append_score(skill_id, skill_name, result.score, run_id)
+    score_delta = memory.append_score(skill_id, skill_name, result.score, run_id)
     scores = memory.load_score_history()
+    prev_score = result.score - score_delta  # 0 on first run of this skill
     sheets.append("seo_scores", [
         now.isoformat(), skill_id, skill_name, result.score,
-        result.score, 0, config.ENABLED_SKILL_GROUP, run_id,
+        prev_score, score_delta, config.ENABLED_SKILL_GROUP, run_id,
     ])
 
     # ── Specialty tracking ───────────────────────────────────────────────────
@@ -405,7 +427,7 @@ def run() -> None:
         run_id, now.isoformat(), skill_id, "daily",
         f"Skill {skill_id:02d}/23 — {skill_name}",
         f"Score: {result.score}/100 | Issues: {len(findings_dicts)} | Critical: {result.critical_count}",
-        f"seo/data/runs.json", run_id,
+        f"seo/data/runs.json", run_id, pr_url or "",
     ])
 
     # ── Dashboard snapshot ───────────────────────────────────────────────────
@@ -456,11 +478,13 @@ def run() -> None:
         forecast=forecast,
         cycle_progress=cycle_progress,
         recurring=recurring,
+        pr_url=pr_url,
     )
     status_icon = "✓" if result.score >= 80 else "⚠" if result.score >= 50 else "✗"
+    pr_indicator = " | PR opened" if pr_url else ""
     subject = (
         f"[SEO {status_icon}] Skill {skill_id:02d}/23 — {skill_name} | "
-        f"Score {result.score}/100 | {now.strftime('%b %d')}"
+        f"Score {result.score}/100{pr_indicator} | {now.strftime('%b %d')}"
     )
     if result.critical_count > 0:
         subject = f"[SEO CRITICAL] " + subject.lstrip("[SEO ✗] ")

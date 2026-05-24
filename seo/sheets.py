@@ -19,13 +19,13 @@ SCOPES = [
 
 SHEET_HEADERS = {
     "seo_runs": ["run_id", "date", "skill_id", "skill_name", "score", "issues_found",
-                 "issues_critical", "duration_s", "status", "notes"],
+                 "issues_critical", "duration_s", "status", "notes", "pr_url"],
     "seo_issues": ["issue_id", "first_seen", "last_seen", "skill_id", "severity",
                    "category", "url", "title", "description", "status", "occurrences"],
     "seo_scores": ["date", "skill_id", "skill_name", "score", "prev_score", "delta",
                    "cycle", "run_id"],
     "seo_reports": ["report_id", "date", "skill_id", "type", "title", "summary",
-                    "file_path", "run_id"],
+                    "file_path", "run_id", "pr_url"],
     "seo_incidents": ["incident_id", "date", "severity", "category", "title",
                       "description", "status", "resolved_date", "run_id"],
     "seo_ai_visibility": ["date", "check", "status", "score", "notes", "run_id"],
