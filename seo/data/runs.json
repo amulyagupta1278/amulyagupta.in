@@ -11,5 +11,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 1/23",
     "cycle": 1
+  },
+  {
+    "run_id": "9e672fb9",
+    "date": "2026-05-25T00:00:12.994042",
+    "skill_id": 2,
+    "skill_name": "Robots.txt & Sitemap Validation",
+    "score": 95,
+    "issues_found": 1,
+    "issues_critical": 0,
+    "duration_s": 6,
+    "status": "completed",
+    "notes": "Group 3 | skill 2/23",
+    "cycle": 1
   }
 ]

@@ -1,0 +1,15 @@
+{
+  "edd6066ca26c": {
+    "issue_id": "edd6066ca26c",
+    "first_seen": "2026-05-25T00:00:19.595083",
+    "last_seen": "2026-05-25T00:00:19.595083",
+    "skill_id": 2,
+    "severity": "warning",
+    "category": "sitemap",
+    "url": "https://amulyagupta.in/",
+    "title": "Page missing from sitemap: /",
+    "description": "This page exists on the site but is not listed in sitemap.xml.",
+    "status": "active",
+    "occurrences": 1
+  }
+}

@@ -8,5 +8,15 @@
     "delta": 0,
     "cycle": 1,
     "run_id": "012c18e9"
+  },
+  {
+    "date": "2026-05-25T00:00:19.595736",
+    "skill_id": 2,
+    "skill_name": "Robots.txt & Sitemap Validation",
+    "score": 95,
+    "prev_score": null,
+    "delta": 0,
+    "cycle": 1,
+    "run_id": "9e672fb9"
   }
 ]

@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-05-23T23:58:42.788588",
+  "generated_at": "2026-05-25T00:00:19.595964",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "012c18e9",
-    "date": "2026-05-23T23:58:31.365415",
-    "skill_id": 1,
-    "skill_name": "Technical Crawl Audit",
-    "score": 100,
-    "issues_found": 0,
+    "run_id": "9e672fb9",
+    "date": "2026-05-25T00:00:12.994042",
+    "skill_id": 2,
+    "skill_name": "Robots.txt & Sitemap Validation",
+    "score": 95,
+    "issues_found": 1,
     "issues_critical": 0,
-    "duration_s": 11,
+    "duration_s": 6,
     "status": "completed",
-    "notes": "Group 3 | skill 1/23",
+    "notes": "Group 3 | skill 2/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 100.0,
-    "active_issues": 0,
+    "avg_score": 97.5,
+    "active_issues": 1,
     "critical_issues": 0,
-    "warning_issues": 0,
-    "total_runs": 1,
+    "warning_issues": 1,
+    "total_runs": 2,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 4
+    "cycle_percent": 9
   },
   "recent_runs": [
     {
@@ -37,9 +37,32 @@
       "status": "completed",
       "notes": "Group 3 | skill 1/23",
       "cycle": 1
+    },
+    {
+      "run_id": "9e672fb9",
+      "date": "2026-05-25T00:00:12.994042",
+      "skill_id": 2,
+      "skill_name": "Robots.txt & Sitemap Validation",
+      "score": 95,
+      "issues_found": 1,
+      "issues_critical": 0,
+      "duration_s": 6,
+      "status": "completed",
+      "notes": "Group 3 | skill 2/23",
+      "cycle": 1
     }
   ],
-  "latest_findings": [],
+  "latest_findings": [
+    {
+      "title": "Page missing from sitemap: /",
+      "description": "This page exists on the site but is not listed in sitemap.xml.",
+      "severity": "warning",
+      "category": "sitemap",
+      "url": "https://amulyagupta.in/",
+      "recommendation": "Add this URL to sitemap.xml with appropriate lastmod and priority.",
+      "evidence": ""
+    }
+  ],
   "score_history": [
     {
       "date": "2026-05-23T23:58:42.788315",
@@ -50,18 +73,42 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "012c18e9"
+    },
+    {
+      "date": "2026-05-25T00:00:19.595736",
+      "skill_id": 2,
+      "skill_name": "Robots.txt & Sitemap Validation",
+      "score": 95,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "9e672fb9"
     }
   ],
-  "active_issues_list": [],
+  "active_issues_list": [
+    {
+      "issue_id": "edd6066ca26c",
+      "first_seen": "2026-05-25T00:00:19.595083",
+      "last_seen": "2026-05-25T00:00:19.595083",
+      "skill_id": 2,
+      "severity": "warning",
+      "category": "sitemap",
+      "url": "https://amulyagupta.in/",
+      "title": "Page missing from sitemap: /",
+      "description": "This page exists on the site but is not listed in sitemap.xml.",
+      "status": "active",
+      "occurrences": 1
+    }
+  ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 1,
+    "position": 2,
     "total": 23,
-    "percent": 4,
+    "percent": 9,
     "cycle": 1,
-    "current_skill_id": 1,
-    "skills_completed_this_cycle": 1,
-    "next_skill_id": 2
+    "current_skill_id": 2,
+    "skills_completed_this_cycle": 2,
+    "next_skill_id": 3
   },
   "forecast": {
     "trend": "insufficient_data",
@@ -72,22 +119,22 @@
     "risk_level": "unknown"
   },
   "historical_comparison": {
-    "current_skill_id": 1,
-    "current_score": 100,
+    "current_skill_id": 2,
+    "current_score": 95,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 0,
+    "current_issues_found": 1,
     "issue_delta": null,
     "skill_trend": [
-      100
+      95
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 100.0,
+    "avg_score_last_7d": 97.5,
     "avg_score_prev_7d": null,
     "week_over_week_delta": null,
-    "total_runs_completed": 1,
+    "total_runs_completed": 2,
     "cycle_number": 1
   }
 }
