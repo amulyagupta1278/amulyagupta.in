@@ -4,7 +4,7 @@ from config import SITE_URL
 
 CITATION_SIGNALS = [
     "author", "datePublished", "dateModified", "publisher", "citation",
-    "isPartOf", "about", "mentions", "citation", "creditsTo",
+    "isPartOf", "about", "mentions", "creditsTo",
 ]
 
 AUTHORITATIVE_CLAIMS = [

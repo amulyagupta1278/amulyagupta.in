@@ -93,21 +93,27 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                         recommendation="Add all site pages to the sitemap.",
                     ))
                 else:
-                    known_pages = {SITE_URL + p for p in ["/", "/about.html", "/projects.html",
+                    known_paths = ["/", "/about.html", "/projects.html",
                                    "/experience.html", "/amulya-gupta.html", "/contact.html",
                                    "/blog/index.html", "/blog/post-1-mlops-pipeline.html",
-                                   "/blog/post-2-mlops-stack.html", "/blog/ai-ml-guide-2026.html"]}
-                    sitemap_set = set(u.rstrip("/") for u in url_texts)
-                    missing = known_pages - {u.rstrip("/") for u in sitemap_set}
-                    for m in missing:
-                        findings.append(Finding(
-                            title=f"Page missing from sitemap: {m.replace(SITE_URL,'')}",
-                            description="This page exists on the site but is not listed in sitemap.xml.",
-                            severity="warning",
-                            category="sitemap",
-                            url=m,
-                            recommendation="Add this URL to sitemap.xml with appropriate lastmod and priority.",
-                        ))
+                                   "/blog/post-2-mlops-stack.html", "/blog/ai-ml-guide-2026.html",
+                                   "/blog/post-2-rag-system.html"]
+                    # Normalize sitemap URLs (strip trailing slash) for consistent comparison.
+                    sitemap_normalized = {u.rstrip("/") for u in url_texts}
+                    for path in known_paths:
+                        full_url = SITE_URL + path
+                        # Normalize the known URL the same way: strip trailing slash.
+                        # This prevents false positives where "/" → "https://amulyagupta.in/"
+                        # is not found in a set containing "https://amulyagupta.in" (stripped).
+                        if full_url.rstrip("/") not in sitemap_normalized:
+                            findings.append(Finding(
+                                title=f"Page missing from sitemap: {path}",
+                                description="This page exists on the site but is not listed in sitemap.xml.",
+                                severity="warning",
+                                category="sitemap",
+                                url=full_url,
+                                recommendation="Add this URL to sitemap.xml with appropriate lastmod and priority.",
+                            ))
 
                     for u in url_texts:
                         if not u.startswith("https://"):

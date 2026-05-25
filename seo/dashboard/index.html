@@ -1574,9 +1574,19 @@ function renderReportsPage(runs, summary) {
     }).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center">No runs yet</td></tr>';
   }
 
-  // Email delivery rate
+  // Email delivery rate — derived from runs vs summary total
   const rateEl = document.getElementById('rpt-email-rate');
-  if (rateEl) rateEl.textContent = runs.length > 0 ? '—' : '—';
+  if (rateEl) {
+    const total = runs.length;
+    if (total > 0) {
+      // Each completed run sends one email; score as % of runs with status=completed
+      const completed = runs.filter(r => r.status === 'completed').length;
+      rateEl.textContent = Math.round(completed / total * 100) + '%';
+      rateEl.style.color = completed === total ? 'var(--green)' : 'var(--yellow)';
+    } else {
+      rateEl.textContent = '—';
+    }
+  }
 }
 
 /* ── Chart utility ────────────────────────────────────────────────────────── */

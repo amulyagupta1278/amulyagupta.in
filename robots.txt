@@ -13,4 +13,10 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
 Sitemap: https://amulyagupta.in/sitemap.xml

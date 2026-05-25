@@ -33,6 +33,7 @@ import crawler
 import emailer
 import governance
 import memory
+import pr_generator
 from governance import HardStopViolation
 from sheets import SheetsClient
 
@@ -431,6 +432,36 @@ def run() -> None:
     except Exception as e:
         log.warning("Intelligence enrichment failed (degraded mode): %s", e)
         comparison, forecast, cycle_progress, recurring = {}, {}, {}, []
+
+    # ── PR generator — propose fixes for auto-fixable findings (HS2 compliant) ─
+    # Only runs when there are fixable findings (robots/sitemap/ai-crawlers).
+    # The generator creates a feature branch and opens a PR for human review.
+    # It NEVER auto-merges or pushes to protected branches (Hard Stop 2).
+    try:
+        fixable_findings = [
+            f for f in findings_dicts
+            if f.get("category") in pr_generator.FIXABLE_CATEGORIES
+            and f.get("severity") in ("critical", "warning")
+        ]
+        if fixable_findings:
+            pr_url = pr_generator.generate_fix_pr(
+                run_id=run_id,
+                skill_id=skill_id,
+                skill_name=skill_name,
+                findings=findings_dicts,
+                site_url=config.SITE_URL,
+            )
+            if pr_url:
+                log.info("Auto-fix PR created: %s", pr_url)
+                sheets.log_runtime(run_id, "INFO", f"Auto-fix PR: {pr_url}", skill_id)
+                sheets.append("seo_reports", [
+                    f"pr-{run_id}", now.isoformat(), skill_id, "auto-fix-pr",
+                    f"Auto-Fix PR — Skill {skill_id:02d}/23 — {skill_name}",
+                    f"PR: {pr_url}",
+                    pr_url, run_id,
+                ])
+    except Exception as e:
+        log.warning("PR generator failed (non-fatal): %s", e)
 
     # ── Critical incident alert — send immediately if criticals found ─────────
     if result.critical_count > 0:
