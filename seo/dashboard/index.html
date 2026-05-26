@@ -695,9 +695,9 @@
           <div class="report-icon">🔁</div>
           <div>
             <div class="report-title">Cycle Completion Report</div>
-            <div class="report-meta">After all 23 skills complete · Full-cycle comparison</div>
+            <div class="report-meta">After all 23 skills complete · Full-cycle comparison, priority targets</div>
           </div>
-          <span class="tag">Planned</span>
+          <span class="tag tag-green">Active</span>
         </div>
       </div>
     </div>
@@ -1343,7 +1343,7 @@ function renderAIPage(findings, issues, cr, scores) {
   }
 
   // AI crawler coverage
-  const bots = ['GPTBot','ClaudeBot','PerplexityBot','Google-Extended','OAI-SearchBot','Googlebot'];
+  const bots = ['GPTBot','ClaudeBot','PerplexityBot','Google-Extended','OAI-SearchBot','Amazonbot','Googlebot'];
   const crawlEl = document.getElementById('ai-crawlers');
   if (crawlEl) {
     const missingBots = findings.filter(f => bots.some(b => f.title && f.title.includes(b) && f.title.includes('Missing')));

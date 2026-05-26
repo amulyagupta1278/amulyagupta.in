@@ -114,7 +114,7 @@ class Skill11AISearchReadiness(BaseSEOSkill):
         robots = crawler.fetch(f"{SITE_URL}/robots.txt")
         if robots["status"] == 200:
             content = robots.get("html", "")
-            for bot in ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "OAI-SearchBot"]:
+            for bot in ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "OAI-SearchBot", "Amazonbot"]:
                 if bot.lower() not in content.lower():
                     findings.append(Finding(
                         title=f"AI crawler {bot} not explicitly permitted",

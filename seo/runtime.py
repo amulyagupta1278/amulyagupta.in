@@ -392,12 +392,16 @@ def run() -> None:
                 ])
     if skill_id == 20:
         for f in findings_dicts:
+            # seo_competitors columns: date, competitor, metric, value, our_value, gap, notes, run_id
             sheets.append("seo_competitors", [
-                now.isoformat(), "competitive-benchmark",
-                f.get("title", "")[:200],
-                f.get("severity", ""),
-                "", f.get("description", "")[:300],
-                f.get("recommendation", "")[:200], run_id,
+                now.isoformat(),
+                "AI/ML Portfolio Benchmark",
+                f.get("category", "competitive")[:100],
+                f.get("severity", "info"),     # value = severity level
+                "amulyagupta.in",              # our_value = our site
+                f.get("title", "")[:200],      # gap = the identified gap
+                f.get("recommendation", "")[:200],
+                run_id,
             ])
 
     # ── Archive report entry ─────────────────────────────────────────────────
@@ -480,6 +484,39 @@ def run() -> None:
         f"crit={result.critical_count} duration={duration}s",
         skill_id,
     )
+
+    # ── Cycle completion report — sent when skill 23 finishes a full cycle ────
+    if skill_id == 23:
+        governance.assert_humaniser_scope("emailer.build_cycle_completion_report")
+        try:
+            new_state = memory.load_json("state.json")
+            cycle_num = new_state.get("cycle_number", 1)
+            log.info("Cycle %d complete — sending cycle completion report", cycle_num)
+            cycle_html, cycle_text = emailer.build_cycle_completion_report(
+                cycle_num, runs_history, scores, issues
+            )
+            cycle_ok = emailer.send_report(
+                f"[SEO CYCLE {cycle_num} COMPLETE] All 23 skills executed — amulyagupta.in | "
+                f"Avg {round(sum(r.get('score', 0) for r in runs_history if r.get('cycle') == cycle_num) / max(1, sum(1 for r in runs_history if r.get('cycle') == cycle_num)), 1)}/100",
+                cycle_html,
+                cycle_text,
+            )
+            sheets.append("seo_emails", [
+                now.isoformat(), config.REPORT_EMAIL,
+                f"Cycle {cycle_num} Completion Report",
+                "sent" if cycle_ok else "failed",
+                "" if cycle_ok else "Check GMAIL credentials",
+                run_id,
+            ])
+            sheets.append("seo_reports", [
+                f"{run_id}-cycle{cycle_num}", now.isoformat(), 23, "cycle-completion",
+                f"Cycle {cycle_num} Completion — All 23 Skills",
+                f"Avg score: {round(sum(r.get('score',0) for r in runs_history if r.get('cycle')==cycle_num)/max(1,sum(1 for r in runs_history if r.get('cycle')==cycle_num)),1)}/100 | "
+                f"Skills: 23 | Active issues: {len([i for i in issues.values() if i.get('status')=='active'])}",
+                "seo/data/runs.json", run_id,
+            ])
+        except Exception as e:
+            log.warning("Cycle completion report failed: %s", e)
 
     log.info("=" * 60)
     log.info("COMPLETE  skill=%02d  score=%d  issues=%d  crit=%d  dur=%ds",

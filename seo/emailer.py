@@ -720,3 +720,172 @@ def build_critical_incident_alert(run_id: str, skill_id: int, findings: list) ->
     )
 
     return html, text
+
+
+def _build_active_issues_html(issues: list) -> str:
+    rows = []
+    for i in issues:
+        sev = i.get("severity", "info")
+        bg = "#fee2e2" if sev == "critical" else "#fef3c7" if sev == "warning" else "#e0f2fe"
+        color = "#dc2626" if sev == "critical" else "#b45309" if sev == "warning" else "#0284c7"
+        badge = (
+            f"<span style='background:{bg};color:{color};padding:1px 6px;"
+            f"border-radius:3px;font-size:10px;font-weight:700'>{sev.upper()}</span>"
+        )
+        rows.append(
+            f"<div style='padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px'>"
+            f"{badge} {i.get('title', '')}</div>"
+        )
+    return "".join(rows)
+
+
+def _more_issues_note(total: int) -> str:
+    if total <= 10:
+        return ""
+    return f"<p style='font-size:11px;color:#64748b;margin-top:8px'>+ {total - 10} more active issues</p>"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cycle Completion Report
+# Sent when all 23 skills complete one full rotation cycle.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def build_cycle_completion_report(
+    cycle_number: int,
+    runs: list,
+    scores: list,
+    issues: dict,
+) -> tuple[str, str]:
+    date_str = datetime.utcnow().strftime("%B %d, %Y")
+
+    # Aggregate cycle stats
+    cycle_runs = [r for r in runs if r.get("cycle") == cycle_number]
+    all_scores = [r.get("score", 0) for r in cycle_runs]
+    avg_score = round(sum(all_scores) / len(all_scores), 1) if all_scores else 0
+    total_issues = sum(r.get("issues_found", 0) for r in cycle_runs)
+    total_critical = sum(r.get("issues_critical", 0) for r in cycle_runs)
+    duration_total = sum(r.get("duration_s", 0) for r in cycle_runs)
+
+    active_issues = [i for i in issues.values() if i.get("status") == "active"]
+    critical_count = sum(1 for i in active_issues if i.get("severity") == "critical")
+
+    # Best and worst skills this cycle
+    skill_scores = sorted(cycle_runs, key=lambda r: r.get("score", 0))
+    worst_3 = skill_scores[:3]
+    best_3 = skill_scores[-3:][::-1]
+
+    def skill_row(r: dict, color: str) -> str:
+        return f"""<tr>
+          <td style="padding:8px;font-size:12px">#{r.get('skill_id')}</td>
+          <td style="padding:8px;font-size:12px">{r.get('skill_name','')}</td>
+          <td style="padding:8px;font-weight:700;color:{color}">{r.get('score',0)}/100</td>
+          <td style="padding:8px;font-size:11px;color:#64748b">{r.get('issues_found',0)} issues</td>
+        </tr>"""
+
+    worst_rows = "".join(skill_row(r, "#ef4444") for r in worst_3)
+    best_rows = "".join(skill_row(r, "#22c55e") for r in best_3)
+
+    prev_cycle_runs = [r for r in runs if r.get("cycle") == cycle_number - 1]
+    prev_scores = [r.get("score", 0) for r in prev_cycle_runs]
+    prev_avg = round(sum(prev_scores) / len(prev_scores), 1) if prev_scores else None
+    delta = round(avg_score - prev_avg, 1) if prev_avg is not None else None
+    delta_str = f"+{delta}" if delta and delta > 0 else (str(delta) if delta is not None else "N/A (first cycle)")
+    delta_color = "#15803d" if delta and delta > 0 else "#dc2626" if delta and delta < 0 else "#b45309"
+
+    avg_color = _score_color(int(avg_score))
+
+    html = f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">{_BASE_STYLES}</head>
+<body><div class="wrap">
+
+  <div class="header" style="background:linear-gradient(135deg,#064e3b,#065f46)">
+    <h1>&#x1F3C6; Cycle {cycle_number} Complete — Full 23-Skill Rotation</h1>
+    <p>{date_str} &nbsp;·&nbsp; amulyagupta.in &nbsp;·&nbsp; All 23 SEO skills executed</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cycle {cycle_number} Summary</div>
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-val" style="color:{avg_color}">{avg_score}</div>
+        <div class="kpi-lbl">Avg Score<br>This Cycle</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val" style="color:{delta_color}">{delta_str}</div>
+        <div class="kpi-lbl">vs Cycle {cycle_number - 1}<br>({prev_avg or '–'} prev)</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val" style="color:#0284c7">{len(cycle_runs)}</div>
+        <div class="kpi-lbl">Skills Run</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val" style="color:#dc2626">{total_critical}</div>
+        <div class="kpi-lbl">Critical<br>Issues Found</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val" style="color:#64748b">{total_issues}</div>
+        <div class="kpi-lbl">Total<br>Issues Found</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val" style="color:#7c3aed">{duration_total // 60}m</div>
+        <div class="kpi-lbl">Total<br>Runtime</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">&#x1F3AF; Priority Skills — Needs Attention</div>
+    <table>
+      <thead><tr><th>#</th><th>Skill</th><th>Score</th><th>Issues</th></tr></thead>
+      <tbody>{worst_rows or '<tr><td colspan="4" style="color:#64748b">All skills scored well</td></tr>'}</tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">&#x2705; Top Performing Skills</div>
+    <table>
+      <thead><tr><th>#</th><th>Skill</th><th>Score</th><th>Issues</th></tr></thead>
+      <tbody>{best_rows}</tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Active SEO Debt Entering Cycle {cycle_number + 1}</div>
+    <p style="font-size:13px;color:#374151;margin-bottom:12px">
+      {len(active_issues)} active issues tracked ({critical_count} critical).
+      These carry into the next cycle for re-evaluation.
+    </p>
+    {_build_active_issues_html(active_issues[:10])}
+    {_more_issues_note(len(active_issues))}
+  </div>
+
+  <div class="card">
+    <div class="card-title">Next Cycle Priorities</div>
+    <ol style="font-size:13px;line-height:2;color:#374151">
+      <li>Resolve all <strong>{critical_count} critical</strong> issues before Cycle {cycle_number + 1} begins</li>
+      <li>Focus optimisation efforts on lowest-scoring skills (listed above)</li>
+      <li>Target avg cycle score of <strong>{min(100, int(avg_score) + 5)}/100</strong> as next milestone</li>
+      <li>Review recurring issues — those persisting across cycles need root-cause fixes</li>
+    </ol>
+  </div>
+
+  <div class="footer">
+    SEO Runtime Bot 2.0 &nbsp;·&nbsp; amulyagupta.in &nbsp;·&nbsp;
+    Cycle {cycle_number} Completion Report &nbsp;·&nbsp; {date_str}
+  </div>
+</div></body></html>"""
+
+    text = (
+        f"SEO CYCLE {cycle_number} COMPLETE — amulyagupta.in\n"
+        f"{date_str}\n{'='*60}\n\n"
+        f"Cycle {cycle_number} Summary:\n"
+        f"  Average Score: {avg_score}/100 ({delta_str} vs prev cycle)\n"
+        f"  Skills Run: {len(cycle_runs)}/23\n"
+        f"  Critical Issues Found: {total_critical}\n"
+        f"  Total Issues Found: {total_issues}\n"
+        f"  Active Issues Carrying Forward: {len(active_issues)}\n\n"
+        f"Priority skills for Cycle {cycle_number + 1}:\n"
+        + "".join(f"  • #{r.get('skill_id')} {r.get('skill_name','')} — {r.get('score',0)}/100\n" for r in worst_3)
+    )
+
+    return html, text
