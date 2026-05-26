@@ -18,5 +18,15 @@
     "delta": 0,
     "cycle": 1,
     "run_id": "9e672fb9"
+  },
+  {
+    "date": "2026-05-26T00:06:29.061281",
+    "skill_id": 3,
+    "skill_name": "Canonical & Redirects Audit",
+    "score": 100,
+    "prev_score": null,
+    "delta": 0,
+    "cycle": 1,
+    "run_id": "92722d1d"
   }
 ]

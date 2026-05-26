@@ -24,5 +24,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 2/23",
     "cycle": 1
+  },
+  {
+    "run_id": "92722d1d",
+    "date": "2026-05-26T00:06:21.863512",
+    "skill_id": 3,
+    "skill_name": "Canonical & Redirects Audit",
+    "score": 100,
+    "issues_found": 0,
+    "issues_critical": 0,
+    "duration_s": 7,
+    "status": "completed",
+    "notes": "Group 3 | skill 3/23",
+    "cycle": 1
   }
 ]

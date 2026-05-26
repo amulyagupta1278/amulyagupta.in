@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-05-25T00:00:19.595964",
+  "generated_at": "2026-05-26T00:06:29.061554",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "9e672fb9",
-    "date": "2026-05-25T00:00:12.994042",
-    "skill_id": 2,
-    "skill_name": "Robots.txt & Sitemap Validation",
-    "score": 95,
-    "issues_found": 1,
+    "run_id": "92722d1d",
+    "date": "2026-05-26T00:06:21.863512",
+    "skill_id": 3,
+    "skill_name": "Canonical & Redirects Audit",
+    "score": 100,
+    "issues_found": 0,
     "issues_critical": 0,
-    "duration_s": 6,
+    "duration_s": 7,
     "status": "completed",
-    "notes": "Group 3 | skill 2/23",
+    "notes": "Group 3 | skill 3/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 97.5,
+    "avg_score": 98.3,
     "active_issues": 1,
     "critical_issues": 0,
     "warning_issues": 1,
-    "total_runs": 2,
+    "total_runs": 3,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 9
+    "cycle_percent": 13
   },
   "recent_runs": [
     {
@@ -50,19 +50,22 @@
       "status": "completed",
       "notes": "Group 3 | skill 2/23",
       "cycle": 1
-    }
-  ],
-  "latest_findings": [
+    },
     {
-      "title": "Page missing from sitemap: /",
-      "description": "This page exists on the site but is not listed in sitemap.xml.",
-      "severity": "warning",
-      "category": "sitemap",
-      "url": "https://amulyagupta.in/",
-      "recommendation": "Add this URL to sitemap.xml with appropriate lastmod and priority.",
-      "evidence": ""
+      "run_id": "92722d1d",
+      "date": "2026-05-26T00:06:21.863512",
+      "skill_id": 3,
+      "skill_name": "Canonical & Redirects Audit",
+      "score": 100,
+      "issues_found": 0,
+      "issues_critical": 0,
+      "duration_s": 7,
+      "status": "completed",
+      "notes": "Group 3 | skill 3/23",
+      "cycle": 1
     }
   ],
+  "latest_findings": [],
   "score_history": [
     {
       "date": "2026-05-23T23:58:42.788315",
@@ -83,6 +86,16 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "9e672fb9"
+    },
+    {
+      "date": "2026-05-26T00:06:29.061281",
+      "skill_id": 3,
+      "skill_name": "Canonical & Redirects Audit",
+      "score": 100,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "92722d1d"
     }
   ],
   "active_issues_list": [
@@ -102,39 +115,71 @@
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 2,
+    "position": 3,
     "total": 23,
-    "percent": 9,
+    "percent": 13,
     "cycle": 1,
-    "current_skill_id": 2,
-    "skills_completed_this_cycle": 2,
-    "next_skill_id": 3
+    "current_skill_id": 3,
+    "skills_completed_this_cycle": 3,
+    "next_skill_id": 4
   },
   "forecast": {
-    "trend": "insufficient_data",
-    "projected_score_7d": null,
-    "projected_score_30d": null,
+    "trend": "stable",
+    "slope_per_day": 0.0,
+    "current_score": 100,
+    "projected_score_7d": 100,
+    "projected_score_30d": 100,
+    "avg_delta_recent": 0.0,
     "confidence": "low",
     "momentum": "neutral",
-    "risk_level": "unknown"
+    "risk_level": "low",
+    "data_points": 3,
+    "lowest_scoring_skills": [
+      [
+        2,
+        95
+      ],
+      [
+        1,
+        100
+      ],
+      [
+        3,
+        100
+      ]
+    ],
+    "highest_scoring_skills": [
+      [
+        1,
+        100
+      ],
+      [
+        3,
+        100
+      ],
+      [
+        2,
+        95
+      ]
+    ]
   },
   "historical_comparison": {
-    "current_skill_id": 2,
-    "current_score": 95,
+    "current_skill_id": 3,
+    "current_score": 100,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 1,
+    "current_issues_found": 0,
     "issue_delta": null,
     "skill_trend": [
-      95
+      100
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 97.5,
+    "avg_score_last_7d": 98.3,
     "avg_score_prev_7d": null,
     "week_over_week_delta": null,
-    "total_runs_completed": 2,
+    "total_runs_completed": 3,
     "cycle_number": 1
   }
 }
