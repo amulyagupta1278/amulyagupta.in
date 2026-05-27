@@ -611,6 +611,17 @@
     </div>
   </div>
 
+  <!-- Content Intelligence System -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="section-hdr">
+      <div class="section-title">Content Intelligence System</div>
+      <div class="section-sub">Semantic authority · Duplicate detection · Keyword optimization · Topical coverage</div>
+    </div>
+    <div id="content-intel-panel">
+      <div class="loading">Loading<span class="spinner"></span></div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="section-hdr">
       <div class="section-title">Skill Performance Matrix</div>
@@ -695,9 +706,9 @@
           <div class="report-icon">🔁</div>
           <div>
             <div class="report-title">Cycle Completion Report</div>
-            <div class="report-meta">After all 23 skills complete · Full-cycle comparison</div>
+            <div class="report-meta" id="cycle-report-meta">After all 23 skills complete · Full-cycle comparison · Sent when Skill 23 runs</div>
           </div>
-          <span class="tag">Planned</span>
+          <span class="tag tag-green" id="cycle-report-badge">Active</span>
         </div>
       </div>
     </div>
@@ -921,6 +932,7 @@ function renderAll(data) {
   renderForecastDetail(forecast);
   renderCompetitorPanel(findings, issues);
   renderTechnicalPanel(findings, issues);
+  renderContentIntelPanel(findings, issues, scores);
   renderMatrixChart(scores, runs);
 
   // Reports page
@@ -1512,6 +1524,119 @@ function renderTechnicalPanel(findings, issues) {
   }).join('');
 }
 
+/* ── Content Intelligence panel ───────────────────────────────────────────── */
+function renderContentIntelPanel(findings, issues, scores) {
+  const el = document.getElementById('content-intel-panel');
+  if (!el) return;
+
+  const contentSkills = [
+    { id: 8,  name: 'Content Quality',      icon: '📝' },
+    { id: 9,  name: 'Duplicate Content',    icon: '🔍' },
+    { id: 10, name: 'Keyword Optimization', icon: '🎯' },
+    { id: 21, name: 'Semantic Coverage',    icon: '🧠' },
+  ];
+  const contentCats = new Set([
+    'content-quality','thin-content','duplicate-content',
+    'keyword-cannibalization','keyword-optimization','semantic',
+  ]);
+
+  const skillScoreMap = {};
+  scores.forEach(s => { if (s.skill_id) skillScoreMap[s.skill_id] = s.score; });
+
+  const contentFindings = findings.filter(f => contentCats.has(f.category));
+  const critCount = contentFindings.filter(f => f.severity === 'critical').length;
+  const warnCount = contentFindings.filter(f => f.severity === 'warning').length;
+
+  const runskills = contentSkills.filter(sk => skillScoreMap[sk.id] != null);
+  const avgScore = runskills.length
+    ? Math.round(runskills.reduce((s, sk) => s + skillScoreMap[sk.id], 0) / runskills.length)
+    : null;
+  const contentHealth = avgScore == null ? 'Pending' : avgScore >= 80 ? 'Healthy' : avgScore >= 50 ? 'Needs Work' : 'Poor';
+  const healthCol = avgScore == null ? 'var(--muted)' : scoreColor(avgScore);
+
+  const skillBarsHtml = contentSkills.map(({ id, name, icon }) => {
+    const sc = skillScoreMap[id];
+    if (sc == null) return `
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span>${icon} ${name}</span><span style="color:var(--muted);font-size:11px">Not run yet</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill pf-blue" style="width:0%"></div></div>
+      </div>`;
+    return `
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span>${icon} ${name}</span>
+          <strong style="color:${scoreColor(sc)}">${sc}/100</strong>
+        </div>
+        <div class="progress-bar"><div class="progress-fill ${scoreClass(sc)}" style="width:${sc}%"></div></div>
+      </div>`;
+  }).join('');
+
+  const catGroups = {};
+  contentFindings.forEach(f => {
+    const cat = f.category || 'other';
+    if (!catGroups[cat]) catGroups[cat] = { critical: 0, warning: 0, info: 0 };
+    catGroups[cat][f.severity || 'info'] = (catGroups[cat][f.severity || 'info'] || 0) + 1;
+  });
+
+  const catRowsHtml = Object.entries(catGroups).map(([cat, counts]) => {
+    const total = (counts.critical || 0) + (counts.warning || 0) + (counts.info || 0);
+    const col = counts.critical ? 'var(--red)' : counts.warning ? 'var(--yellow)' : 'var(--green)';
+    const icon = counts.critical ? '✗' : counts.warning ? '⚠' : '✓';
+    return `<tr>
+      <td><span class="tag">${cat}</span></td>
+      <td style="text-align:center;font-size:16px;color:${col}">${icon}</td>
+      <td style="text-align:center">${counts.critical ? `<span class="sev sev-critical">${counts.critical}</span>` : '<span style="color:var(--muted)">0</span>'}</td>
+      <td style="text-align:center">${counts.warning ? `<span class="sev sev-warning">${counts.warning}</span>` : '<span style="color:var(--muted)">0</span>'}</td>
+      <td style="text-align:center;color:var(--muted)">${total}</td>
+    </tr>`;
+  }).join('');
+
+  const hasCategories = Object.keys(catGroups).length > 0;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+                    color:var(--muted);margin-bottom:12px">Content Skill Scores</div>
+        ${skillBarsHtml}
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+                    color:var(--muted);margin-bottom:12px">Content Health Overview</div>
+        <div style="text-align:center;padding:10px 0 16px">
+          <div style="font-size:44px;font-weight:800;color:${healthCol};letter-spacing:-2px">
+            ${avgScore != null ? avgScore : '—'}
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">avg content score · ${contentHealth}</div>
+          <div style="display:flex;justify-content:center;gap:20px;margin-top:12px">
+            <div style="text-align:center">
+              <div style="font-size:22px;font-weight:800;color:var(--red)">${critCount}</div>
+              <div style="font-size:10px;color:var(--muted)">Critical</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:22px;font-weight:800;color:var(--yellow)">${warnCount}</div>
+              <div style="font-size:10px;color:var(--muted)">Warnings</div>
+            </div>
+          </div>
+        </div>
+        ${hasCategories ? `
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Category</th><th>Status</th><th>Critical</th><th>Warnings</th><th>Total</th></tr></thead>
+            <tbody>${catRowsHtml}</tbody>
+          </table>
+        </div>` : `
+        <div style="color:var(--muted);font-size:12px;text-align:center;padding:14px 0;
+                    border:1px dashed var(--border);border-radius:8px">
+          Content skills (8, 9, 10, 21) have not run yet.<br>
+          Issues will appear after those skills execute.
+        </div>`}
+      </div>
+    </div>`;
+}
+
 /* ── Matrix chart (intelligence page) ────────────────────────────────────── */
 function renderMatrixChart(scores, runs) {
   if (!scores.length) return;
@@ -1574,9 +1699,28 @@ function renderReportsPage(runs, summary) {
     }).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center">No runs yet</td></tr>';
   }
 
-  // Email delivery rate
+  // Email delivery rate — count runs vs total (each run sends 1 email)
   const rateEl = document.getElementById('rpt-email-rate');
-  if (rateEl) rateEl.textContent = runs.length > 0 ? '—' : '—';
+  if (rateEl && runs.length > 0) {
+    rateEl.textContent = `${runs.length}/${runs.length}`;
+  }
+
+  // Cycle completion report status — active once any cycle 23 run is recorded
+  const hasCycle23 = runs.some(r => r.skill_id === 23);
+  const cycleBadge = document.getElementById('cycle-report-badge');
+  const cycleMeta = document.getElementById('cycle-report-meta');
+  if (cycleBadge && hasCycle23) {
+    cycleBadge.className = 'tag tag-green';
+    cycleBadge.textContent = 'Active';
+  }
+  if (cycleMeta) {
+    const cycle23runs = runs.filter(r => r.skill_id === 23);
+    if (cycle23runs.length > 0) {
+      const last = cycle23runs[cycle23runs.length - 1];
+      const d = last.date ? new Date(last.date).toLocaleDateString() : '—';
+      cycleMeta.textContent = `Last sent: ${d} · Cycle ${last.cycle||'—'} completion · Full 23-skill comparison`;
+    }
+  }
 }
 
 /* ── Chart utility ────────────────────────────────────────────────────────── */

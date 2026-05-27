@@ -720,3 +720,153 @@ def build_critical_incident_alert(run_id: str, skill_id: int, findings: list) ->
     )
 
     return html, text
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cycle Completion Report
+# ─────────────────────────────────────────────────────────────────────────────
+
+def build_cycle_completion_email(
+    cycle_number: int,
+    runs: list,
+    scores: list,
+    issues: dict,
+) -> tuple[str, str]:
+    """Full 23-skill cycle summary sent when Skill 23 completes."""
+    date_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+
+    # ── Aggregate cycle stats ─────────────────────────────────────────────────
+    cycle_runs = [r for r in runs if r.get("cycle") == cycle_number]
+    cycle_scores = [s for s in scores if s.get("cycle") == cycle_number]
+
+    total_runs = len(cycle_runs)
+    avg_score = round(
+        sum(r.get("score", 0) for r in cycle_runs) / total_runs, 1
+    ) if total_runs else 0
+    total_issues = sum(r.get("issues_found", 0) for r in cycle_runs)
+    total_critical = sum(r.get("issues_critical", 0) for r in cycle_runs)
+
+    # Best and worst performing skills
+    sorted_runs = sorted(cycle_runs, key=lambda r: r.get("score", 0))
+    worst_3 = sorted_runs[:3]
+    best_3 = sorted_runs[-3:][::-1]
+
+    # Active issues at cycle end
+    active_issues = [i for i in issues.values() if i.get("status") == "active"]
+    critical_issues = [i for i in active_issues if i.get("severity") == "critical"]
+
+    score_color = _score_color(avg_score)
+    score_icon = "✓" if avg_score >= 80 else "⚠" if avg_score >= 50 else "✗"
+
+    def run_row(r: dict) -> str:
+        sc = r.get("score", 0)
+        col = _score_color(sc)
+        return (
+            f"<tr>"
+            f"<td style='padding:7px 10px'>{r.get('skill_id','')}</td>"
+            f"<td style='padding:7px 10px'>{r.get('skill_name','')}</td>"
+            f"<td style='padding:7px 10px;font-weight:700;color:{col}'>{sc}/100</td>"
+            f"<td style='padding:7px 10px;color:#6b7280'>{r.get('issues_found',0)}</td>"
+            f"</tr>"
+        )
+
+    best_rows = "".join(run_row(r) for r in best_3)
+    worst_rows = "".join(run_row(r) for r in worst_3)
+
+    critical_html = "".join(
+        f"<li style='margin-bottom:5px'><strong>{i.get('title','')}</strong>"
+        f"<span style='color:#6b7280;font-size:11px'> · {i.get('url','')}</span></li>"
+        for i in critical_issues[:8]
+    ) or "<li style='color:#22c55e'>No critical issues — excellent!</li>"
+
+    html = f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8">{_BASE_STYLES}</head>
+<body><div class="wrap">
+  <div class="header">
+    <h1>🔁 SEO Cycle {cycle_number} Complete — All 23 Skills Executed</h1>
+    <p>{date_str} &nbsp;·&nbsp; Full 23-day rotation cycle finished</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cycle {cycle_number} Executive Summary</div>
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-val" style="color:{score_color}">{avg_score}</div>
+        <div class="kpi-lbl">Avg SEO Score {score_icon}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val" style="color:#f59e0b">{total_issues}</div>
+        <div class="kpi-lbl">Total Issues</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val" style="color:#ef4444">{total_critical}</div>
+        <div class="kpi-lbl">Critical Findings</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val" style="color:#38bdf8">{total_runs}</div>
+        <div class="kpi-lbl">Skills Audited</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Top Performing Skills</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="border-bottom:2px solid #e2e8f0">
+        <th style="padding:7px 10px;text-align:left;color:#64748b">#</th>
+        <th style="padding:7px 10px;text-align:left;color:#64748b">Skill</th>
+        <th style="padding:7px 10px;text-align:left;color:#64748b">Score</th>
+        <th style="padding:7px 10px;text-align:left;color:#64748b">Issues</th>
+      </tr></thead>
+      <tbody>{best_rows}</tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Skills Needing Attention (Lowest Scores)</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="border-bottom:2px solid #e2e8f0">
+        <th style="padding:7px 10px;text-align:left;color:#64748b">#</th>
+        <th style="padding:7px 10px;text-align:left;color:#64748b">Skill</th>
+        <th style="padding:7px 10px;text-align:left;color:#64748b">Score</th>
+        <th style="padding:7px 10px;text-align:left;color:#64748b">Issues</th>
+      </tr></thead>
+      <tbody>{worst_rows}</tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Open Critical Issues — End of Cycle {cycle_number}</div>
+    <ul style="font-size:13px;line-height:1.9;padding-left:18px">{critical_html}</ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">What Happens Next</div>
+    <ul style="font-size:13px;line-height:1.9;padding-left:18px">
+      <li>Cycle {cycle_number + 1} begins automatically with Skill 1 (Technical Crawl Audit)</li>
+      <li>Historical comparison will track improvement vs Cycle {cycle_number}</li>
+      <li>Recurring issues from this cycle are flagged for priority resolution</li>
+      <li>Review proposed fixes (PRs) before the next cycle completes</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <a href="https://amulyagupta.in/admin/seo/">Dashboard</a> &nbsp;·&nbsp;
+    SEO Runtime Bot · amulyagupta.in · Cycle {cycle_number} Completion Report
+  </div>
+</div></body></html>"""
+
+    text = (
+        f"SEO CYCLE {cycle_number} COMPLETE — All 23 Skills Executed\n"
+        f"{date_str}\n{'='*55}\n\n"
+        f"Avg Score:      {avg_score}/100\n"
+        f"Total Issues:   {total_issues}\n"
+        f"Critical:       {total_critical}\n"
+        f"Skills Audited: {total_runs}\n\n"
+        f"OPEN CRITICAL ISSUES:\n"
+        + "".join(f"  • {i.get('title','')} — {i.get('url','')}\n" for i in critical_issues[:8])
+        + (f"\n  (none)\n" if not critical_issues else "")
+        + f"\nCycle {cycle_number + 1} begins with Skill 1 automatically.\n"
+    )
+
+    return html, text

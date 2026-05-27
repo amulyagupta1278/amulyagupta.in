@@ -481,6 +481,44 @@ def run() -> None:
         skill_id,
     )
 
+    # ── Cycle completion report — fires when the last skill (23) finishes ─────
+    if skill_id == 23:
+        governance.assert_humaniser_scope("emailer.build_cycle_completion_email")
+        log.info("Skill 23 complete — sending cycle completion report")
+        try:
+            completed_cycle = memory.get_cycle_number()
+            all_runs = memory.load_runs()
+            all_scores = memory.load_score_history()
+            all_issues = memory.load_issues()
+            cycle_html, cycle_text = emailer.build_cycle_completion_email(
+                cycle_number=completed_cycle,
+                runs=all_runs,
+                scores=all_scores,
+                issues=all_issues,
+            )
+            cycle_ok = emailer.send_report(
+                f"[SEO CYCLE {completed_cycle} COMPLETE] All 23 Skills Audited — "
+                f"{now.strftime('%b %d, %Y')}",
+                cycle_html,
+                cycle_text,
+            )
+            sheets.append("seo_emails", [
+                now.isoformat(), config.REPORT_EMAIL,
+                f"Cycle {completed_cycle} Completion Report",
+                "sent" if cycle_ok else "failed",
+                "" if cycle_ok else "Check GMAIL credentials",
+                run_id,
+            ])
+            sheets.append("seo_reports", [
+                f"cycle-{completed_cycle}", now.isoformat(), 23, "cycle-completion",
+                f"Cycle {completed_cycle} Completion — All 23 Skills",
+                f"Avg score across cycle | All skills audited",
+                "seo/data/runs.json", run_id,
+            ])
+            log.info("Cycle %d completion report: %s", completed_cycle, "sent" if cycle_ok else "failed")
+        except Exception as e:
+            log.warning("Cycle completion report failed (non-fatal): %s", e)
+
     log.info("=" * 60)
     log.info("COMPLETE  skill=%02d  score=%d  issues=%d  crit=%d  dur=%ds",
              skill_id, result.score, len(findings_dicts), result.critical_count, duration)
