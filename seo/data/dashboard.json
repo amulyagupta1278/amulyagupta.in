@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-05-26T00:06:29.061554",
+  "generated_at": "2026-05-27T00:05:24.118270",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "92722d1d",
-    "date": "2026-05-26T00:06:21.863512",
-    "skill_id": 3,
-    "skill_name": "Canonical & Redirects Audit",
-    "score": 100,
-    "issues_found": 0,
+    "run_id": "e979fd88",
+    "date": "2026-05-27T00:05:16.314780",
+    "skill_id": 4,
+    "skill_name": "Structured Data Audit",
+    "score": 65,
+    "issues_found": 7,
     "issues_critical": 0,
     "duration_s": 7,
     "status": "completed",
-    "notes": "Group 3 | skill 3/23",
+    "notes": "Group 3 | skill 4/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 98.3,
-    "active_issues": 1,
+    "avg_score": 90.0,
+    "active_issues": 8,
     "critical_issues": 0,
-    "warning_issues": 1,
-    "total_runs": 3,
+    "warning_issues": 8,
+    "total_runs": 4,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 13
+    "cycle_percent": 17
   },
   "recent_runs": [
     {
@@ -63,9 +63,86 @@
       "status": "completed",
       "notes": "Group 3 | skill 3/23",
       "cycle": 1
+    },
+    {
+      "run_id": "e979fd88",
+      "date": "2026-05-27T00:05:16.314780",
+      "skill_id": 4,
+      "skill_name": "Structured Data Audit",
+      "score": 65,
+      "issues_found": 7,
+      "issues_critical": 0,
+      "duration_s": 7,
+      "status": "completed",
+      "notes": "Group 3 | skill 4/23",
+      "cycle": 1
     }
   ],
-  "latest_findings": [],
+  "latest_findings": [
+    {
+      "title": "Missing WebSite schema: /",
+      "description": "Expected WebSite schema not found. Found: ['Person']",
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/",
+      "recommendation": "Add WebSite JSON-LD schema to this page.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing Person schema: /contact.html",
+      "description": "Expected Person schema not found. Found: ['BreadcrumbList']",
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/contact.html",
+      "recommendation": "Add Person JSON-LD schema to this page.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing Blog schema: /blog/index.html",
+      "description": "Expected Blog schema not found. Found: ['BreadcrumbList']",
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Add Blog JSON-LD schema to this page.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing ItemList schema: /blog/index.html",
+      "description": "Expected ItemList schema not found. Found: ['BreadcrumbList']",
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Add ItemList JSON-LD schema to this page.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing Article schema: /blog/post-1-mlops-pipeline.html",
+      "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "recommendation": "Add Article JSON-LD schema to this page.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing Article schema: /blog/post-2-mlops-stack.html",
+      "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "recommendation": "Add Article JSON-LD schema to this page.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing Article schema: /blog/ai-ml-guide-2026.html",
+      "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "recommendation": "Add Article JSON-LD schema to this page.",
+      "evidence": ""
+    }
+  ],
   "score_history": [
     {
       "date": "2026-05-23T23:58:42.788315",
@@ -96,6 +173,16 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "92722d1d"
+    },
+    {
+      "date": "2026-05-27T00:05:24.117886",
+      "skill_id": 4,
+      "skill_name": "Structured Data Audit",
+      "score": 65,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "e979fd88"
     }
   ],
   "active_issues_list": [
@@ -111,40 +198,131 @@
       "description": "This page exists on the site but is not listed in sitemap.xml.",
       "status": "active",
       "occurrences": 1
+    },
+    {
+      "issue_id": "77d92b57134a",
+      "first_seen": "2026-05-27T00:05:24.113579",
+      "last_seen": "2026-05-27T00:05:24.113579",
+      "skill_id": 4,
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/",
+      "title": "Missing WebSite schema: /",
+      "description": "Expected WebSite schema not found. Found: ['Person']",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "5f51fe4ce290",
+      "first_seen": "2026-05-27T00:05:24.113873",
+      "last_seen": "2026-05-27T00:05:24.113873",
+      "skill_id": 4,
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/contact.html",
+      "title": "Missing Person schema: /contact.html",
+      "description": "Expected Person schema not found. Found: ['BreadcrumbList']",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "97f19efe2dbb",
+      "first_seen": "2026-05-27T00:05:24.114720",
+      "last_seen": "2026-05-27T00:05:24.114720",
+      "skill_id": 4,
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "title": "Missing Blog schema: /blog/index.html",
+      "description": "Expected Blog schema not found. Found: ['BreadcrumbList']",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "9cb4fcbe83e5",
+      "first_seen": "2026-05-27T00:05:24.115049",
+      "last_seen": "2026-05-27T00:05:24.115049",
+      "skill_id": 4,
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "title": "Missing ItemList schema: /blog/index.html",
+      "description": "Expected ItemList schema not found. Found: ['BreadcrumbList']",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "6644fdfd8de9",
+      "first_seen": "2026-05-27T00:05:24.115391",
+      "last_seen": "2026-05-27T00:05:24.115391",
+      "skill_id": 4,
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "title": "Missing Article schema: /blog/post-1-mlops-pipeline.html",
+      "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "01201262c286",
+      "first_seen": "2026-05-27T00:05:24.115722",
+      "last_seen": "2026-05-27T00:05:24.115722",
+      "skill_id": 4,
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "title": "Missing Article schema: /blog/post-2-mlops-stack.html",
+      "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "f25235220a34",
+      "first_seen": "2026-05-27T00:05:24.116075",
+      "last_seen": "2026-05-27T00:05:24.116075",
+      "skill_id": 4,
+      "severity": "warning",
+      "category": "schema",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "title": "Missing Article schema: /blog/ai-ml-guide-2026.html",
+      "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
+      "status": "active",
+      "occurrences": 1
     }
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 3,
+    "position": 4,
     "total": 23,
-    "percent": 13,
+    "percent": 17,
     "cycle": 1,
-    "current_skill_id": 3,
-    "skills_completed_this_cycle": 3,
-    "next_skill_id": 4
+    "current_skill_id": 4,
+    "skills_completed_this_cycle": 4,
+    "next_skill_id": 5
   },
   "forecast": {
-    "trend": "stable",
-    "slope_per_day": 0.0,
-    "current_score": 100,
-    "projected_score_7d": 100,
-    "projected_score_30d": 100,
-    "avg_delta_recent": 0.0,
+    "trend": "declining",
+    "slope_per_day": -10.0,
+    "current_score": 65,
+    "projected_score_7d": 0,
+    "projected_score_30d": 0,
+    "avg_delta_recent": -11.67,
     "confidence": "low",
-    "momentum": "neutral",
+    "momentum": "negative",
     "risk_level": "low",
-    "data_points": 3,
+    "data_points": 4,
     "lowest_scoring_skills": [
+      [
+        4,
+        65
+      ],
       [
         2,
         95
       ],
       [
         1,
-        100
-      ],
-      [
-        3,
         100
       ]
     ],
@@ -164,22 +342,22 @@
     ]
   },
   "historical_comparison": {
-    "current_skill_id": 3,
-    "current_score": 100,
+    "current_skill_id": 4,
+    "current_score": 65,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 0,
+    "current_issues_found": 7,
     "issue_delta": null,
     "skill_trend": [
-      100
+      65
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 98.3,
+    "avg_score_last_7d": 90.0,
     "avg_score_prev_7d": null,
     "week_over_week_delta": null,
-    "total_runs_completed": 3,
+    "total_runs_completed": 4,
     "cycle_number": 1
   }
 }

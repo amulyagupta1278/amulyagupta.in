@@ -37,5 +37,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 3/23",
     "cycle": 1
+  },
+  {
+    "run_id": "e979fd88",
+    "date": "2026-05-27T00:05:16.314780",
+    "skill_id": 4,
+    "skill_name": "Structured Data Audit",
+    "score": 65,
+    "issues_found": 7,
+    "issues_critical": 0,
+    "duration_s": 7,
+    "status": "completed",
+    "notes": "Group 3 | skill 4/23",
+    "cycle": 1
   }
 ]

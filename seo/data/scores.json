@@ -28,5 +28,15 @@
     "delta": 0,
     "cycle": 1,
     "run_id": "92722d1d"
+  },
+  {
+    "date": "2026-05-27T00:05:24.117886",
+    "skill_id": 4,
+    "skill_name": "Structured Data Audit",
+    "score": 65,
+    "prev_score": null,
+    "delta": 0,
+    "cycle": 1,
+    "run_id": "e979fd88"
   }
 ]
