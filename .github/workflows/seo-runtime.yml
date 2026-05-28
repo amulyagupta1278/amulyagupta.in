@@ -143,8 +143,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python seo/fixer.py
-          FIXER_EXIT=$?
+          # Capture exit code without triggering bash -e on non-zero exits.
+          # Exit 0 = fixes written, Exit 2 = nothing to fix, Exit 1 = error.
+          FIXER_EXIT=0
+          python seo/fixer.py || FIXER_EXIT=$?
 
           if [ "$FIXER_EXIT" -eq 2 ]; then
             echo "No fixable issues this run — skipping PR creation."
