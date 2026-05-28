@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-05-27T00:05:24.118270",
+  "generated_at": "2026-05-28T00:02:55.397904",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "e979fd88",
-    "date": "2026-05-27T00:05:16.314780",
-    "skill_id": 4,
-    "skill_name": "Structured Data Audit",
-    "score": 65,
-    "issues_found": 7,
-    "issues_critical": 0,
-    "duration_s": 7,
+    "run_id": "e18e69b9",
+    "date": "2026-05-28T00:00:42.644319",
+    "skill_id": 5,
+    "skill_name": "Core Web Vitals",
+    "score": 46,
+    "issues_found": 4,
+    "issues_critical": 4,
+    "duration_s": 132,
     "status": "completed",
-    "notes": "Group 3 | skill 4/23",
+    "notes": "Group 3 | skill 5/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 90.0,
-    "active_issues": 8,
-    "critical_issues": 0,
+    "avg_score": 81.2,
+    "active_issues": 12,
+    "critical_issues": 4,
     "warning_issues": 8,
-    "total_runs": 4,
+    "total_runs": 5,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 17
+    "cycle_percent": 22
   },
   "recent_runs": [
     {
@@ -76,70 +76,56 @@
       "status": "completed",
       "notes": "Group 3 | skill 4/23",
       "cycle": 1
+    },
+    {
+      "run_id": "e18e69b9",
+      "date": "2026-05-28T00:00:42.644319",
+      "skill_id": 5,
+      "skill_name": "Core Web Vitals",
+      "score": 46,
+      "issues_found": 4,
+      "issues_critical": 4,
+      "duration_s": 132,
+      "status": "completed",
+      "notes": "Group 3 | skill 5/23",
+      "cycle": 1
     }
   ],
   "latest_findings": [
     {
-      "title": "Missing WebSite schema: /",
-      "description": "Expected WebSite schema not found. Found: ['Person']",
-      "severity": "warning",
-      "category": "schema",
+      "title": "Poor LCP on / (mobile)",
+      "description": "LCP is 4333ms \u2014 above 4000ms threshold.",
+      "severity": "critical",
+      "category": "cwv",
       "url": "https://amulyagupta.in/",
-      "recommendation": "Add WebSite JSON-LD schema to this page.",
+      "recommendation": "Optimize the largest contentful element: use preload for hero images, reduce server response time, eliminate render-blocking resources.",
       "evidence": ""
     },
     {
-      "title": "Missing Person schema: /contact.html",
-      "description": "Expected Person schema not found. Found: ['BreadcrumbList']",
-      "severity": "warning",
-      "category": "schema",
-      "url": "https://amulyagupta.in/contact.html",
-      "recommendation": "Add Person JSON-LD schema to this page.",
+      "title": "Poor LCP on /about.html (mobile)",
+      "description": "LCP is 4108ms \u2014 above 4000ms threshold.",
+      "severity": "critical",
+      "category": "cwv",
+      "url": "https://amulyagupta.in/about.html",
+      "recommendation": "Optimize the largest contentful element: use preload for hero images, reduce server response time, eliminate render-blocking resources.",
       "evidence": ""
     },
     {
-      "title": "Missing Blog schema: /blog/index.html",
-      "description": "Expected Blog schema not found. Found: ['BreadcrumbList']",
-      "severity": "warning",
-      "category": "schema",
-      "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Add Blog JSON-LD schema to this page.",
+      "title": "Poor LCP on /projects.html (mobile)",
+      "description": "LCP is 4691ms \u2014 above 4000ms threshold.",
+      "severity": "critical",
+      "category": "cwv",
+      "url": "https://amulyagupta.in/projects.html",
+      "recommendation": "Optimize the largest contentful element: use preload for hero images, reduce server response time, eliminate render-blocking resources.",
       "evidence": ""
     },
     {
-      "title": "Missing ItemList schema: /blog/index.html",
-      "description": "Expected ItemList schema not found. Found: ['BreadcrumbList']",
-      "severity": "warning",
-      "category": "schema",
-      "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Add ItemList JSON-LD schema to this page.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing Article schema: /blog/post-1-mlops-pipeline.html",
-      "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
-      "severity": "warning",
-      "category": "schema",
-      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
-      "recommendation": "Add Article JSON-LD schema to this page.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing Article schema: /blog/post-2-mlops-stack.html",
-      "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
-      "severity": "warning",
-      "category": "schema",
-      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
-      "recommendation": "Add Article JSON-LD schema to this page.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing Article schema: /blog/ai-ml-guide-2026.html",
-      "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
-      "severity": "warning",
-      "category": "schema",
+      "title": "Poor LCP on /blog/ai-ml-guide-2026.html (mobile)",
+      "description": "LCP is 4359ms \u2014 above 4000ms threshold.",
+      "severity": "critical",
+      "category": "cwv",
       "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Add Article JSON-LD schema to this page.",
+      "recommendation": "Optimize the largest contentful element: use preload for hero images, reduce server response time, eliminate render-blocking resources.",
       "evidence": ""
     }
   ],
@@ -183,6 +169,16 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "e979fd88"
+    },
+    {
+      "date": "2026-05-28T00:02:55.397645",
+      "skill_id": 5,
+      "skill_name": "Core Web Vitals",
+      "score": 46,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "e18e69b9"
     }
   ],
   "active_issues_list": [
@@ -289,30 +285,86 @@
       "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
       "status": "active",
       "occurrences": 1
+    },
+    {
+      "issue_id": "2f295c7feabf",
+      "first_seen": "2026-05-28T00:02:55.395906",
+      "last_seen": "2026-05-28T00:02:55.395906",
+      "skill_id": 5,
+      "severity": "critical",
+      "category": "cwv",
+      "url": "https://amulyagupta.in/",
+      "title": "Poor LCP on / (mobile)",
+      "description": "LCP is 4333ms \u2014 above 4000ms threshold.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "d989d2e1d10b",
+      "first_seen": "2026-05-28T00:02:55.396444",
+      "last_seen": "2026-05-28T00:02:55.396444",
+      "skill_id": 5,
+      "severity": "critical",
+      "category": "cwv",
+      "url": "https://amulyagupta.in/about.html",
+      "title": "Poor LCP on /about.html (mobile)",
+      "description": "LCP is 4108ms \u2014 above 4000ms threshold.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "b5662c129f3b",
+      "first_seen": "2026-05-28T00:02:55.396736",
+      "last_seen": "2026-05-28T00:02:55.396736",
+      "skill_id": 5,
+      "severity": "critical",
+      "category": "cwv",
+      "url": "https://amulyagupta.in/projects.html",
+      "title": "Poor LCP on /projects.html (mobile)",
+      "description": "LCP is 4691ms \u2014 above 4000ms threshold.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "61f6eb656990",
+      "first_seen": "2026-05-28T00:02:55.397089",
+      "last_seen": "2026-05-28T00:02:55.397089",
+      "skill_id": 5,
+      "severity": "critical",
+      "category": "cwv",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "title": "Poor LCP on /blog/ai-ml-guide-2026.html (mobile)",
+      "description": "LCP is 4359ms \u2014 above 4000ms threshold.",
+      "status": "active",
+      "occurrences": 1
     }
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 4,
+    "position": 5,
     "total": 23,
-    "percent": 17,
+    "percent": 22,
     "cycle": 1,
-    "current_skill_id": 4,
-    "skills_completed_this_cycle": 4,
-    "next_skill_id": 5
+    "current_skill_id": 5,
+    "skills_completed_this_cycle": 5,
+    "next_skill_id": 6
   },
   "forecast": {
     "trend": "declining",
-    "slope_per_day": -10.0,
-    "current_score": 65,
+    "slope_per_day": -13.8,
+    "current_score": 46,
     "projected_score_7d": 0,
     "projected_score_30d": 0,
-    "avg_delta_recent": -11.67,
+    "avg_delta_recent": -13.5,
     "confidence": "low",
     "momentum": "negative",
-    "risk_level": "low",
-    "data_points": 4,
+    "risk_level": "medium",
+    "data_points": 5,
     "lowest_scoring_skills": [
+      [
+        5,
+        46
+      ],
       [
         4,
         65
@@ -320,10 +372,6 @@
       [
         2,
         95
-      ],
-      [
-        1,
-        100
       ]
     ],
     "highest_scoring_skills": [
@@ -342,22 +390,22 @@
     ]
   },
   "historical_comparison": {
-    "current_skill_id": 4,
-    "current_score": 65,
+    "current_skill_id": 5,
+    "current_score": 46,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 7,
+    "current_issues_found": 4,
     "issue_delta": null,
     "skill_trend": [
-      65
+      46
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 90.0,
+    "avg_score_last_7d": 81.2,
     "avg_score_prev_7d": null,
     "week_over_week_delta": null,
-    "total_runs_completed": 4,
+    "total_runs_completed": 5,
     "cycle_number": 1
   }
 }

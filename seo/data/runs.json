@@ -50,5 +50,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 4/23",
     "cycle": 1
+  },
+  {
+    "run_id": "e18e69b9",
+    "date": "2026-05-28T00:00:42.644319",
+    "skill_id": 5,
+    "skill_name": "Core Web Vitals",
+    "score": 46,
+    "issues_found": 4,
+    "issues_critical": 4,
+    "duration_s": 132,
+    "status": "completed",
+    "notes": "Group 3 | skill 5/23",
+    "cycle": 1
   }
 ]

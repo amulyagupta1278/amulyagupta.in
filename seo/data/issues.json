@@ -102,5 +102,57 @@
     "description": "Expected Article schema not found. Found: ['BlogPosting', 'BreadcrumbList']",
     "status": "active",
     "occurrences": 1
+  },
+  "2f295c7feabf": {
+    "issue_id": "2f295c7feabf",
+    "first_seen": "2026-05-28T00:02:55.395906",
+    "last_seen": "2026-05-28T00:02:55.395906",
+    "skill_id": 5,
+    "severity": "critical",
+    "category": "cwv",
+    "url": "https://amulyagupta.in/",
+    "title": "Poor LCP on / (mobile)",
+    "description": "LCP is 4333ms \u2014 above 4000ms threshold.",
+    "status": "active",
+    "occurrences": 1
+  },
+  "d989d2e1d10b": {
+    "issue_id": "d989d2e1d10b",
+    "first_seen": "2026-05-28T00:02:55.396444",
+    "last_seen": "2026-05-28T00:02:55.396444",
+    "skill_id": 5,
+    "severity": "critical",
+    "category": "cwv",
+    "url": "https://amulyagupta.in/about.html",
+    "title": "Poor LCP on /about.html (mobile)",
+    "description": "LCP is 4108ms \u2014 above 4000ms threshold.",
+    "status": "active",
+    "occurrences": 1
+  },
+  "b5662c129f3b": {
+    "issue_id": "b5662c129f3b",
+    "first_seen": "2026-05-28T00:02:55.396736",
+    "last_seen": "2026-05-28T00:02:55.396736",
+    "skill_id": 5,
+    "severity": "critical",
+    "category": "cwv",
+    "url": "https://amulyagupta.in/projects.html",
+    "title": "Poor LCP on /projects.html (mobile)",
+    "description": "LCP is 4691ms \u2014 above 4000ms threshold.",
+    "status": "active",
+    "occurrences": 1
+  },
+  "61f6eb656990": {
+    "issue_id": "61f6eb656990",
+    "first_seen": "2026-05-28T00:02:55.397089",
+    "last_seen": "2026-05-28T00:02:55.397089",
+    "skill_id": 5,
+    "severity": "critical",
+    "category": "cwv",
+    "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+    "title": "Poor LCP on /blog/ai-ml-guide-2026.html (mobile)",
+    "description": "LCP is 4359ms \u2014 above 4000ms threshold.",
+    "status": "active",
+    "occurrences": 1
   }
 }

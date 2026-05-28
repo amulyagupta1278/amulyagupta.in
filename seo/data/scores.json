@@ -38,5 +38,15 @@
     "delta": 0,
     "cycle": 1,
     "run_id": "e979fd88"
+  },
+  {
+    "date": "2026-05-28T00:02:55.397645",
+    "skill_id": 5,
+    "skill_name": "Core Web Vitals",
+    "score": 46,
+    "prev_score": null,
+    "delta": 0,
+    "cycle": 1,
+    "run_id": "e18e69b9"
   }
 ]
