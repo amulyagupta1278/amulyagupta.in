@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-05-28T00:02:55.397904",
+  "generated_at": "2026-05-28T17:27:39.830004",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "e18e69b9",
-    "date": "2026-05-28T00:00:42.644319",
-    "skill_id": 5,
-    "skill_name": "Core Web Vitals",
-    "score": 46,
-    "issues_found": 4,
-    "issues_critical": 4,
-    "duration_s": 132,
+    "run_id": "a72f6129",
+    "date": "2026-05-28T17:27:31.869187",
+    "skill_id": 6,
+    "skill_name": "Meta Tags & Open Graph Audit",
+    "score": 5,
+    "issues_found": 20,
+    "issues_critical": 0,
+    "duration_s": 7,
     "status": "completed",
-    "notes": "Group 3 | skill 5/23",
+    "notes": "Group 3 | skill 6/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 81.2,
-    "active_issues": 12,
+    "avg_score": 68.5,
+    "active_issues": 32,
     "critical_issues": 4,
-    "warning_issues": 8,
-    "total_runs": 5,
+    "warning_issues": 27,
+    "total_runs": 6,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 22
+    "cycle_percent": 26
   },
   "recent_runs": [
     {
@@ -89,43 +89,200 @@
       "status": "completed",
       "notes": "Group 3 | skill 5/23",
       "cycle": 1
+    },
+    {
+      "run_id": "a72f6129",
+      "date": "2026-05-28T17:27:31.869187",
+      "skill_id": 6,
+      "skill_name": "Meta Tags & Open Graph Audit",
+      "score": 5,
+      "issues_found": 20,
+      "issues_critical": 0,
+      "duration_s": 7,
+      "status": "completed",
+      "notes": "Group 3 | skill 6/23",
+      "cycle": 1
     }
   ],
   "latest_findings": [
     {
-      "title": "Poor LCP on / (mobile)",
-      "description": "LCP is 4333ms \u2014 above 4000ms threshold.",
-      "severity": "critical",
-      "category": "cwv",
+      "title": "Title too long (61 chars): /",
+      "description": "Title 'Amulya Gupta | AI Systems Engineer | Agentic AI \u00b7 ...' exceeds 60 characters and may be truncated in SERPs.",
+      "severity": "warning",
+      "category": "meta",
       "url": "https://amulyagupta.in/",
-      "recommendation": "Optimize the largest contentful element: use preload for hero images, reduce server response time, eliminate render-blocking resources.",
+      "recommendation": "Shorten the title to under 60 characters.",
       "evidence": ""
     },
     {
-      "title": "Poor LCP on /about.html (mobile)",
-      "description": "LCP is 4108ms \u2014 above 4000ms threshold.",
-      "severity": "critical",
-      "category": "cwv",
-      "url": "https://amulyagupta.in/about.html",
-      "recommendation": "Optimize the largest contentful element: use preload for hero images, reduce server response time, eliminate render-blocking resources.",
+      "title": "Long meta description (177 chars): /",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/",
+      "recommendation": "Shorten the description to under 160 characters.",
       "evidence": ""
     },
     {
-      "title": "Poor LCP on /projects.html (mobile)",
-      "description": "LCP is 4691ms \u2014 above 4000ms threshold.",
-      "severity": "critical",
-      "category": "cwv",
+      "title": "Long meta description (167 chars): /projects.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "severity": "warning",
+      "category": "meta",
       "url": "https://amulyagupta.in/projects.html",
-      "recommendation": "Optimize the largest contentful element: use preload for hero images, reduce server response time, eliminate render-blocking resources.",
+      "recommendation": "Shorten the description to under 160 characters.",
       "evidence": ""
     },
     {
-      "title": "Poor LCP on /blog/ai-ml-guide-2026.html (mobile)",
-      "description": "LCP is 4359ms \u2014 above 4000ms threshold.",
-      "severity": "critical",
-      "category": "cwv",
+      "title": "Title too long (83 chars): /experience.html",
+      "description": "Title 'Experience | Amulya Gupta \u2014 AI Systems Engineer | ...' exceeds 60 characters and may be truncated in SERPs.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/experience.html",
+      "recommendation": "Shorten the title to under 60 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Long meta description (174 chars): /amulya-gupta.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/amulya-gupta.html",
+      "recommendation": "Shorten the description to under 160 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Title too long (69 chars): /contact.html",
+      "description": "Title 'Contact Amulya Gupta | AI Systems Engineer | Agent...' exceeds 60 characters and may be truncated in SERPs.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/contact.html",
+      "recommendation": "Shorten the title to under 60 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Title too long (69 chars): /blog/index.html",
+      "description": "Title 'Blog | Amulya Gupta \u2014 AI Systems, Agentic AI, LLM ...' exceeds 60 characters and may be truncated in SERPs.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Shorten the title to under 60 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Short meta description (113 chars): /blog/index.html",
+      "description": "Description is shorter than 120 characters.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Expand the description to 120\u2013160 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Title too long (86 chars): /blog/post-1-mlops-pipeline.html",
+      "description": "Title 'How I Built an End-to-End MLOps Pipeline: MLflow +...' exceeds 60 characters and may be truncated in SERPs.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "recommendation": "Shorten the title to under 60 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Long meta description (181 chars): /blog/post-1-mlops-pipeline.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "recommendation": "Shorten the description to under 160 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Title too long (64 chars): /blog/post-2-mlops-stack.html",
+      "description": "Title 'MLOps in 2025: The Stack I Actually Use (and Why) ...' exceeds 60 characters and may be truncated in SERPs.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "recommendation": "Shorten the title to under 60 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Long meta description (168 chars): /blog/post-2-mlops-stack.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "recommendation": "Shorten the description to under 160 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Title too long (74 chars): /blog/ai-ml-guide-2026.html",
+      "description": "Title 'AI/ML Roadmap 2026: From Zero to Job-Ready Without...' exceeds 60 characters and may be truncated in SERPs.",
+      "severity": "warning",
+      "category": "meta",
       "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Optimize the largest contentful element: use preload for hero images, reduce server response time, eliminate render-blocking resources.",
+      "recommendation": "Shorten the title to under 60 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Long meta description (175 chars): /blog/ai-ml-guide-2026.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "recommendation": "Shorten the description to under 160 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Short meta description (105 chars): /privacy.html",
+      "description": "Description is shorter than 120 characters.",
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/privacy.html",
+      "recommendation": "Expand the description to 120\u2013160 characters.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing og:title: /privacy.html",
+      "description": "Open Graph tag 'og:title' is missing.",
+      "severity": "warning",
+      "category": "open-graph",
+      "url": "https://amulyagupta.in/privacy.html",
+      "recommendation": "Add <meta property='og:title' content='...'> for better social sharing.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing og:description: /privacy.html",
+      "description": "Open Graph tag 'og:description' is missing.",
+      "severity": "warning",
+      "category": "open-graph",
+      "url": "https://amulyagupta.in/privacy.html",
+      "recommendation": "Add <meta property='og:description' content='...'> for better social sharing.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing og:image: /privacy.html",
+      "description": "Open Graph tag 'og:image' is missing.",
+      "severity": "warning",
+      "category": "open-graph",
+      "url": "https://amulyagupta.in/privacy.html",
+      "recommendation": "Add <meta property='og:image' content='...'> for better social sharing.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing og:url: /privacy.html",
+      "description": "Open Graph tag 'og:url' is missing.",
+      "severity": "warning",
+      "category": "open-graph",
+      "url": "https://amulyagupta.in/privacy.html",
+      "recommendation": "Add <meta property='og:url' content='...'> for better social sharing.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing Twitter Card: /privacy.html",
+      "description": "No twitter:card meta tag found.",
+      "severity": "info",
+      "category": "social",
+      "url": "https://amulyagupta.in/privacy.html",
+      "recommendation": "Add <meta name='twitter:card' content='summary_large_image'> for Twitter sharing.",
       "evidence": ""
     }
   ],
@@ -179,6 +336,16 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "e18e69b9"
+    },
+    {
+      "date": "2026-05-28T17:27:39.829616",
+      "skill_id": 6,
+      "skill_name": "Meta Tags & Open Graph Audit",
+      "score": 5,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "a72f6129"
     }
   ],
   "active_issues_list": [
@@ -287,6 +454,266 @@
       "occurrences": 1
     },
     {
+      "issue_id": "9e7d69a9d108",
+      "first_seen": "2026-05-28T17:27:39.818505",
+      "last_seen": "2026-05-28T17:27:39.818505",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/",
+      "title": "Title too long (61 chars): /",
+      "description": "Title 'Amulya Gupta | AI Systems Engineer | Agentic AI \u00b7 ...' exceeds 60 characters and may be truncated in SERPs.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "77f839fa40a2",
+      "first_seen": "2026-05-28T17:27:39.818964",
+      "last_seen": "2026-05-28T17:27:39.818964",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/",
+      "title": "Long meta description (177 chars): /",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "428b7adef43f",
+      "first_seen": "2026-05-28T17:27:39.819403",
+      "last_seen": "2026-05-28T17:27:39.819403",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/projects.html",
+      "title": "Long meta description (167 chars): /projects.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "87be86e70541",
+      "first_seen": "2026-05-28T17:27:39.819952",
+      "last_seen": "2026-05-28T17:27:39.819952",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/experience.html",
+      "title": "Title too long (83 chars): /experience.html",
+      "description": "Title 'Experience | Amulya Gupta \u2014 AI Systems Engineer | ...' exceeds 60 characters and may be truncated in SERPs.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "6bd8d00159fa",
+      "first_seen": "2026-05-28T17:27:39.820309",
+      "last_seen": "2026-05-28T17:27:39.820309",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/amulya-gupta.html",
+      "title": "Long meta description (174 chars): /amulya-gupta.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "8fb5902d199c",
+      "first_seen": "2026-05-28T17:27:39.820841",
+      "last_seen": "2026-05-28T17:27:39.820841",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/contact.html",
+      "title": "Title too long (69 chars): /contact.html",
+      "description": "Title 'Contact Amulya Gupta | AI Systems Engineer | Agent...' exceeds 60 characters and may be truncated in SERPs.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "79f880918d09",
+      "first_seen": "2026-05-28T17:27:39.821267",
+      "last_seen": "2026-05-28T17:27:39.821267",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "title": "Title too long (69 chars): /blog/index.html",
+      "description": "Title 'Blog | Amulya Gupta \u2014 AI Systems, Agentic AI, LLM ...' exceeds 60 characters and may be truncated in SERPs.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "a744e4c299c7",
+      "first_seen": "2026-05-28T17:27:39.822452",
+      "last_seen": "2026-05-28T17:27:39.822452",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "title": "Short meta description (113 chars): /blog/index.html",
+      "description": "Description is shorter than 120 characters.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "64cf9b6ff7e2",
+      "first_seen": "2026-05-28T17:27:39.822925",
+      "last_seen": "2026-05-28T17:27:39.822925",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "title": "Title too long (86 chars): /blog/post-1-mlops-pipeline.html",
+      "description": "Title 'How I Built an End-to-End MLOps Pipeline: MLflow +...' exceeds 60 characters and may be truncated in SERPs.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "4fdb54aeb2b1",
+      "first_seen": "2026-05-28T17:27:39.823368",
+      "last_seen": "2026-05-28T17:27:39.823368",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "title": "Long meta description (181 chars): /blog/post-1-mlops-pipeline.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "4680d13af213",
+      "first_seen": "2026-05-28T17:27:39.823789",
+      "last_seen": "2026-05-28T17:27:39.823789",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "title": "Title too long (64 chars): /blog/post-2-mlops-stack.html",
+      "description": "Title 'MLOps in 2025: The Stack I Actually Use (and Why) ...' exceeds 60 characters and may be truncated in SERPs.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "c3bc141abe25",
+      "first_seen": "2026-05-28T17:27:39.824356",
+      "last_seen": "2026-05-28T17:27:39.824356",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "title": "Long meta description (168 chars): /blog/post-2-mlops-stack.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "9cd61de83be5",
+      "first_seen": "2026-05-28T17:27:39.824792",
+      "last_seen": "2026-05-28T17:27:39.824792",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "title": "Title too long (74 chars): /blog/ai-ml-guide-2026.html",
+      "description": "Title 'AI/ML Roadmap 2026: From Zero to Job-Ready Without...' exceeds 60 characters and may be truncated in SERPs.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "9449542aa7b0",
+      "first_seen": "2026-05-28T17:27:39.825361",
+      "last_seen": "2026-05-28T17:27:39.825361",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "title": "Long meta description (175 chars): /blog/ai-ml-guide-2026.html",
+      "description": "Description exceeds 160 characters and will be truncated.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "027cb0682625",
+      "first_seen": "2026-05-28T17:27:39.825829",
+      "last_seen": "2026-05-28T17:27:39.825829",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "meta",
+      "url": "https://amulyagupta.in/privacy.html",
+      "title": "Short meta description (105 chars): /privacy.html",
+      "description": "Description is shorter than 120 characters.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "e6f0effd76a9",
+      "first_seen": "2026-05-28T17:27:39.826341",
+      "last_seen": "2026-05-28T17:27:39.826341",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "open-graph",
+      "url": "https://amulyagupta.in/privacy.html",
+      "title": "Missing og:title: /privacy.html",
+      "description": "Open Graph tag 'og:title' is missing.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "ccd99885e561",
+      "first_seen": "2026-05-28T17:27:39.827060",
+      "last_seen": "2026-05-28T17:27:39.827060",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "open-graph",
+      "url": "https://amulyagupta.in/privacy.html",
+      "title": "Missing og:description: /privacy.html",
+      "description": "Open Graph tag 'og:description' is missing.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "30033bfaf472",
+      "first_seen": "2026-05-28T17:27:39.827647",
+      "last_seen": "2026-05-28T17:27:39.827647",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "open-graph",
+      "url": "https://amulyagupta.in/privacy.html",
+      "title": "Missing og:image: /privacy.html",
+      "description": "Open Graph tag 'og:image' is missing.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "23a31029317c",
+      "first_seen": "2026-05-28T17:27:39.828208",
+      "last_seen": "2026-05-28T17:27:39.828208",
+      "skill_id": 6,
+      "severity": "warning",
+      "category": "open-graph",
+      "url": "https://amulyagupta.in/privacy.html",
+      "title": "Missing og:url: /privacy.html",
+      "description": "Open Graph tag 'og:url' is missing.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "c480b3b2441f",
+      "first_seen": "2026-05-28T17:27:39.828706",
+      "last_seen": "2026-05-28T17:27:39.828706",
+      "skill_id": 6,
+      "severity": "info",
+      "category": "social",
+      "url": "https://amulyagupta.in/privacy.html",
+      "title": "Missing Twitter Card: /privacy.html",
+      "description": "No twitter:card meta tag found.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
       "issue_id": "2f295c7feabf",
       "first_seen": "2026-05-28T00:02:55.395906",
       "last_seen": "2026-05-28T00:02:55.395906",
@@ -341,26 +768,30 @@
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 5,
+    "position": 6,
     "total": 23,
-    "percent": 22,
+    "percent": 26,
     "cycle": 1,
-    "current_skill_id": 5,
-    "skills_completed_this_cycle": 5,
-    "next_skill_id": 6
+    "current_skill_id": 6,
+    "skills_completed_this_cycle": 6,
+    "next_skill_id": 7
   },
   "forecast": {
     "trend": "declining",
-    "slope_per_day": -13.8,
-    "current_score": 46,
+    "slope_per_day": -18.771,
+    "current_score": 5,
     "projected_score_7d": 0,
     "projected_score_30d": 0,
-    "avg_delta_recent": -13.5,
+    "avg_delta_recent": -19.0,
     "confidence": "low",
     "momentum": "negative",
-    "risk_level": "medium",
-    "data_points": 5,
+    "risk_level": "high",
+    "data_points": 6,
     "lowest_scoring_skills": [
+      [
+        6,
+        5
+      ],
       [
         5,
         46
@@ -368,10 +799,6 @@
       [
         4,
         65
-      ],
-      [
-        2,
-        95
       ]
     ],
     "highest_scoring_skills": [
@@ -390,22 +817,22 @@
     ]
   },
   "historical_comparison": {
-    "current_skill_id": 5,
-    "current_score": 46,
+    "current_skill_id": 6,
+    "current_score": 5,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 4,
+    "current_issues_found": 20,
     "issue_delta": null,
     "skill_trend": [
-      46
+      5
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 81.2,
+    "avg_score_last_7d": 68.5,
     "avg_score_prev_7d": null,
     "week_over_week_delta": null,
-    "total_runs_completed": 5,
+    "total_runs_completed": 6,
     "cycle_number": 1
   }
 }

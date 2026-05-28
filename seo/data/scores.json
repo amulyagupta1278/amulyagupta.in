@@ -48,5 +48,15 @@
     "delta": 0,
     "cycle": 1,
     "run_id": "e18e69b9"
+  },
+  {
+    "date": "2026-05-28T17:27:39.829616",
+    "skill_id": 6,
+    "skill_name": "Meta Tags & Open Graph Audit",
+    "score": 5,
+    "prev_score": null,
+    "delta": 0,
+    "cycle": 1,
+    "run_id": "a72f6129"
   }
 ]

@@ -63,5 +63,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 5/23",
     "cycle": 1
+  },
+  {
+    "run_id": "a72f6129",
+    "date": "2026-05-28T17:27:31.869187",
+    "skill_id": 6,
+    "skill_name": "Meta Tags & Open Graph Audit",
+    "score": 5,
+    "issues_found": 20,
+    "issues_critical": 0,
+    "duration_s": 7,
+    "status": "completed",
+    "notes": "Group 3 | skill 6/23",
+    "cycle": 1
   }
 ]
