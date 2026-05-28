@@ -189,9 +189,9 @@ def get_historical_comparison(runs: list, scores: list) -> dict:
         d = _parse_date(s.get("date", ""))
         if d is None:
             continue
-        if week_ago <= d <= now:
+        if week_ago < d <= now:
             last_week_scores.append(s["score"])
-        elif two_weeks_ago <= d < week_ago:
+        elif two_weeks_ago < d <= week_ago:
             prev_week_scores.append(s["score"])
 
     avg_last_week = sum(last_week_scores) / len(last_week_scores) if last_week_scores else None
@@ -252,11 +252,22 @@ def detect_recurring_issues(issues: dict) -> list[dict]:
 
 def build_predictive_forecast(scores: list) -> dict:
     """
-    Simple linear trend forecast for overall SEO health score.
-    Uses the last 23 data points (one full cycle).
+    Trend forecast derived from same-skill score deltas across cycles.
+
+    A valid trend requires at least one skill audited twice (cycle 2+).
+    During cycle 1 all data points represent *different* skills — comparing
+    them as a time series is statistically invalid and produces misleading
+    results. In that case the function returns trend="first_cycle_in_progress"
+    so the email renderer can show factual cycle-progress information instead
+    of a fabricated trend label.
+
+    Projection maths (multi-cycle only):
+      avg_delta_per_cycle = mean of (score_cycle2 - score_cycle1) per skill
+      slope_per_day       = avg_delta_per_cycle / 23   (one cycle ≈ 23 days)
+      projected_7d        = current + slope_per_day * 7
+      projected_30d       = current + slope_per_day * 30
     """
-    recent = scores[-23:] if len(scores) >= 23 else scores
-    if len(recent) < 3:
+    if not scores:
         return {
             "trend": "insufficient_data",
             "projected_score_7d": None,
@@ -264,52 +275,71 @@ def build_predictive_forecast(scores: list) -> dict:
             "confidence": "low",
             "momentum": "neutral",
             "risk_level": "unknown",
+            "data_points": 0,
         }
 
-    score_vals = [s["score"] for s in recent]
-    n = len(score_vals)
+    from collections import Counter
+    n = len(scores)
+    skill_counts = Counter(s.get("skill_id") for s in scores if s.get("skill_id"))
+    has_multi_cycle = any(v >= 2 for v in skill_counts.values())
 
-    # Linear regression
-    x_mean = (n - 1) / 2
-    y_mean = sum(score_vals) / n
-    numerator = sum((i - x_mean) * (score_vals[i] - y_mean) for i in range(n))
-    denominator = sum((i - x_mean) ** 2 for i in range(n))
-    slope = numerator / denominator if denominator else 0
-
-    current = score_vals[-1]
-    projected_7d = min(100, max(0, round(current + slope * 7, 1)))
-    projected_30d = min(100, max(0, round(current + slope * 30, 1)))
-
-    # Momentum: average of last 5 deltas
-    deltas = [score_vals[i] - score_vals[i - 1] for i in range(1, len(score_vals))]
-    recent_deltas = deltas[-5:] if len(deltas) >= 5 else deltas
-    avg_delta = sum(recent_deltas) / len(recent_deltas) if recent_deltas else 0
-
-    momentum = "positive" if avg_delta > 1 else "negative" if avg_delta < -1 else "neutral"
-    trend = "improving" if slope > 0.2 else "declining" if slope < -0.2 else "stable"
-    confidence = "high" if n >= 20 else "medium" if n >= 10 else "low"
-
-    # Risk level
-    critical_ratio = sum(1 for s in recent if s["score"] < 50) / n
-    risk_level = "high" if critical_ratio > 0.3 else "medium" if critical_ratio > 0.1 else "low"
-
-    # Category scores if available
-    score_by_category = {}
-    for s in recent:
+    # Latest score per skill — always accurate regardless of cycle
+    score_by_skill: dict[int, int] = {}
+    for s in scores:
         sid = s.get("skill_id")
         if sid:
-            score_by_category[sid] = s["score"]
+            score_by_skill[sid] = s["score"]
 
-    lowest_skills = sorted(score_by_category.items(), key=lambda x: x[1])[:3]
-    highest_skills = sorted(score_by_category.items(), key=lambda x: x[1], reverse=True)[:3]
+    lowest_skills = sorted(score_by_skill.items(), key=lambda x: x[1])[:3]
+    highest_skills = sorted(score_by_skill.items(), key=lambda x: x[1], reverse=True)[:3]
+
+    latest_scores = list(score_by_skill.values())
+    critical_ratio = (
+        sum(1 for sc in latest_scores if sc < 50) / len(latest_scores)
+        if latest_scores else 0
+    )
+    risk_level = "high" if critical_ratio > 0.3 else "medium" if critical_ratio > 0.1 else "low"
+
+    if not has_multi_cycle:
+        return {
+            "trend": "first_cycle_in_progress",
+            "projected_score_7d": None,
+            "projected_score_30d": None,
+            "confidence": "low",
+            "momentum": "neutral",
+            "risk_level": risk_level,
+            "data_points": n,
+            "cycle_status": f"Cycle 1 in progress — {n}/23 skills audited so far",
+            "lowest_scoring_skills": lowest_skills,
+            "highest_scoring_skills": highest_skills,
+        }
+
+    # Multi-cycle: delta between the two most recent runs of each skill
+    skill_deltas = []
+    for sid, count in skill_counts.items():
+        if count >= 2:
+            sid_scores = [s["score"] for s in scores if s.get("skill_id") == sid]
+            skill_deltas.append(sid_scores[-1] - sid_scores[-2])
+
+    avg_delta_per_cycle = sum(skill_deltas) / len(skill_deltas) if skill_deltas else 0
+    slope_per_day = avg_delta_per_cycle / 23
+
+    current = score_by_skill.get(scores[-1].get("skill_id"), scores[-1]["score"])
+    projected_7d = min(100, max(0, round(current + slope_per_day * 7, 1)))
+    projected_30d = min(100, max(0, round(current + slope_per_day * 30, 1)))
+
+    trend = "improving" if avg_delta_per_cycle > 1 else "declining" if avg_delta_per_cycle < -1 else "stable"
+    momentum = "positive" if avg_delta_per_cycle > 1 else "negative" if avg_delta_per_cycle < -1 else "neutral"
+    cycles_complete = max(skill_counts.values())
+    confidence = "high" if cycles_complete >= 3 else "medium" if cycles_complete >= 2 else "low"
 
     return {
         "trend": trend,
-        "slope_per_day": round(slope, 3),
+        "slope_per_day": round(slope_per_day, 3),
         "current_score": current,
         "projected_score_7d": projected_7d,
         "projected_score_30d": projected_30d,
-        "avg_delta_recent": round(avg_delta, 2),
+        "avg_delta_per_cycle": round(avg_delta_per_cycle, 2),
         "confidence": confidence,
         "momentum": momentum,
         "risk_level": risk_level,
@@ -380,9 +410,9 @@ def build_weekly_summary_data(runs: list, scores: list, issues: dict) -> dict:
         d = _parse_date(r.get("date", ""))
         if d is None:
             continue
-        if d >= week_ago:
+        if d > week_ago:
             this_week_runs.append(r)
-        elif two_weeks_ago <= d < week_ago:
+        elif two_weeks_ago < d <= week_ago:
             prev_week_runs.append(r)
 
     this_week_scores = [r["score"] for r in this_week_runs if r.get("score") is not None]
@@ -395,7 +425,7 @@ def build_weekly_summary_data(runs: list, scores: list, issues: dict) -> dict:
     new_this_week = []
     for i in active_issues:
         d = _parse_date(i.get("first_seen", ""))
-        if d is not None and d >= week_ago:
+        if d is not None and d > week_ago:
             new_this_week.append(i)
     critical_issues = [i for i in active_issues if i.get("severity") == "critical"]
     recurring = detect_recurring_issues(issues)

@@ -9,12 +9,28 @@ EXPECTED_SCHEMAS = {
     "/amulya-gupta.html": ["Person"],
     "/projects.html": ["ItemList"],
     "/experience.html": ["Person"],
-    "/blog/post-1-mlops-pipeline.html": ["BlogPosting", "Article"],
-    "/blog/post-2-mlops-stack.html": ["BlogPosting", "Article"],
-    "/blog/ai-ml-guide-2026.html": ["BlogPosting", "Article"],
+    "/blog/post-1-mlops-pipeline.html": ["BlogPosting"],
+    "/blog/post-2-mlops-stack.html": ["BlogPosting"],
+    "/blog/ai-ml-guide-2026.html": ["BlogPosting"],
     "/blog/index.html": ["Blog", "ItemList"],
     "/contact.html": ["Person"],
 }
+
+# Schema.org type inheritance — child types satisfy a parent-type requirement.
+# BlogPosting IS-A Article IS-A CreativeWork. Only track what we actually check.
+_SCHEMA_PARENTS: dict[str, set[str]] = {
+    "BlogPosting": {"Article", "CreativeWork"},
+    "NewsArticle": {"Article", "CreativeWork"},
+    "TechArticle": {"Article", "CreativeWork"},
+    "Article": {"CreativeWork"},
+}
+
+
+def _type_satisfies(actual: str, expected: str) -> bool:
+    """Return True if actual schema type satisfies the expected type requirement."""
+    if actual.lower() == expected.lower():
+        return True
+    return expected in _SCHEMA_PARENTS.get(actual, set())
 
 REQUIRED_PROPS = {
     "Person": ["name", "url"],
@@ -71,9 +87,10 @@ class Skill04StructuredData(BaseSEOSkill):
             pages_with_schema += 1
             schema_types = [s.get("@type", "") for s in schemas]
 
+            # Check expected types using Schema.org inheritance
             expected = EXPECTED_SCHEMAS.get(path, [])
             for exp in expected:
-                if not any(exp.lower() in str(st).lower() for st in schema_types):
+                if not any(_type_satisfies(str(st), exp) for st in schema_types):
                     findings.append(Finding(
                         title=f"Missing {exp} schema: {path}",
                         description=f"Expected {exp} schema not found. Found: {schema_types}",
@@ -82,6 +99,9 @@ class Skill04StructuredData(BaseSEOSkill):
                         url=url,
                         recommendation=f"Add {exp} JSON-LD schema to this page.",
                     ))
+
+            # Track whether @context is missing — report once per page, not per block
+            page_missing_context = False
 
             for schema in schemas:
                 s_type = schema.get("@type", "Unknown")
@@ -99,14 +119,7 @@ class Skill04StructuredData(BaseSEOSkill):
                         schema_errors += 1
 
                 if "@context" not in schema:
-                    findings.append(Finding(
-                        title=f"Missing @context in schema: {path}",
-                        description="JSON-LD schema block is missing @context declaration.",
-                        severity="warning",
-                        category="schema",
-                        url=url,
-                        recommendation="Add '@context': 'https://schema.org' to all JSON-LD blocks.",
-                    ))
+                    page_missing_context = True
 
                 if s_type == "BlogPosting":
                     if "datePublished" in schema:
@@ -120,6 +133,16 @@ class Skill04StructuredData(BaseSEOSkill):
                                 url=url,
                                 recommendation="Use ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ",
                             ))
+
+            if page_missing_context:
+                findings.append(Finding(
+                    title=f"Missing @context in schema: {path}",
+                    description="One or more JSON-LD blocks are missing @context declaration.",
+                    severity="warning",
+                    category="schema",
+                    url=url,
+                    recommendation="Add '@context': 'https://schema.org' to all JSON-LD blocks.",
+                ))
 
         total = len([p for p in pages if p.get("soup")])
         coverage_pct = (pages_with_schema / total * 100) if total else 0

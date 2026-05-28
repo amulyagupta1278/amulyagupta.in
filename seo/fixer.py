@@ -193,10 +193,10 @@ def fix_schema(issues: list[dict]) -> tuple[bool, str]:
         with open(file_path) as f:
             content = f.read()
 
-        # Check schema type not already present
+        # Check schema type not already present (case-insensitive)
         schema_type = re.search(r'"@type":\s*"(\w+)"', fix["block"])
         stype = schema_type.group(1) if schema_type else ""
-        if stype and f'"@type": "{stype}"' in content:
+        if stype and re.search(rf'"@type"\s*:\s*"{re.escape(stype)}"', content, re.IGNORECASE):
             continue
 
         new_content = content.replace(fix["marker"], fix["block"] + fix["marker"], 1)
@@ -230,11 +230,19 @@ def fix_robots(issues: list[dict]) -> tuple[bool, str]:
     with open(robots_path) as f:
         content = f.read()
 
+    # Build set of bots already declared (exact User-agent line match, case-insensitive)
+    declared_bots = {
+        line.split(":", 1)[1].strip().lower()
+        for line in content.splitlines()
+        if line.strip().lower().startswith("user-agent:")
+    }
+
     added = []
     for issue in bot_issues:
         for bot in _AI_BOTS:
-            if bot.lower() in issue.get("title", "").lower() and bot.lower() not in content.lower():
+            if bot.lower() in issue.get("title", "").lower() and bot.lower() not in declared_bots:
                 content += f"\nUser-agent: {bot}\nAllow: /\n"
+                declared_bots.add(bot.lower())
                 added.append(f"  - Added `{bot}` directive to robots.txt")
 
     if not added:

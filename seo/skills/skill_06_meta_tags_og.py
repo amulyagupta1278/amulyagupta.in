@@ -120,7 +120,9 @@ class Skill06MetaTagsOG(BaseSEOSkill):
             for og_key, label in [("og:title", og_title), ("og:description", og_desc),
                                    ("og:image", og_image), ("og:url", og_url)]:
                 if not label:
-                    sev = "warning" if og_key != "og:image" else "warning"
+                    # og:title and og:url directly affect social card rendering — warning.
+                    # og:description and og:image are strongly recommended but non-breaking — info.
+                    sev = "warning" if og_key in ("og:title", "og:url") else "info"
                     findings.append(Finding(
                         title=f"Missing {og_key}: {path}",
                         description=f"Open Graph tag '{og_key}' is missing.",

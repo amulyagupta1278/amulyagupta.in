@@ -203,14 +203,39 @@ def _build_historical_comparison_section(comparison: dict) -> str:
 
 
 def _build_predictive_forecast_section(forecast: dict) -> str:
-    if not forecast or forecast.get("trend") == "insufficient_data":
-        return """<div class="forecast-block">
-          <div class="card-title" style="color:#0369a1">Predictive SEO Forecast</div>
-          <p style="color:#0c4a6e;font-size:13px">Insufficient data for forecasting.
-          Projections will appear after 3+ skill runs.</p>
+    trend = forecast.get("trend") if forecast else None
+
+    # Not enough data or still in the first cycle — show factual cycle info only
+    if not forecast or trend in ("insufficient_data", "first_cycle_in_progress"):
+        cycle_status = (forecast or {}).get("cycle_status", "")
+        cycle_msg = (
+            f"<br><span style='color:#0369a1;font-weight:600'>{cycle_status}</span>"
+            if cycle_status else ""
+        )
+        lowest = (forecast or {}).get("lowest_scoring_skills", [])
+        lowest_html = ""
+        if lowest:
+            from config import SKILL_NAMES as _NAMES
+            items = [
+                f"<li style='margin:3px 0;font-size:12px'>"
+                f"{_NAMES[int(sid) - 1] if 1 <= int(sid) <= 23 else f'Skill {sid}'}: "
+                f"<strong style='color:#dc2626'>{sc}/100</strong></li>"
+                for sid, sc in lowest
+            ]
+            lowest_html = (
+                "<p style='font-weight:600;font-size:12px;color:#0369a1;margin:10px 0 4px'>"
+                "Priority skills to improve:</p>"
+                f"<ul style='margin:0;padding-left:18px'>{''.join(items)}</ul>"
+            )
+        return f"""<div class="forecast-block">
+          <div class="card-title" style="color:#0369a1">SEO Forecast</div>
+          <p style="color:#0c4a6e;font-size:13px">
+            Trend analysis requires the same skill to be audited at least twice (cycle 2+).
+            Cross-skill score comparisons are not a valid trend signal.{cycle_msg}
+          </p>
+          {lowest_html}
         </div>"""
 
-    trend = forecast.get("trend", "stable")
     trend_map = {"improving": "trend-up", "declining": "trend-down", "stable": "trend-flat"}
     trend_cls = trend_map.get(trend, "trend-flat")
 
@@ -224,11 +249,15 @@ def _build_predictive_forecast_section(forecast: dict) -> str:
     lowest_html = ""
     if lowest:
         from config import SKILL_NAMES as _NAMES
-        items = []
-        for sid, sc in lowest:
-            name = _NAMES[int(sid) - 1] if 1 <= int(sid) <= 23 else f"Skill {sid}"
-            items.append(f"<li style='margin:3px 0;font-size:12px'>{name}: <strong style='color:#dc2626'>{sc}/100</strong></li>")
+        items = [
+            f"<li style='margin:3px 0;font-size:12px'>"
+            f"{_NAMES[int(sid) - 1] if 1 <= int(sid) <= 23 else f'Skill {sid}'}: "
+            f"<strong style='color:#dc2626'>{sc}/100</strong></li>"
+            for sid, sc in lowest
+        ]
         lowest_html = f"<ul style='margin:8px 0 0;padding-left:18px'>{''.join(items)}</ul>"
+
+    avg_delta = forecast.get("avg_delta_per_cycle", 0)
 
     return f"""<div class="forecast-block">
       <div class="card-title" style="color:#0369a1">Predictive SEO Forecast
@@ -238,11 +267,11 @@ def _build_predictive_forecast_section(forecast: dict) -> str:
       </div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
         <div style="flex:1;min-width:120px;background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #bae6fd">
-          <div style="font-size:28px;font-weight:700;color:{_score_color(p7 or 0)}">{p7 or '—'}</div>
+          <div style="font-size:28px;font-weight:700;color:{_score_color(p7 or 0)}">{p7 if p7 is not None else '—'}</div>
           <div style="font-size:11px;color:#64748b">7-day projection</div>
         </div>
         <div style="flex:1;min-width:120px;background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #bae6fd">
-          <div style="font-size:28px;font-weight:700;color:{_score_color(p30 or 0)}">{p30 or '—'}</div>
+          <div style="font-size:28px;font-weight:700;color:{_score_color(p30 or 0)}">{p30 if p30 is not None else '—'}</div>
           <div style="font-size:11px;color:#64748b">30-day projection</div>
         </div>
         <div style="flex:1;min-width:120px;background:#fff;border-radius:8px;padding:14px;text-align:center;border:1px solid #bae6fd">
@@ -255,10 +284,10 @@ def _build_predictive_forecast_section(forecast: dict) -> str:
         </div>
       </div>
       <table>
-        <tr><td style="color:#64748b;width:160px">Momentum</td>
-            <td style="font-weight:600">{momentum.title()} ({forecast.get('avg_delta_recent',0):+.2f} pts/day)</td></tr>
-        <tr><td style="color:#64748b">Slope</td>
-            <td>{forecast.get('slope_per_day',0):+.3f} pts/day</td></tr>
+        <tr><td style="color:#64748b;width:160px">Avg change/cycle</td>
+            <td style="font-weight:600">{avg_delta:+.2f} pts/cycle &nbsp;·&nbsp; {forecast.get('slope_per_day',0):+.3f} pts/day</td></tr>
+        <tr><td style="color:#64748b">Momentum</td>
+            <td>{momentum.title()}</td></tr>
       </table>
       {f'<div style="margin-top:10px"><strong style="font-size:12px;color:#0369a1">Lowest-scoring skills (priority targets):</strong>{lowest_html}</div>' if lowest_html else ""}
     </div>"""

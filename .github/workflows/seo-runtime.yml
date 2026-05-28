@@ -142,9 +142,14 @@ jobs:
       - name: Run SEO Fixer and Create Fix PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GMAIL_SENDER: ${{ secrets.EMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          REPORT_EMAIL: amulyagupta2001@gmail.com
         run: |
-          python seo/fixer.py
-          FIXER_EXIT=$?
+          # Capture exit code without triggering bash -e on non-zero exits.
+          # Exit 0 = fixes written, Exit 2 = nothing to fix, Exit 1 = error.
+          FIXER_EXIT=0
+          python seo/fixer.py || FIXER_EXIT=$?
 
           if [ "$FIXER_EXIT" -eq 2 ]; then
             echo "No fixable issues this run — skipping PR creation."
@@ -174,17 +179,30 @@ jobs:
           git config user.name "SEO Runtime Bot"
           git config user.email "seo-bot@amulyagupta.in"
           git checkout -b "$BRANCH"
-          echo "$CHANGED" | xargs git add --
+          # Use -d '\n' so filenames with spaces are handled correctly
+          echo "$CHANGED" | xargs -d '\n' git add --
           git commit -m "fix(seo): auto-fixes from run #${{ github.run_number }} [seo-fixer]"
-          git push -u origin "$BRANCH"
 
-          gh pr create \
+          # Fail loud if push fails — no silent data loss
+          if ! git push -u origin "$BRANCH"; then
+            echo "::error::Failed to push branch $BRANCH — PR creation skipped."
+            git checkout "${{ github.ref_name }}"
+            exit 0
+          fi
+
+          PR_URL=""
+          PR_URL=$(gh pr create \
             --title "SEO Auto-Fix: Run #${{ github.run_number }}" \
             --body "$(cat seo/data/pr_body.txt)" \
             --base main \
-            --head "$BRANCH" \
-            && echo "PR created successfully." \
-            || echo "::warning::gh pr create failed — branch is pushed, create the PR manually from $BRANCH."
+            --head "$BRANCH" 2>&1) \
+            && echo "PR created: $PR_URL" \
+            || { echo "::warning::gh pr create failed — branch pushed, create PR manually from $BRANCH."; PR_URL=""; }
+
+          # Send PR notification email via dedicated script (no shell injection risk)
+          if [ -n "$PR_URL" ]; then
+            python3 seo/pr_notifier.py "$PR_URL" || true
+          fi
 
           # Return to original branch so the dashboard-data commit step works on main
           git checkout "${{ github.ref_name }}"
