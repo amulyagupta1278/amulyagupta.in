@@ -97,8 +97,8 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                                    "/experience.html", "/amulya-gupta.html", "/contact.html",
                                    "/blog/index.html", "/blog/post-1-mlops-pipeline.html",
                                    "/blog/post-2-mlops-stack.html", "/blog/ai-ml-guide-2026.html"]}
-                    sitemap_set = set(u.rstrip("/") for u in url_texts)
-                    missing = known_pages - {u.rstrip("/") for u in sitemap_set}
+                    sitemap_set = {u.rstrip("/") for u in url_texts}
+                    missing = {u.rstrip("/") for u in known_pages} - sitemap_set
                     for m in missing:
                         findings.append(Finding(
                             title=f"Page missing from sitemap: {m.replace(SITE_URL,'')}",
