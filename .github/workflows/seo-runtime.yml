@@ -180,13 +180,48 @@ jobs:
           git commit -m "fix(seo): auto-fixes from run #${{ github.run_number }} [seo-fixer]"
           git push -u origin "$BRANCH"
 
-          gh pr create \
+          PR_URL=$(gh pr create \
             --title "SEO Auto-Fix: Run #${{ github.run_number }}" \
             --body "$(cat seo/data/pr_body.txt)" \
             --base main \
-            --head "$BRANCH" \
-            && echo "PR created successfully." \
-            || echo "::warning::gh pr create failed — branch is pushed, create the PR manually from $BRANCH."
+            --head "$BRANCH" 2>&1) \
+            && echo "PR created: $PR_URL" \
+            || { echo "::warning::gh pr create failed — branch pushed, create PR manually from $BRANCH."; PR_URL=""; }
+
+          # Send PR notification email if PR was created
+          if [ -n "$PR_URL" ]; then
+            python3 -c "
+import os, sys
+sys.path.insert(0, 'seo')
+import emailer, memory
+runs = memory.load_runs()
+last = runs[-1] if runs else {}
+pr_url = '''$PR_URL'''
+pr_body = open('seo/data/pr_body.txt').read()
+html = f'''<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head>
+<body style=\"margin:0;padding:32px;background:#f1f5f9;font-family:-apple-system,sans-serif;\">
+<div style=\"max-width:640px;margin:0 auto;\">
+  <div style=\"background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:14px;padding:28px;margin-bottom:20px;\">
+    <h1 style=\"color:#fff;margin:0 0 6px;font-size:20px;\">&#x2705; SEO Auto-Fix PR Created</h1>
+    <p style=\"color:#94a3b8;margin:0;font-size:13px;\">Run #{last.get('run_id','?')} &middot; Skill {last.get('skill_id','?')}/23 &middot; {last.get('skill_name','')}</p>
+  </div>
+  <div style=\"background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:22px;margin-bottom:16px;\">
+    <p style=\"margin:0 0 16px;font-size:14px;color:#1e293b;\">The SEO Auto-Fixer generated fixes and opened a pull request. <strong>Human review and manual merge required.</strong></p>
+    <a href=\"{pr_url}\" style=\"display:inline-block;background:#0284c7;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;\">&#x1F517; Review PR on GitHub</a>
+  </div>
+  <div style=\"background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;\">
+    <pre style=\"margin:0;font-size:11px;color:#475569;white-space:pre-wrap;font-family:monospace;\">{pr_body[:1200]}</pre>
+  </div>
+  <p style=\"text-align:center;color:#94a3b8;font-size:11px;margin-top:16px;\">SEO Runtime Bot 2.0 &middot; amulyagupta.in</p>
+</div></body></html>'''
+ok = emailer.send_report(
+    f'[SEO FIX PR] Auto-Fix Created — Run #{last.get(\"run_id\",\"?\")} | Review Required',
+    html,
+    f'SEO Auto-Fix PR created: {pr_url}\n\nReview and merge required.\n\n{pr_body[:500]}'
+)
+print('PR notification email sent.' if ok else 'PR notification email failed (non-fatal).')
+"
+          fi
 
           # Return to original branch so the dashboard-data commit step works on main
           git checkout "${{ github.ref_name }}"

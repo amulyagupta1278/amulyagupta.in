@@ -203,11 +203,32 @@ def _build_historical_comparison_section(comparison: dict) -> str:
 
 
 def _build_predictive_forecast_section(forecast: dict) -> str:
-    if not forecast or forecast.get("trend") == "insufficient_data":
+    # Guard: first cycle has no valid cross-skill trend
+    if not forecast or forecast.get("trend") in ("insufficient_data", "first_cycle_in_progress"):
+        cycle_status = forecast.get("cycle_status", "") if forecast else ""
+        cycle_msg = f"<br><span style='color:#0369a1;font-weight:600'>{cycle_status}</span>" if cycle_status else ""
+        lowest = forecast.get("lowest_scoring_skills", []) if forecast else []
+        lowest_html = ""
+        if lowest:
+            from config import SKILL_NAMES as _NAMES
+            items = []
+            for sid, sc in lowest:
+                name = _NAMES[int(sid) - 1] if 1 <= int(sid) <= 23 else f"Skill {sid}"
+                items.append(f"<li style='margin:3px 0;font-size:12px'>{name}: <strong style='color:#dc2626'>{sc}/100</strong></li>")
+            lowest_html = f"<p style='font-weight:600;font-size:12px;color:#0369a1;margin:10px 0 4px'>Priority skills to improve:</p><ul style='margin:0;padding-left:18px'>{''.join(items)}</ul>"
+        return f"""<div class="forecast-block">
+          <div class="card-title" style="color:#0369a1">SEO Forecast</div>
+          <p style="color:#0c4a6e;font-size:13px">
+            Trend analysis requires the same skill to be audited at least twice (cycle 2+).
+            Cross-skill score comparisons are not a valid trend signal.{cycle_msg}
+          </p>
+          {lowest_html}
+        </div>"""
+
+    if not forecast:
         return """<div class="forecast-block">
           <div class="card-title" style="color:#0369a1">Predictive SEO Forecast</div>
-          <p style="color:#0c4a6e;font-size:13px">Insufficient data for forecasting.
-          Projections will appear after 3+ skill runs.</p>
+          <p style="color:#0c4a6e;font-size:13px">No forecast data available yet.</p>
         </div>"""
 
     trend = forecast.get("trend", "stable")

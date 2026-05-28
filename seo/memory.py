@@ -252,60 +252,70 @@ def detect_recurring_issues(issues: dict) -> list[dict]:
 
 def build_predictive_forecast(scores: list) -> dict:
     """
-    Simple linear trend forecast for overall SEO health score.
-    Uses the last 23 data points (one full cycle).
+    Linear trend forecast — only meaningful with multi-cycle data.
+    During cycle 1 (each skill run once), returns first_cycle_in_progress
+    to prevent misleading trends from cross-skill score comparisons.
     """
-    recent = scores[-23:] if len(scores) >= 23 else scores
-    if len(recent) < 3:
+    if not scores:
+        return {"trend": "insufficient_data", "projected_score_7d": None,
+                "projected_score_30d": None, "confidence": "low",
+                "momentum": "neutral", "risk_level": "unknown", "data_points": 0}
+
+    # Determine if any skill has been run more than once (multi-cycle data)
+    from collections import Counter
+    skill_counts = Counter(s.get("skill_id") for s in scores if s.get("skill_id"))
+    has_multi_cycle = any(v >= 2 for v in skill_counts.values())
+    n = len(scores)
+
+    # Always compute lowest-scoring skills — this is always accurate
+    score_by_skill = {}
+    for s in scores:
+        sid = s.get("skill_id")
+        if sid:
+            score_by_skill[sid] = s["score"]
+    lowest_skills = sorted(score_by_skill.items(), key=lambda x: x[1])[:3]
+    highest_skills = sorted(score_by_skill.items(), key=lambda x: x[1], reverse=True)[:3]
+
+    if not has_multi_cycle:
+        # First cycle in progress — cross-skill regression is not a valid trend
         return {
-            "trend": "insufficient_data",
+            "trend": "first_cycle_in_progress",
             "projected_score_7d": None,
             "projected_score_30d": None,
             "confidence": "low",
             "momentum": "neutral",
-            "risk_level": "unknown",
+            "risk_level": "low",
+            "data_points": n,
+            "cycle_status": f"Cycle 1 in progress — {n}/23 skills run",
+            "lowest_scoring_skills": lowest_skills,
+            "highest_scoring_skills": highest_skills,
         }
 
-    score_vals = [s["score"] for s in recent]
-    n = len(score_vals)
+    # Multi-cycle: compute trend from same-skill deltas
+    skill_deltas = []
+    for sid, count in skill_counts.items():
+        if count >= 2:
+            skill_scores = [s["score"] for s in scores if s.get("skill_id") == sid]
+            skill_deltas.append(skill_scores[-1] - skill_scores[-2])
 
-    # Linear regression
-    x_mean = (n - 1) / 2
-    y_mean = sum(score_vals) / n
-    numerator = sum((i - x_mean) * (score_vals[i] - y_mean) for i in range(n))
-    denominator = sum((i - x_mean) ** 2 for i in range(n))
-    slope = numerator / denominator if denominator else 0
-
-    current = score_vals[-1]
-    projected_7d = min(100, max(0, round(current + slope * 7, 1)))
-    projected_30d = min(100, max(0, round(current + slope * 30, 1)))
-
-    # Momentum: average of last 5 deltas
-    deltas = [score_vals[i] - score_vals[i - 1] for i in range(1, len(score_vals))]
-    recent_deltas = deltas[-5:] if len(deltas) >= 5 else deltas
-    avg_delta = sum(recent_deltas) / len(recent_deltas) if recent_deltas else 0
-
+    avg_delta = sum(skill_deltas) / len(skill_deltas) if skill_deltas else 0
+    trend = "improving" if avg_delta > 1 else "declining" if avg_delta < -1 else "stable"
     momentum = "positive" if avg_delta > 1 else "negative" if avg_delta < -1 else "neutral"
-    trend = "improving" if slope > 0.2 else "declining" if slope < -0.2 else "stable"
-    confidence = "high" if n >= 20 else "medium" if n >= 10 else "low"
 
-    # Risk level
-    critical_ratio = sum(1 for s in recent if s["score"] < 50) / n
+    recent_scores = scores[-23:]
+    score_vals = [s["score"] for s in recent_scores]
+    current = score_vals[-1]
+    projected_7d = min(100, max(0, round(current + avg_delta * 7, 1)))
+    projected_30d = min(100, max(0, round(current + avg_delta * 30, 1)))
+
+    cycles_complete = max(skill_counts.values())
+    confidence = "high" if cycles_complete >= 3 else "medium" if cycles_complete >= 2 else "low"
+    critical_ratio = sum(1 for s in recent_scores if s["score"] < 50) / len(recent_scores)
     risk_level = "high" if critical_ratio > 0.3 else "medium" if critical_ratio > 0.1 else "low"
-
-    # Category scores if available
-    score_by_category = {}
-    for s in recent:
-        sid = s.get("skill_id")
-        if sid:
-            score_by_category[sid] = s["score"]
-
-    lowest_skills = sorted(score_by_category.items(), key=lambda x: x[1])[:3]
-    highest_skills = sorted(score_by_category.items(), key=lambda x: x[1], reverse=True)[:3]
 
     return {
         "trend": trend,
-        "slope_per_day": round(slope, 3),
+        "slope_per_day": round(avg_delta / 23, 3),
         "current_score": current,
         "projected_score_7d": projected_7d,
         "projected_score_30d": projected_30d,
