@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-05-28T17:27:39.830004",
+  "generated_at": "2026-05-28T18:13:28.879300",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "a72f6129",
-    "date": "2026-05-28T17:27:31.869187",
-    "skill_id": 6,
-    "skill_name": "Meta Tags & Open Graph Audit",
-    "score": 5,
-    "issues_found": 20,
+    "run_id": "fbc18b83",
+    "date": "2026-05-28T18:13:22.019519",
+    "skill_id": 7,
+    "skill_name": "Internal Linking Analysis",
+    "score": 10,
+    "issues_found": 18,
     "issues_critical": 0,
-    "duration_s": 7,
+    "duration_s": 6,
     "status": "completed",
-    "notes": "Group 3 | skill 6/23",
+    "notes": "Group 3 | skill 7/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 68.5,
-    "active_issues": 32,
+    "avg_score": 60.1,
+    "active_issues": 50,
     "critical_issues": 4,
-    "warning_issues": 27,
-    "total_runs": 6,
+    "warning_issues": 45,
+    "total_runs": 7,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 26
+    "cycle_percent": 30
   },
   "recent_runs": [
     {
@@ -102,187 +102,182 @@
       "status": "completed",
       "notes": "Group 3 | skill 6/23",
       "cycle": 1
+    },
+    {
+      "run_id": "fbc18b83",
+      "date": "2026-05-28T18:13:22.019519",
+      "skill_id": 7,
+      "skill_name": "Internal Linking Analysis",
+      "score": 10,
+      "issues_found": 18,
+      "issues_critical": 0,
+      "duration_s": 6,
+      "status": "completed",
+      "notes": "Group 3 | skill 7/23",
+      "cycle": 1
     }
   ],
   "latest_findings": [
     {
-      "title": "Title too long (61 chars): /",
-      "description": "Title 'Amulya Gupta | AI Systems Engineer | Agentic AI \u00b7 ...' exceeds 60 characters and may be truncated in SERPs.",
+      "title": "Orphan page: /blog/post-1-mlops-pipeline.html",
+      "description": "This page has no internal links pointing to it.",
       "severity": "warning",
-      "category": "meta",
-      "url": "https://amulyagupta.in/",
-      "recommendation": "Shorten the title to under 60 characters.",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "recommendation": "Add at least 2-3 internal links to /blog/post-1-mlops-pipeline.html from relevant pages.",
       "evidence": ""
     },
     {
-      "title": "Long meta description (177 chars): /",
-      "description": "Description exceeds 160 characters and will be truncated.",
+      "title": "Orphan page: /blog/post-2-mlops-stack.html",
+      "description": "This page has no internal links pointing to it.",
       "severity": "warning",
-      "category": "meta",
-      "url": "https://amulyagupta.in/",
-      "recommendation": "Shorten the description to under 160 characters.",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "recommendation": "Add at least 2-3 internal links to /blog/post-2-mlops-stack.html from relevant pages.",
       "evidence": ""
     },
     {
-      "title": "Long meta description (167 chars): /projects.html",
-      "description": "Description exceeds 160 characters and will be truncated.",
+      "title": "Orphan page: /about.html",
+      "description": "This page has no internal links pointing to it.",
       "severity": "warning",
-      "category": "meta",
-      "url": "https://amulyagupta.in/projects.html",
-      "recommendation": "Shorten the description to under 160 characters.",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/about.html",
+      "recommendation": "Add at least 2-3 internal links to /about.html from relevant pages.",
       "evidence": ""
     },
     {
-      "title": "Title too long (83 chars): /experience.html",
-      "description": "Title 'Experience | Amulya Gupta \u2014 AI Systems Engineer | ...' exceeds 60 characters and may be truncated in SERPs.",
+      "title": "Orphan page: /contact.html",
+      "description": "This page has no internal links pointing to it.",
       "severity": "warning",
-      "category": "meta",
-      "url": "https://amulyagupta.in/experience.html",
-      "recommendation": "Shorten the title to under 60 characters.",
-      "evidence": ""
-    },
-    {
-      "title": "Long meta description (174 chars): /amulya-gupta.html",
-      "description": "Description exceeds 160 characters and will be truncated.",
-      "severity": "warning",
-      "category": "meta",
-      "url": "https://amulyagupta.in/amulya-gupta.html",
-      "recommendation": "Shorten the description to under 160 characters.",
-      "evidence": ""
-    },
-    {
-      "title": "Title too long (69 chars): /contact.html",
-      "description": "Title 'Contact Amulya Gupta | AI Systems Engineer | Agent...' exceeds 60 characters and may be truncated in SERPs.",
-      "severity": "warning",
-      "category": "meta",
+      "category": "internal-linking",
       "url": "https://amulyagupta.in/contact.html",
-      "recommendation": "Shorten the title to under 60 characters.",
+      "recommendation": "Add at least 2-3 internal links to /contact.html from relevant pages.",
       "evidence": ""
     },
     {
-      "title": "Title too long (69 chars): /blog/index.html",
-      "description": "Title 'Blog | Amulya Gupta \u2014 AI Systems, Agentic AI, LLM ...' exceeds 60 characters and may be truncated in SERPs.",
+      "title": "Orphan page: /privacy.html",
+      "description": "This page has no internal links pointing to it.",
       "severity": "warning",
-      "category": "meta",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/privacy.html",
+      "recommendation": "Add at least 2-3 internal links to /privacy.html from relevant pages.",
+      "evidence": ""
+    },
+    {
+      "title": "Orphan page: /experience.html",
+      "description": "This page has no internal links pointing to it.",
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/experience.html",
+      "recommendation": "Add at least 2-3 internal links to /experience.html from relevant pages.",
+      "evidence": ""
+    },
+    {
+      "title": "Orphan page: /blog/index.html",
+      "description": "This page has no internal links pointing to it.",
+      "severity": "warning",
+      "category": "internal-linking",
       "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Shorten the title to under 60 characters.",
+      "recommendation": "Add at least 2-3 internal links to /blog/index.html from relevant pages.",
       "evidence": ""
     },
     {
-      "title": "Short meta description (113 chars): /blog/index.html",
-      "description": "Description is shorter than 120 characters.",
+      "title": "Orphan page: /projects.html",
+      "description": "This page has no internal links pointing to it.",
       "severity": "warning",
-      "category": "meta",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/projects.html",
+      "recommendation": "Add at least 2-3 internal links to /projects.html from relevant pages.",
+      "evidence": ""
+    },
+    {
+      "title": "Orphan page: /amulya-gupta.html",
+      "description": "This page has no internal links pointing to it.",
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/amulya-gupta.html",
+      "recommendation": "Add at least 2-3 internal links to /amulya-gupta.html from relevant pages.",
+      "evidence": ""
+    },
+    {
+      "title": "Orphan page: /blog/ai-ml-guide-2026.html",
+      "description": "This page has no internal links pointing to it.",
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "recommendation": "Add at least 2-3 internal links to /blog/ai-ml-guide-2026.html from relevant pages.",
+      "evidence": ""
+    },
+    {
+      "title": "No internal links on /",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/",
+      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "evidence": ""
+    },
+    {
+      "title": "No internal links on /about.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/about.html",
+      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "evidence": ""
+    },
+    {
+      "title": "No internal links on /projects.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/projects.html",
+      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "evidence": ""
+    },
+    {
+      "title": "No internal links on /experience.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/experience.html",
+      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "evidence": ""
+    },
+    {
+      "title": "No internal links on /blog/index.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "severity": "warning",
+      "category": "internal-linking",
       "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Expand the description to 120\u2013160 characters.",
+      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
       "evidence": ""
     },
     {
-      "title": "Title too long (86 chars): /blog/post-1-mlops-pipeline.html",
-      "description": "Title 'How I Built an End-to-End MLOps Pipeline: MLflow +...' exceeds 60 characters and may be truncated in SERPs.",
+      "title": "No internal links on /blog/post-1-mlops-pipeline.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
       "severity": "warning",
-      "category": "meta",
+      "category": "internal-linking",
       "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
-      "recommendation": "Shorten the title to under 60 characters.",
+      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
       "evidence": ""
     },
     {
-      "title": "Long meta description (181 chars): /blog/post-1-mlops-pipeline.html",
-      "description": "Description exceeds 160 characters and will be truncated.",
+      "title": "No internal links on /blog/post-2-mlops-stack.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
       "severity": "warning",
-      "category": "meta",
-      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
-      "recommendation": "Shorten the description to under 160 characters.",
-      "evidence": ""
-    },
-    {
-      "title": "Title too long (64 chars): /blog/post-2-mlops-stack.html",
-      "description": "Title 'MLOps in 2025: The Stack I Actually Use (and Why) ...' exceeds 60 characters and may be truncated in SERPs.",
-      "severity": "warning",
-      "category": "meta",
+      "category": "internal-linking",
       "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
-      "recommendation": "Shorten the title to under 60 characters.",
+      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
       "evidence": ""
     },
     {
-      "title": "Long meta description (168 chars): /blog/post-2-mlops-stack.html",
-      "description": "Description exceeds 160 characters and will be truncated.",
+      "title": "No internal links on /blog/ai-ml-guide-2026.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
       "severity": "warning",
-      "category": "meta",
-      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
-      "recommendation": "Shorten the description to under 160 characters.",
-      "evidence": ""
-    },
-    {
-      "title": "Title too long (74 chars): /blog/ai-ml-guide-2026.html",
-      "description": "Title 'AI/ML Roadmap 2026: From Zero to Job-Ready Without...' exceeds 60 characters and may be truncated in SERPs.",
-      "severity": "warning",
-      "category": "meta",
+      "category": "internal-linking",
       "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Shorten the title to under 60 characters.",
-      "evidence": ""
-    },
-    {
-      "title": "Long meta description (175 chars): /blog/ai-ml-guide-2026.html",
-      "description": "Description exceeds 160 characters and will be truncated.",
-      "severity": "warning",
-      "category": "meta",
-      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Shorten the description to under 160 characters.",
-      "evidence": ""
-    },
-    {
-      "title": "Short meta description (105 chars): /privacy.html",
-      "description": "Description is shorter than 120 characters.",
-      "severity": "warning",
-      "category": "meta",
-      "url": "https://amulyagupta.in/privacy.html",
-      "recommendation": "Expand the description to 120\u2013160 characters.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing og:title: /privacy.html",
-      "description": "Open Graph tag 'og:title' is missing.",
-      "severity": "warning",
-      "category": "open-graph",
-      "url": "https://amulyagupta.in/privacy.html",
-      "recommendation": "Add <meta property='og:title' content='...'> for better social sharing.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing og:description: /privacy.html",
-      "description": "Open Graph tag 'og:description' is missing.",
-      "severity": "warning",
-      "category": "open-graph",
-      "url": "https://amulyagupta.in/privacy.html",
-      "recommendation": "Add <meta property='og:description' content='...'> for better social sharing.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing og:image: /privacy.html",
-      "description": "Open Graph tag 'og:image' is missing.",
-      "severity": "warning",
-      "category": "open-graph",
-      "url": "https://amulyagupta.in/privacy.html",
-      "recommendation": "Add <meta property='og:image' content='...'> for better social sharing.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing og:url: /privacy.html",
-      "description": "Open Graph tag 'og:url' is missing.",
-      "severity": "warning",
-      "category": "open-graph",
-      "url": "https://amulyagupta.in/privacy.html",
-      "recommendation": "Add <meta property='og:url' content='...'> for better social sharing.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing Twitter Card: /privacy.html",
-      "description": "No twitter:card meta tag found.",
-      "severity": "info",
-      "category": "social",
-      "url": "https://amulyagupta.in/privacy.html",
-      "recommendation": "Add <meta name='twitter:card' content='summary_large_image'> for Twitter sharing.",
+      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
       "evidence": ""
     }
   ],
@@ -346,6 +341,16 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "a72f6129"
+    },
+    {
+      "date": "2026-05-28T18:13:28.878899",
+      "skill_id": 7,
+      "skill_name": "Internal Linking Analysis",
+      "score": 10,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "fbc18b83"
     }
   ],
   "active_issues_list": [
@@ -701,6 +706,240 @@
       "occurrences": 1
     },
     {
+      "issue_id": "df8371301de4",
+      "first_seen": "2026-05-28T18:13:28.865580",
+      "last_seen": "2026-05-28T18:13:28.865580",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "title": "Orphan page: /blog/post-1-mlops-pipeline.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "f04e376b1a02",
+      "first_seen": "2026-05-28T18:13:28.866311",
+      "last_seen": "2026-05-28T18:13:28.866311",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "title": "Orphan page: /blog/post-2-mlops-stack.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "796339b344d9",
+      "first_seen": "2026-05-28T18:13:28.866960",
+      "last_seen": "2026-05-28T18:13:28.866960",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/about.html",
+      "title": "Orphan page: /about.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "77ffd08ceb03",
+      "first_seen": "2026-05-28T18:13:28.867584",
+      "last_seen": "2026-05-28T18:13:28.867584",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/contact.html",
+      "title": "Orphan page: /contact.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "ed7b38bd4f01",
+      "first_seen": "2026-05-28T18:13:28.868190",
+      "last_seen": "2026-05-28T18:13:28.868190",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/privacy.html",
+      "title": "Orphan page: /privacy.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "29d434be830e",
+      "first_seen": "2026-05-28T18:13:28.869216",
+      "last_seen": "2026-05-28T18:13:28.869216",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/experience.html",
+      "title": "Orphan page: /experience.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "3b09b07dce79",
+      "first_seen": "2026-05-28T18:13:28.869899",
+      "last_seen": "2026-05-28T18:13:28.869899",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "title": "Orphan page: /blog/index.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "bd1713bb1dc5",
+      "first_seen": "2026-05-28T18:13:28.870567",
+      "last_seen": "2026-05-28T18:13:28.870567",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/projects.html",
+      "title": "Orphan page: /projects.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "6c32751f1f69",
+      "first_seen": "2026-05-28T18:13:28.871261",
+      "last_seen": "2026-05-28T18:13:28.871261",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/amulya-gupta.html",
+      "title": "Orphan page: /amulya-gupta.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "527319b30803",
+      "first_seen": "2026-05-28T18:13:28.871938",
+      "last_seen": "2026-05-28T18:13:28.871938",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "title": "Orphan page: /blog/ai-ml-guide-2026.html",
+      "description": "This page has no internal links pointing to it.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "60b387a88175",
+      "first_seen": "2026-05-28T18:13:28.872573",
+      "last_seen": "2026-05-28T18:13:28.872573",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/",
+      "title": "No internal links on /",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "8bd2e8c5fd0b",
+      "first_seen": "2026-05-28T18:13:28.873323",
+      "last_seen": "2026-05-28T18:13:28.873323",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/about.html",
+      "title": "No internal links on /about.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "d6ba33deb348",
+      "first_seen": "2026-05-28T18:13:28.874049",
+      "last_seen": "2026-05-28T18:13:28.874049",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/projects.html",
+      "title": "No internal links on /projects.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "2b6d385d6f46",
+      "first_seen": "2026-05-28T18:13:28.874755",
+      "last_seen": "2026-05-28T18:13:28.874755",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/experience.html",
+      "title": "No internal links on /experience.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "6ec2b5e7a414",
+      "first_seen": "2026-05-28T18:13:28.875512",
+      "last_seen": "2026-05-28T18:13:28.875512",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "title": "No internal links on /blog/index.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "c4bbfed9a7c1",
+      "first_seen": "2026-05-28T18:13:28.876265",
+      "last_seen": "2026-05-28T18:13:28.876265",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "title": "No internal links on /blog/post-1-mlops-pipeline.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "ec592ca649d4",
+      "first_seen": "2026-05-28T18:13:28.877010",
+      "last_seen": "2026-05-28T18:13:28.877010",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "title": "No internal links on /blog/post-2-mlops-stack.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "0d30a79302c8",
+      "first_seen": "2026-05-28T18:13:28.877748",
+      "last_seen": "2026-05-28T18:13:28.877748",
+      "skill_id": 7,
+      "severity": "warning",
+      "category": "internal-linking",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "title": "No internal links on /blog/ai-ml-guide-2026.html",
+      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
       "issue_id": "c480b3b2441f",
       "first_seen": "2026-05-28T17:27:39.828706",
       "last_seen": "2026-05-28T17:27:39.828706",
@@ -768,37 +1007,37 @@
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 6,
+    "position": 7,
     "total": 23,
-    "percent": 26,
+    "percent": 30,
     "cycle": 1,
-    "current_skill_id": 6,
-    "skills_completed_this_cycle": 6,
-    "next_skill_id": 7
+    "current_skill_id": 7,
+    "skills_completed_this_cycle": 7,
+    "next_skill_id": 8
   },
   "forecast": {
     "trend": "declining",
-    "slope_per_day": -18.771,
-    "current_score": 5,
+    "slope_per_day": -18.0,
+    "current_score": 10,
     "projected_score_7d": 0,
     "projected_score_30d": 0,
-    "avg_delta_recent": -19.0,
+    "avg_delta_recent": -17.0,
     "confidence": "low",
     "momentum": "negative",
     "risk_level": "high",
-    "data_points": 6,
+    "data_points": 7,
     "lowest_scoring_skills": [
       [
         6,
         5
       ],
       [
-        5,
-        46
+        7,
+        10
       ],
       [
-        4,
-        65
+        5,
+        46
       ]
     ],
     "highest_scoring_skills": [
@@ -817,22 +1056,22 @@
     ]
   },
   "historical_comparison": {
-    "current_skill_id": 6,
-    "current_score": 5,
+    "current_skill_id": 7,
+    "current_score": 10,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 20,
+    "current_issues_found": 18,
     "issue_delta": null,
     "skill_trend": [
-      5
+      10
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 68.5,
+    "avg_score_last_7d": 60.1,
     "avg_score_prev_7d": null,
     "week_over_week_delta": null,
-    "total_runs_completed": 6,
+    "total_runs_completed": 7,
     "cycle_number": 1
   }
 }

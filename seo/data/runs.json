@@ -76,5 +76,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 6/23",
     "cycle": 1
+  },
+  {
+    "run_id": "fbc18b83",
+    "date": "2026-05-28T18:13:22.019519",
+    "skill_id": 7,
+    "skill_name": "Internal Linking Analysis",
+    "score": 10,
+    "issues_found": 18,
+    "issues_critical": 0,
+    "duration_s": 6,
+    "status": "completed",
+    "notes": "Group 3 | skill 7/23",
+    "cycle": 1
   }
 ]

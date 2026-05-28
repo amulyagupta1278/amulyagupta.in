@@ -58,5 +58,15 @@
     "delta": 0,
     "cycle": 1,
     "run_id": "a72f6129"
+  },
+  {
+    "date": "2026-05-28T18:13:28.878899",
+    "skill_id": 7,
+    "skill_name": "Internal Linking Analysis",
+    "score": 10,
+    "prev_score": null,
+    "delta": 0,
+    "cycle": 1,
+    "run_id": "fbc18b83"
   }
 ]
