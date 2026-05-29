@@ -525,12 +525,20 @@ def build_morning_brief(
     for f in findings[:20]:
         text += f"  [{f.get('severity','').upper()}] {f.get('title','')} — {f.get('url','')}\n"
     if forecast:
-        text += (
-            f"\nFORECAST:\n"
-            f"  Trend: {forecast.get('trend','?').upper()}\n"
-            f"  7-day projection: {forecast.get('projected_score_7d','?')}/100\n"
-            f"  30-day projection: {forecast.get('projected_score_30d','?')}/100\n"
-        )
+        trend_val = forecast.get("trend", "?")
+        # Only show projections for actionable trends — cycle 1 has no valid projections
+        if trend_val not in ("insufficient_data", "first_cycle_in_progress"):
+            p7 = forecast.get("projected_score_7d")
+            p30 = forecast.get("projected_score_30d")
+            text += (
+                f"\nFORECAST:\n"
+                f"  Trend: {trend_val.upper()}\n"
+                f"  7-day projection: {p7 if p7 is not None else 'N/A'}/100\n"
+                f"  30-day projection: {p30 if p30 is not None else 'N/A'}/100\n"
+            )
+        else:
+            cycle_status = forecast.get("cycle_status", "Cycle 1 in progress")
+            text += f"\nFORECAST: {cycle_status} — projections available in cycle 2+\n"
 
     return html, text
 

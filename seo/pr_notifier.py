@@ -12,8 +12,8 @@ then sends a styled HTML email via Gmail. Exits 0 on success, 1 on failure (non-
 import os
 import sys
 
-# Allow imports from seo/ when invoked from repo root
-sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
+# Allow imports from seo/ when invoked from repo root or any working directory
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import emailer
 import memory

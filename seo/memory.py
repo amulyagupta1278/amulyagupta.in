@@ -314,11 +314,18 @@ def build_predictive_forecast(scores: list) -> dict:
             "highest_scoring_skills": highest_skills,
         }
 
+    # Group scores by skill_id in one pass (O(n)) instead of rescanning for each skill
+    scores_by_skill: dict[int, list[int]] = {}
+    for s in scores:
+        sid = s.get("skill_id")
+        if sid:
+            scores_by_skill.setdefault(sid, []).append(s["score"])
+
     # Multi-cycle: delta between the two most recent runs of each skill
     skill_deltas = []
     for sid, count in skill_counts.items():
         if count >= 2:
-            sid_scores = [s["score"] for s in scores if s.get("skill_id") == sid]
+            sid_scores = scores_by_skill.get(sid, [])
             skill_deltas.append(sid_scores[-1] - sid_scores[-2])
 
     avg_delta_per_cycle = sum(skill_deltas) / len(skill_deltas) if skill_deltas else 0

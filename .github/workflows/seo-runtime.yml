@@ -191,13 +191,18 @@ jobs:
           fi
 
           PR_URL=""
-          PR_URL=$(gh pr create \
+          # Capture stdout only — stderr goes to the log, not into PR_URL.
+          # Mixing stderr via 2>&1 would corrupt PR_URL with gh warning messages.
+          if PR_URL=$(gh pr create \
             --title "SEO Auto-Fix: Run #${{ github.run_number }}" \
             --body "$(cat seo/data/pr_body.txt)" \
             --base main \
-            --head "$BRANCH" 2>&1) \
-            && echo "PR created: $PR_URL" \
-            || { echo "::warning::gh pr create failed — branch pushed, create PR manually from $BRANCH."; PR_URL=""; }
+            --head "$BRANCH"); then
+            echo "PR created: $PR_URL"
+          else
+            echo "::warning::gh pr create failed — branch pushed, create PR manually from $BRANCH."
+            PR_URL=""
+          fi
 
           # Send PR notification email via dedicated script (no shell injection risk)
           if [ -n "$PR_URL" ]; then

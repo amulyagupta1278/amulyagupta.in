@@ -26,8 +26,14 @@ _SCHEMA_PARENTS: dict[str, set[str]] = {
 }
 
 
-def _type_satisfies(actual: str, expected: str) -> bool:
-    """Return True if actual schema type satisfies the expected type requirement."""
+def _type_satisfies(actual, expected: str) -> bool:
+    """Return True if actual schema type satisfies the expected type requirement.
+
+    actual may be a string or a list (JSON-LD allows "@type": ["BlogPosting", "Article"]).
+    """
+    if isinstance(actual, list):
+        return any(_type_satisfies(t, expected) for t in actual)
+    actual = str(actual)
     if actual.lower() == expected.lower():
         return True
     return expected in _SCHEMA_PARENTS.get(actual, set())
@@ -85,12 +91,13 @@ class Skill04StructuredData(BaseSEOSkill):
                 continue
 
             pages_with_schema += 1
+            # @type can be a string OR a list per JSON-LD spec — pass raw, not str()
             schema_types = [s.get("@type", "") for s in schemas]
 
             # Check expected types using Schema.org inheritance
             expected = EXPECTED_SCHEMAS.get(path, [])
             for exp in expected:
-                if not any(_type_satisfies(str(st), exp) for st in schema_types):
+                if not any(_type_satisfies(st, exp) for st in schema_types):
                     findings.append(Finding(
                         title=f"Missing {exp} schema: {path}",
                         description=f"Expected {exp} schema not found. Found: {schema_types}",
