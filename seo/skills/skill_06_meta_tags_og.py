@@ -154,5 +154,15 @@ class Skill06MetaTagsOG(BaseSEOSkill):
                     recommendation="Add <meta name='viewport' content='width=device-width, initial-scale=1'>",
                 ))
 
-        score = self.clamp_score(100, findings=findings)
+        # Page-based scoring — proportional to fraction of pages with issues
+        pages_checked = len([p for p in pages if p.get("status") == 200])
+        critical_pages = len({f.url for f in findings if f.severity == "critical"})
+        warning_pages = len({f.url for f in findings if f.severity == "warning"})
+
+        # Critical pages: -8pts each (max -48 from criticals)
+        # Warning pages: -5pts each (max -40 from warnings)
+        # OG/social gaps that affect every page shouldn't floor the score to zero
+        crit_deduction = min(48, critical_pages * 8)
+        warn_deduction = min(40, warning_pages * 5)
+        score = max(0, 100 - crit_deduction - warn_deduction)
         return self.result(score, findings)

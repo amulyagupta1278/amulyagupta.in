@@ -82,10 +82,11 @@ jobs:
     name: "SEO Skill Runtime — Group ${{ github.event.inputs.enabled_skill_group || '3' }} (All 23 Skills)"
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    # Exclude the Sunday-only cron trigger (0 23 * * 0) to prevent this job
-    # from running twice on Sundays. It runs on the daily cron and on manual dispatch.
+    # Run on all schedule triggers (daily + Sunday) and on manual dispatch.
+    # Both crons fire at 23:00 UTC; the weekly-summary job has its own condition
+    # to restrict to Sundays, so this job safely handles all scheduled events.
     if: >-
-      (github.event_name == 'schedule' && github.event.schedule == '0 23 * * *') ||
+      github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch'
 
     steps:

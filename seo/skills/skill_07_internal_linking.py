@@ -95,7 +95,20 @@ class Skill07InternalLinking(BaseSEOSkill):
                     recommendation="Add relevant internal links to other pages to improve crawlability and UX.",
                 ))
 
-        score = self.clamp_score(100, findings=findings)
+        # Page-based scoring for internal linking
+        pages_checked = len([p for p in pages if p.get("status") == 200])
+        orphan_count = sum(1 for f in findings if f.severity == "warning" and "Orphan" in f.title)
+        no_links_count = sum(1 for f in findings if f.severity == "warning" and "No internal links" in f.title)
+        too_many_count = sum(1 for f in findings if f.severity == "info" and "Too many" in f.title)
+
+        # Orphan pages: significant problem — -7pts each (max -42)
+        # Pages with no outbound links: -5pts each (max -30)
+        # Info-only items (generic anchors, too many links): -1pt each (max -10)
+        info_count = sum(1 for f in findings if f.severity == "info")
+        orphan_deduction = min(42, orphan_count * 7)
+        no_links_deduction = min(30, no_links_count * 5)
+        info_deduction = min(10, info_count * 1)
+        score = max(0, 100 - orphan_deduction - no_links_deduction - info_deduction)
 
         inbound_counts = {url: len(links) for url, links in inbound.items()}
         return self.result(score, findings, {
