@@ -229,23 +229,34 @@ print('PR notification email sent.' if ok else 'PR notification email failed (no
       - name: Commit dashboard data
         if: always()
         run: |
-          # seo/data/ contains only JSON observability telemetry (dashboard.json,
-          # runs.json, issues.json, scores.json) — NOT site-content files.
-          # These are the operational persistence layer required for the live
-          # dashboard. Site-content changes (HTML, CSS, robots.txt, etc.) go
-          # through the PR -> human-review -> manual-merge path enforced by
-          # governance.py HS2 and are never touched here.
+          # seo/data/ contains only JSON observability telemetry — NOT site-content.
+          # We always target main so the GitHub Pages dashboard is live regardless
+          # of which branch (feature or main) triggered this workflow run.
           git config user.name "SEO Runtime Bot"
           git config user.email "seo-bot@amulyagupta.in"
+
+          # Snapshot the freshly generated data files before any branch switch.
+          mkdir -p /tmp/seo-data-snapshot
+          cp seo/data/*.json /tmp/seo-data-snapshot/ 2>/dev/null || true
+
+          # Ensure we have the latest main to avoid non-fast-forward failures.
+          git fetch origin main --quiet
+
+          # Switch to main (safe — we've saved the data files above).
+          git checkout main
+
+          # Apply the snapshot onto main.
+          cp /tmp/seo-data-snapshot/*.json seo/data/ 2>/dev/null || true
+
           git add seo/data/ 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "No data changes to commit."
           else
             git commit -m "chore(seo): update dashboard telemetry -- $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
-            if git push origin HEAD:${{ github.ref_name }}; then
-              echo "Dashboard data pushed successfully."
+            if git push origin main; then
+              echo "Dashboard data pushed to main — live dashboard updated."
             else
-              echo "::warning::git push failed -- dashboard data NOT updated in repo. Artifact preserved."
+              echo "::warning::Push to main failed — data preserved as workflow artifact."
             fi
           fi
 
