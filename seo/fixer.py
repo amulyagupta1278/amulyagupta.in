@@ -25,7 +25,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
 # ── Categories the fixer can handle ──────────────────────────────────────────
-FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers"}
+FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers", "open-graph", "social", "meta"}
 
 
 def load_issues() -> list[dict]:
@@ -171,6 +171,66 @@ _SCHEMA_FIXES: dict[str, dict] = {
   </script>
 """,
     },
+    "missing article schema: /blog/post-1-mlops-pipeline.html": {
+        "file": "blog/post-1-mlops-pipeline.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Building a Production MLOps Pipeline: MLflow, FastAPI, Kubernetes",
+    "description": "A production MLOps pipeline walkthrough — MLflow experiment tracking, FastAPI inference, Kubernetes deployment, and Prometheus/Grafana observability.",
+    "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+    "datePublished": "2026-05-19",
+    "dateModified": "2026-05-19",
+    "author": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "publisher": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "mainEntityOfPage": {"@type": "WebPage", "@id": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html"}
+  }
+  </script>
+""",
+    },
+    "missing article schema: /blog/post-2-mlops-stack.html": {
+        "file": "blog/post-2-mlops-stack.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "MLOps Stack 2025: What I Actually Use in Production",
+    "description": "Practical breakdown of the MLOps toolchain I use in production — Prefect for orchestration, MLflow for tracking, FastAPI for serving.",
+    "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+    "datePublished": "2026-05-19",
+    "dateModified": "2026-05-19",
+    "author": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "publisher": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "mainEntityOfPage": {"@type": "WebPage", "@id": "https://amulyagupta.in/blog/post-2-mlops-stack.html"}
+  }
+  </script>
+""",
+    },
+    "missing article schema: /blog/ai-ml-guide-2026.html": {
+        "file": "blog/ai-ml-guide-2026.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "AI/ML Career Roadmap 2026 — Complete Beginner to Engineer Guide",
+    "description": "6-phase AI/ML engineering roadmap for 2026 — from Python fundamentals to agentic systems, with budget guidance and learning resources.",
+    "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+    "datePublished": "2026-05-19",
+    "dateModified": "2026-05-19",
+    "author": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "publisher": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "mainEntityOfPage": {"@type": "WebPage", "@id": "https://amulyagupta.in/blog/ai-ml-guide-2026.html"}
+  }
+  </script>
+""",
+    },
 }
 
 
@@ -245,6 +305,197 @@ def fix_robots(issues: list[dict]) -> tuple[bool, str]:
     return True, "\n".join(added)
 
 
+# ── Open Graph / Twitter Card fixer ──────────────────────────────────────────
+# Maps URL path → (file path, title, description, image, og:type)
+_PAGE_OG_DEFAULTS: dict[str, dict] = {
+    "/privacy.html": {
+        "file": "privacy.html",
+        "og_title": "Privacy Policy — Amulya Gupta",
+        "og_description": "Privacy policy for amulyagupta.in — how data is collected and used.",
+        "og_image": "https://github.com/amulyagupta1278.png",
+        "og_url": "https://amulyagupta.in/privacy.html",
+        "og_type": "website",
+        "tw_card": "summary",
+        "tw_title": "Privacy Policy — Amulya Gupta",
+        "tw_description": "Privacy policy for amulyagupta.in — how data is collected and used.",
+    },
+}
+
+
+def fix_og_tags(issues: list[dict]) -> tuple[bool, str]:
+    """Add missing Open Graph and Twitter Card tags to HTML pages."""
+    og_issues = [i for i in issues if i.get("category") in ("open-graph", "social")]
+    if not og_issues:
+        return False, ""
+
+    applied = []
+    processed_files: set[str] = set()
+
+    for issue in og_issues:
+        url = issue.get("url", "")
+        path = url.replace("https://amulyagupta.in", "")
+        defaults = _PAGE_OG_DEFAULTS.get(path)
+        if not defaults:
+            continue
+
+        file_path = os.path.join(REPO_ROOT, defaults["file"])
+        if not os.path.exists(file_path) or file_path in processed_files:
+            continue
+
+        with open(file_path) as f:
+            content = f.read()
+
+        og_block = ""
+
+        # Add OG tags if missing
+        if 'property="og:title"' not in content and 'property=\'og:title\'' not in content:
+            og_block += (
+                f'  <meta property="og:title" content="{defaults["og_title"]}" />\n'
+                f'  <meta property="og:description" content="{defaults["og_description"]}" />\n'
+                f'  <meta property="og:url" content="{defaults["og_url"]}" />\n'
+                f'  <meta property="og:type" content="{defaults["og_type"]}" />\n'
+                f'  <meta property="og:image" content="{defaults["og_image"]}" />\n'
+            )
+
+        # Add Twitter Card if missing
+        if 'name="twitter:card"' not in content and 'name=\'twitter:card\'' not in content:
+            og_block += (
+                f'  <meta name="twitter:card" content="{defaults["tw_card"]}" />\n'
+                f'  <meta name="twitter:title" content="{defaults["tw_title"]}" />\n'
+                f'  <meta name="twitter:description" content="{defaults["tw_description"]}" />\n'
+                f'  <meta name="twitter:image" content="{defaults["og_image"]}" />\n'
+            )
+
+        if not og_block:
+            continue
+
+        new_content = re.sub(r'(</head>)', og_block + r'\1', content, count=1)
+        if new_content == content:
+            continue
+
+        with open(file_path, "w") as f:
+            f.write(new_content)
+
+        processed_files.add(file_path)
+        applied.append(f"  - Added OG/Twitter Card tags to `{defaults['file']}`")
+
+    if not applied:
+        return False, ""
+    return True, "\n".join(applied)
+
+
+# ── Meta title/description length fixer ──────────────────────────────────────
+
+# Pages where the title or description is just slightly over the limit and
+# we know a safe truncation point.
+_META_TRUNCATIONS: dict[str, dict] = {
+    "/": {
+        "file": "index.html",
+        "title_fix": "Amulya Gupta | AI Systems Engineer",
+        "desc_fix": "Senior AI Systems Engineer building agentic AI workflows, LLM pipelines, and production ML infrastructure at HCLTech.",
+    },
+    "/experience.html": {
+        "file": "experience.html",
+        "title_fix": "Experience — Amulya Gupta | AI Engineer",
+    },
+    "/contact.html": {
+        "file": "contact.html",
+        "title_fix": "Contact Amulya Gupta | AI Engineer",
+    },
+    "/blog/index.html": {
+        "file": "blog/index.html",
+        "title_fix": "AI & MLOps Blog — Amulya Gupta",
+        "desc_fix": "Articles on agentic AI, MLOps pipelines, LLM engineering, and production ML infrastructure by Amulya Gupta.",
+    },
+    "/blog/post-1-mlops-pipeline.html": {
+        "file": "blog/post-1-mlops-pipeline.html",
+        "title_fix": "Building a Production MLOps Pipeline",
+    },
+    "/blog/post-2-mlops-stack.html": {
+        "file": "blog/post-2-mlops-stack.html",
+        "title_fix": "MLOps Stack 2025: What I Actually Use",
+    },
+    "/blog/ai-ml-guide-2026.html": {
+        "file": "blog/ai-ml-guide-2026.html",
+        "title_fix": "AI/ML Career Roadmap 2026 — Full Guide",
+    },
+}
+
+TITLE_MAX, DESC_MAX, DESC_MIN = 60, 160, 120
+
+
+def fix_meta_lengths(issues: list[dict]) -> tuple[bool, str]:
+    """Fix title/description tags that are too long or too short."""
+    meta_issues = [i for i in issues if i.get("category") == "meta"
+                   and any(kw in i.get("title", "").lower()
+                           for kw in ("too long", "short meta", "title too long"))]
+    if not meta_issues:
+        return False, ""
+
+    applied = []
+    processed: set[str] = set()
+
+    for issue in meta_issues:
+        url = issue.get("url", "")
+        path = url.replace("https://amulyagupta.in", "")
+        fix = _META_TRUNCATIONS.get(path)
+        if not fix:
+            continue
+
+        file_path = os.path.join(REPO_ROOT, fix["file"])
+        if not os.path.exists(file_path) or file_path in processed:
+            continue
+
+        with open(file_path) as f:
+            content = f.read()
+
+        new_content = content
+
+        # Fix title if needed and fix provided
+        if "title_fix" in fix:
+            new_title = fix["title_fix"]
+            # Replace <title>...</title>
+            new_content = re.sub(
+                r'(<title>)[^<]*(</title>)',
+                r'\g<1>' + new_title + r'\g<2>',
+                new_content,
+                count=1,
+            )
+            # Also update og:title and twitter:title if they match the old title
+            old_title_m = re.search(r'<title>([^<]+)</title>', content)
+            if old_title_m:
+                old_title = old_title_m.group(1).strip()
+                new_content = new_content.replace(
+                    f'content="{old_title}"',
+                    f'content="{new_title}"',
+                )
+
+        # Fix description if needed and fix provided
+        if "desc_fix" in fix:
+            new_desc = fix["desc_fix"]
+            new_content = re.sub(
+                r'(<meta\s+name=["\']description["\']\s+content=["\'])[^"\']*(["\'])',
+                r'\g<1>' + new_desc + r'\g<2>',
+                new_content,
+                count=1,
+                flags=re.IGNORECASE,
+            )
+
+        if new_content == content:
+            continue
+
+        with open(file_path, "w") as f:
+            f.write(new_content)
+
+        processed.add(file_path)
+        note = f"  - Fixed meta length in `{fix['file']}`"
+        applied.append(note)
+
+    if not applied:
+        return False, ""
+    return True, "\n".join(applied)
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> int:
@@ -264,8 +515,10 @@ def main() -> int:
     sitemap_ok, sitemap_notes = fix_sitemap(issues)
     schema_ok, schema_notes = fix_schema(issues)
     robots_ok, robots_notes = fix_robots(issues)
+    og_ok, og_notes = fix_og_tags(issues)
+    meta_ok, meta_notes = fix_meta_lengths(issues)
 
-    any_fixed = sitemap_ok or schema_ok or robots_ok
+    any_fixed = sitemap_ok or schema_ok or robots_ok or og_ok or meta_ok
     if not any_fixed:
         print("All fixable issues already resolved — no changes generated.")
         return 2
@@ -277,6 +530,10 @@ def main() -> int:
         sections.append(f"### Structured Data\n{schema_notes}")
     if robots_ok:
         sections.append(f"### Robots.txt\n{robots_notes}")
+    if og_ok:
+        sections.append(f"### Open Graph / Twitter Card\n{og_notes}")
+    if meta_ok:
+        sections.append(f"### Meta Title & Description\n{meta_notes}")
 
     critical_count = sum(1 for i in issues if i.get("severity") == "critical")
     warning_count = sum(1 for i in issues if i.get("severity") == "warning")

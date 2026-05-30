@@ -154,5 +154,27 @@ class Skill06MetaTagsOG(BaseSEOSkill):
                     recommendation="Add <meta name='viewport' content='width=device-width, initial-scale=1'>",
                 ))
 
-        score = self.clamp_score(100, findings=findings)
+        # Page-based percentage scoring.
+        # Each page earns 100 points; deductions: -25 per critical issue, -10 per warning.
+        # The final score is the average across all checked pages, capped 0–100.
+        total_pages = sum(1 for p in pages if p.get("soup"))
+        if total_pages == 0:
+            return self.result(0, findings)
+
+        # Group deductions by URL
+        page_deductions: dict[str, int] = {}
+        for f in findings:
+            if f.severity == "critical":
+                page_deductions[f.url] = page_deductions.get(f.url, 0) + 25
+            elif f.severity == "warning":
+                page_deductions[f.url] = page_deductions.get(f.url, 0) + 10
+
+        total_score = 0
+        for page in pages:
+            if not page.get("soup"):
+                continue
+            deduction = min(100, page_deductions.get(page["url"], 0))
+            total_score += max(0, 100 - deduction)
+
+        score = round(total_score / total_pages)
         return self.result(score, findings)

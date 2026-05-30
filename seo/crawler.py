@@ -1,4 +1,5 @@
 import time
+from urllib.parse import urljoin, urlparse, urlunparse
 import requests
 from bs4 import BeautifulSoup
 from config import SITE_URL, SITE_PAGES
@@ -50,18 +51,44 @@ def crawl_all_pages(delay: float = 0.5) -> list[dict]:
     return results
 
 
-def get_all_links(soup: BeautifulSoup, base_url: str = SITE_URL) -> dict:
+def _clean_url(url: str) -> str:
+    """Strip query/fragment; normalise /index.html → / for homepage equivalence."""
+    p = urlparse(url)
+    clean = urlunparse(p._replace(query="", fragment=""))
+    # treat /index.html as the directory root (e.g. /blog/index.html → /blog/)
+    if clean.endswith("/index.html"):
+        clean = clean[: -len("index.html")]
+    return clean
+
+
+def get_all_links(soup: BeautifulSoup, base_url: str = SITE_URL,
+                  page_url: str = "") -> dict:
+    """Return {'internal': [...], 'external': [...]} for every <a href> in soup.
+
+    Properly resolves relative paths (about.html, ../index.html) by using
+    urljoin against the actual page URL rather than just the site root.
+    """
     internal, external = [], []
+    page_base = page_url or base_url
+    site_netloc = urlparse(base_url).netloc
+
     for a in soup.find_all("a", href=True):
         href = a["href"].strip()
         text = a.get_text(strip=True)
         if not href or href.startswith("#") or href.startswith("mailto:") or href.startswith("tel:"):
             continue
-        if href.startswith("/") or base_url in href:
-            full = (base_url + href) if href.startswith("/") else href
-            internal.append({"url": full, "text": text, "element": str(a)[:200]})
-        elif href.startswith("http"):
-            external.append({"url": href, "text": text})
+
+        resolved = urljoin(page_base, href)
+        parsed = urlparse(resolved)
+        if parsed.scheme not in ("http", "https"):
+            continue
+
+        clean = _clean_url(resolved)
+        if parsed.netloc == site_netloc:
+            internal.append({"url": clean, "text": text, "element": str(a)[:200]})
+        else:
+            external.append({"url": resolved, "text": text})
+
     return {"internal": internal, "external": external}
 
 

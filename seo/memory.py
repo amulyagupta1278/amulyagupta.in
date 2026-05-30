@@ -85,6 +85,30 @@ def save_issues(issues: dict):
     save_json("issues.json", issues)
 
 
+def resolve_stale_issues(skill_id: int, current_findings: list[dict]) -> int:
+    """Mark active issues from this skill as resolved if not re-found in the latest run.
+
+    Returns the number of issues resolved.
+    """
+    issues = load_issues()
+    current_ids = {
+        make_issue_id(skill_id, f.get("category", ""), f.get("url", ""), f.get("title", ""))
+        for f in current_findings
+    }
+    now = datetime.utcnow().isoformat()
+    resolved = 0
+    for iid, issue in issues.items():
+        if (issue.get("skill_id") == skill_id
+                and issue.get("status") == "active"
+                and iid not in current_ids):
+            issues[iid]["status"] = "resolved"
+            issues[iid]["resolved_date"] = now
+            resolved += 1
+    if resolved:
+        save_issues(issues)
+    return resolved
+
+
 def upsert_issue(skill_id: int, finding: dict) -> dict:
     issues = load_issues()
     iid = make_issue_id(skill_id, finding.get("category", ""), finding.get("url", ""), finding.get("title", ""))

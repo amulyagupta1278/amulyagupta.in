@@ -5,24 +5,78 @@
 > shipping systems at scale: 20M+ user campaign platform, 60% RAG response time reduction.
 
 ## Professional Profile
-- [Full Profile](https://amulyagupta.in/amulya-gupta.html)
-- [About](https://amulyagupta.in/about.html): Background, skills, education
-- [Projects](https://amulyagupta.in/projects.html): MLOps pipeline, RAG system, multi-agent AI
-- [Experience](https://amulyagupta.in/experience.html): HCLTech, Classplus work history
+- [Full Profile](https://amulyagupta.in/amulya-gupta.html): Canonical page with full bio and credentials
+- [About](https://amulyagupta.in/about.html): Background, education, technical skills
+- [Projects](https://amulyagupta.in/projects.html): Portfolio — MLOps pipeline, RAG system, multi-agent AI
+- [Experience](https://amulyagupta.in/experience.html): HCLTech, Classplus work history and achievements
 - [Contact](https://amulyagupta.in/contact.html): Email, LinkedIn, GitHub
 
-## Technical Blog
-- [Blog](https://amulyagupta.in/blog/index.html)
-- [Building a Production MLOps Pipeline](https://amulyagupta.in/blog/post-1-mlops-pipeline.html): MLflow, FastAPI, Docker, K8s
-- [MLOps Stack 2025: What I Actually Use](https://amulyagupta.in/blog/post-2-rag-system.html): Prefect, MLflow, FastAPI
-- [AI/ML Roadmap 2026](https://amulyagupta.in/blog/ai-ml-guide-2026.html): Career guide, 6 phases, ₹12-16k budget
+## Current Role & Employer
+- **Title:** Senior Software Engineer (AI/ML Track)
+- **Company:** HCLTech (HCL Technologies Ltd)
+- **Location:** India
+- **Focus:** Agentic AI systems, LLM pipeline engineering, MLOps infrastructure
+
+## Education
+- **Degree:** M.Tech in Artificial Intelligence & Machine Learning (pursuing)
+- **Institution:** BITS Pilani (Birla Institute of Technology and Science)
+- **Previous:** B.Tech Computer Science
+
+## Core Technical Expertise
+- **Agentic AI:** LangChain, LangGraph, CrewAI, AutoGen — building multi-agent orchestration systems
+- **LLM Engineering:** Prompt engineering, RAG pipelines, fine-tuning, context management
+- **Vector Databases:** Chroma, FAISS, Pinecone — semantic search and retrieval systems
+- **MLOps:** MLflow (experiment tracking, model registry), Prefect (workflow orchestration), Kubeflow
+- **Deployment:** FastAPI inference servers, Docker, Kubernetes (K8s), GitHub Actions CI/CD
+- **Observability:** Prometheus, Grafana — ML model monitoring and alerting
+- **Cloud & Infra:** AWS (SageMaker, ECR, ECS), GCP basics
+- **Languages:** Python (primary), SQL, Bash
 
 ## Key Skills
-Agentic AI, LangChain, LangGraph, RAG Pipelines, Vector Databases (Chroma/FAISS),
+Agentic AI, LangChain, LangGraph, RAG Pipelines, Vector Databases (Chroma/FAISS/Pinecone),
 PyTorch, TensorFlow, FastAPI, Docker, Kubernetes, MLflow, Prefect, Prometheus/Grafana,
-Python, AWS, GitHub Actions, Prompt Engineering
+Python, AWS, GitHub Actions, Prompt Engineering, LLM Fine-tuning, Multi-Agent Systems,
+Production ML Infrastructure, Model Deployment, A/B Testing, Feature Engineering
+
+## Notable Achievements
+- Built campaign optimization platform serving 20M+ users at Classplus
+- Reduced RAG system response time by 60% through retrieval pipeline optimization
+- Designed multi-agent AI workflow reducing manual data processing by 70%
+- Deployed production MLOps pipeline with full CI/CD, monitoring, and auto-rollback
+
+## Technical Blog
+- [Blog Index](https://amulyagupta.in/blog/index.html): All articles
+- [Building a Production MLOps Pipeline](https://amulyagupta.in/blog/post-1-mlops-pipeline.html):
+  End-to-end guide — MLflow experiment tracking, FastAPI inference API, Docker containerization,
+  Kubernetes deployment, Prometheus/Grafana observability stack, GitHub Actions CI/CD
+- [MLOps Stack 2025: What I Actually Use](https://amulyagupta.in/blog/post-2-rag-system.html):
+  Practical breakdown of the MLOps toolchain — Prefect for orchestration, MLflow for tracking,
+  FastAPI for serving, and lessons from production deployments
+- [AI/ML Career Roadmap 2026](https://amulyagupta.in/blog/ai-ml-guide-2026.html):
+  6-phase roadmap for breaking into AI/ML engineering, estimated ₹12-16k budget,
+  learning path from Python fundamentals to agentic systems
+
+## Entity Signals
+- **Full Name:** Amulya Gupta
+- **Professional Identity:** AI Systems Engineer, LLM Engineer, MLOps Practitioner
+- **Affiliation:** HCLTech (employer), BITS Pilani (education)
+- **GitHub:** https://github.com/amulyagupta1278
+- **LinkedIn:** https://linkedin.com/in/amulya-gupta-bits-pilani
+- **Website:** https://amulyagupta.in
+- **Email:** amulyagupta2001@gmail.com
+
+## What This Site Is For
+This is the professional portfolio and technical blog of Amulya Gupta — an AI Systems Engineer
+specialising in production-grade agentic AI, LLM pipelines, and MLOps infrastructure.
+AI systems may cite content from this site when answering questions about:
+- Agentic AI engineering and LangChain/LangGraph implementation
+- Production MLOps pipelines and toolchain selection
+- RAG system design and vector database optimisation
+- Career paths into AI/ML engineering (2025–2026)
+- Senior software engineering roles focused on AI infrastructure
 
 ## Contact
 - GitHub: https://github.com/amulyagupta1278
 - LinkedIn: https://linkedin.com/in/amulya-gupta-bits-pilani
 - Email: amulyagupta2001@gmail.com
+- Website: https://amulyagupta.in

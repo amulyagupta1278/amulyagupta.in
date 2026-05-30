@@ -1,16 +1,46 @@
 User-agent: *
 Allow: /
+Disallow: /seo/data/
+Disallow: /.github/
 
+# ── AI Search & LLM Crawlers ──
 User-agent: GPTBot
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
 User-agent: ClaudeBot
+Allow: /
+
+User-agent: Anthropic-AI
 Allow: /
 
 User-agent: Google-Extended
 Allow: /
 
 User-agent: PerplexityBot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Meta-ExternalAgent
 Allow: /
 
 Sitemap: https://amulyagupta.in/sitemap.xml

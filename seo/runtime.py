@@ -351,6 +351,14 @@ def run() -> None:
         except Exception as e:
             log.warning("Failed to persist finding: %s", e)
 
+    # ── Resolve stale issues that weren't found in this run ──────────────────
+    try:
+        resolved_count = memory.resolve_stale_issues(skill_id, findings_dicts)
+        if resolved_count:
+            log.info("Resolved %d stale issue(s) from skill %d", resolved_count, skill_id)
+    except Exception as e:
+        log.warning("Stale issue resolution failed (non-fatal): %s", e)
+
     # ── Append run record ────────────────────────────────────────────────────
     run_record = {
         "run_id": run_id,
