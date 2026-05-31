@@ -1,6 +1,7 @@
 import time
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
 from config import SITE_URL, SITE_PAGES
 
 SESSION = requests.Session()
@@ -52,16 +53,18 @@ def crawl_all_pages(delay: float = 0.5) -> list[dict]:
 
 def get_all_links(soup: BeautifulSoup, base_url: str = SITE_URL) -> dict:
     internal, external = [], []
+    site_netloc = urlparse(SITE_URL).netloc
     for a in soup.find_all("a", href=True):
         href = a["href"].strip()
         text = a.get_text(strip=True)
         if not href or href.startswith("#") or href.startswith("mailto:") or href.startswith("tel:"):
             continue
-        if href.startswith("/") or base_url in href:
-            full = (base_url + href) if href.startswith("/") else href
+        full = urljoin(base_url, href)
+        parsed = urlparse(full)
+        if parsed.netloc == site_netloc:
             internal.append({"url": full, "text": text, "element": str(a)[:200]})
-        elif href.startswith("http"):
-            external.append({"url": href, "text": text})
+        elif parsed.scheme in ("http", "https"):
+            external.append({"url": full, "text": text})
     return {"internal": internal, "external": external}
 
 

@@ -9,11 +9,19 @@ EXPECTED_SCHEMAS = {
     "/amulya-gupta.html": ["Person"],
     "/projects.html": ["ItemList"],
     "/experience.html": ["Person"],
-    "/blog/post-1-mlops-pipeline.html": ["BlogPosting", "Article"],
-    "/blog/post-2-mlops-stack.html": ["BlogPosting", "Article"],
-    "/blog/ai-ml-guide-2026.html": ["BlogPosting", "Article"],
+    "/blog/post-1-mlops-pipeline.html": ["BlogPosting"],
+    "/blog/post-2-mlops-stack.html": ["BlogPosting"],
+    "/blog/ai-ml-guide-2026.html": ["BlogPosting"],
     "/blog/index.html": ["Blog", "ItemList"],
     "/contact.html": ["Person"],
+}
+
+# Schema inheritance: types that satisfy a broader type requirement.
+# BlogPosting is a subtype of Article/CreativeWork, so checking for "Article"
+# when "BlogPosting" is present would be a false positive.
+_SCHEMA_SUBTYPES: dict[str, list[str]] = {
+    "Article": ["BlogPosting", "NewsArticle", "TechArticle", "ScholarlyArticle"],
+    "CreativeWork": ["BlogPosting", "Article", "NewsArticle"],
 }
 
 REQUIRED_PROPS = {
@@ -73,7 +81,13 @@ class Skill04StructuredData(BaseSEOSkill):
 
             expected = EXPECTED_SCHEMAS.get(path, [])
             for exp in expected:
-                if not any(exp.lower() in str(st).lower() for st in schema_types):
+                # Accept the type itself OR any known subtype (schema inheritance)
+                accepted = [exp] + _SCHEMA_SUBTYPES.get(exp, [])
+                satisfied = any(
+                    any(a.lower() in str(st).lower() for a in accepted)
+                    for st in schema_types
+                )
+                if not satisfied:
                     findings.append(Finding(
                         title=f"Missing {exp} schema: {path}",
                         description=f"Expected {exp} schema not found. Found: {schema_types}",

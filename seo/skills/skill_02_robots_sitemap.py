@@ -2,7 +2,7 @@ import re
 import xml.etree.ElementTree as ET
 import crawler
 from base import BaseSEOSkill, Finding, SkillResult
-from config import SITE_URL
+from config import SITE_URL, SITE_PAGES
 
 
 class Skill02RobotsSitemap(BaseSEOSkill):
@@ -93,11 +93,11 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                         recommendation="Add all site pages to the sitemap.",
                     ))
                 else:
-                    known_pages = {SITE_URL + p for p in ["/", "/about.html", "/projects.html",
-                                   "/experience.html", "/amulya-gupta.html", "/contact.html",
-                                   "/blog/index.html", "/blog/post-1-mlops-pipeline.html",
-                                   "/blog/post-2-mlops-stack.html", "/blog/ai-ml-guide-2026.html"]}
-                    sitemap_set = {u.rstrip("/") for u in url_texts}
+                    # Use the canonical SITE_PAGES list (excludes privacy — low SEO value)
+                    seo_pages = [p for p in SITE_PAGES if p != "/privacy.html"]
+                    known_pages = {SITE_URL + p for p in seo_pages}
+                    # Strip whitespace and trailing slashes for robust comparison
+                    sitemap_set = {u.strip().rstrip("/") for u in url_texts if u and u.strip()}
                     missing = {u.rstrip("/") for u in known_pages} - sitemap_set
                     for m in missing:
                         findings.append(Finding(

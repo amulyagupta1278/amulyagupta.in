@@ -25,7 +25,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
 # ── Categories the fixer can handle ──────────────────────────────────────────
-FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers"}
+FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers", "ai-seo"}
 
 
 def load_issues() -> list[dict]:
@@ -166,6 +166,100 @@ _SCHEMA_FIXES: dict[str, dict] = {
       {"@type": "ListItem", "position": 1, "name": "Building a Production MLOps Pipeline", "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html"},
       {"@type": "ListItem", "position": 2, "name": "MLOps in 2025: The Stack I Actually Use", "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html"},
       {"@type": "ListItem", "position": 3, "name": "AI/ML Roadmap 2026", "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html"}
+    ]
+  }
+  </script>
+""",
+    },
+    "missing person schema: /": {
+        "file": "index.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Amulya Gupta",
+    "jobTitle": "AI Systems Engineer",
+    "url": "https://amulyagupta.in",
+    "worksFor": {"@type": "Organization", "name": "HCLTech"},
+    "alumniOf": {"@type": "CollegeOrUniversity", "name": "BITS Pilani"},
+    "knowsAbout": ["AI Engineering", "LLM Pipelines", "MLOps", "Agentic AI", "RAG Systems"],
+    "sameAs": [
+      "https://linkedin.com/in/amulya-gupta-bits-pilani",
+      "https://github.com/amulyagupta1278"
+    ]
+  }
+  </script>
+""",
+    },
+    "missing itemlist schema: /projects.html": {
+        "file": "projects.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "AI & MLOps Projects by Amulya Gupta",
+    "url": "https://amulyagupta.in/projects.html",
+    "author": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"}
+  }
+  </script>
+""",
+    },
+    "missing person schema: /about.html": {
+        "file": "about.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Amulya Gupta",
+    "jobTitle": "AI Systems Engineer",
+    "url": "https://amulyagupta.in",
+    "description": "AI Systems Engineer building agentic AI workflows, LLM pipelines, and production ML infrastructure.",
+    "sameAs": [
+      "https://linkedin.com/in/amulya-gupta-bits-pilani",
+      "https://github.com/amulyagupta1278"
+    ]
+  }
+  </script>
+""",
+    },
+    "missing person schema: /experience.html": {
+        "file": "experience.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Amulya Gupta",
+    "jobTitle": "AI Systems Engineer",
+    "url": "https://amulyagupta.in",
+    "worksFor": {"@type": "Organization", "name": "HCLTech"},
+    "alumniOf": {"@type": "CollegeOrUniversity", "name": "BITS Pilani"}
+  }
+  </script>
+""",
+    },
+    "missing person schema: /amulya-gupta.html": {
+        "file": "amulya-gupta.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Amulya Gupta",
+    "jobTitle": "AI Systems Engineer",
+    "url": "https://amulyagupta.in",
+    "knowsAbout": ["AI Engineering", "LLM Pipelines", "MLOps", "Agentic AI", "RAG Systems"],
+    "sameAs": [
+      "https://linkedin.com/in/amulya-gupta-bits-pilani",
+      "https://github.com/amulyagupta1278"
     ]
   }
   </script>

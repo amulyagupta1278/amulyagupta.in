@@ -114,6 +114,32 @@ def upsert_issue(skill_id: int, finding: dict) -> dict:
     return issues[iid]
 
 
+def resolve_stale_issues(skill_id: int, current_issue_ids: set) -> int:
+    """
+    After a skill reruns, mark previously-active issues that were NOT re-detected
+    as auto-resolved. This drives the issue lifecycle (active → resolved).
+    Returns the count of issues resolved.
+    """
+    issues = load_issues()
+    now = datetime.utcnow().isoformat()
+    resolved_count = 0
+
+    for iid, issue in issues.items():
+        if (
+            issue.get("skill_id") == skill_id
+            and issue.get("status") == "active"
+            and iid not in current_issue_ids
+        ):
+            issues[iid]["status"] = "resolved"
+            issues[iid]["resolved_date"] = now
+            resolved_count += 1
+
+    if resolved_count > 0:
+        save_issues(issues)
+
+    return resolved_count
+
+
 def load_score_history() -> list:
     return load_json("scores.json", [])
 

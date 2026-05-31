@@ -331,9 +331,13 @@ def run() -> None:
     # ── Persist findings ─────────────────────────────────────────────────────
     findings_dicts = result.findings_as_dicts()
 
+    # Track which issue IDs were reported in this run (for auto-resolution)
+    current_issue_ids: set[str] = set()
+
     for finding in findings_dicts:
         try:
             issue = memory.upsert_issue(skill_id, finding)
+            current_issue_ids.add(issue["issue_id"])
             sheets.append("seo_issues", [
                 issue["issue_id"], issue["first_seen"], issue["last_seen"],
                 issue["skill_id"], issue["severity"], issue["category"],
@@ -350,6 +354,19 @@ def run() -> None:
                 ])
         except Exception as e:
             log.warning("Failed to persist finding: %s", e)
+
+    # ── Auto-resolve issues that were active last cycle but not seen now ──────
+    try:
+        resolved_count = memory.resolve_stale_issues(skill_id, current_issue_ids)
+        if resolved_count > 0:
+            log.info("Auto-resolved %d stale issue(s) from skill %d", resolved_count, skill_id)
+            sheets.log_runtime(
+                run_id, "INFO",
+                f"Auto-resolved {resolved_count} stale issue(s) from skill {skill_id}",
+                skill_id,
+            )
+    except Exception as e:
+        log.warning("Auto-resolution failed (non-fatal): %s", e)
 
     # ── Append run record ────────────────────────────────────────────────────
     run_record = {
