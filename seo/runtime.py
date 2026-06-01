@@ -328,12 +328,18 @@ def run() -> None:
     log.info(result.summary_line())
     log.info("Duration: %ds", duration)
 
-    # ── Persist findings ─────────────────────────────────────────────────────
+    # ── Persist findings (batch upsert — single JSON read+write for all findings) ─
     findings_dicts = result.findings_as_dicts()
 
-    for finding in findings_dicts:
+    try:
+        upserted_issues, current_issue_ids = memory.upsert_issues_batch(skill_id, findings_dicts)
+    except Exception as e:
+        log.error("Batch upsert failed: %s — falling back to empty state", e)
+        upserted_issues, current_issue_ids = [], set()
+
+    # Append each issue to Sheets and escalate criticals
+    for finding, issue in zip(findings_dicts, upserted_issues):
         try:
-            issue = memory.upsert_issue(skill_id, finding)
             sheets.append("seo_issues", [
                 issue["issue_id"], issue["first_seen"], issue["last_seen"],
                 issue["skill_id"], issue["severity"], issue["category"],
@@ -349,7 +355,20 @@ def run() -> None:
                     "active", "", run_id,
                 ])
         except Exception as e:
-            log.warning("Failed to persist finding: %s", e)
+            log.warning("Failed to write finding to Sheets: %s", e)
+
+    # ── Auto-resolve stale issues — findings absent this run are now resolved ─
+    try:
+        resolved = memory.resolve_stale_issues(skill_id, current_issue_ids)
+        if resolved:
+            log.info("Auto-resolved %d stale issue(s) from skill %d", resolved, skill_id)
+            sheets.log_runtime(
+                run_id, "INFO",
+                f"Auto-resolved {resolved} stale issue(s) no longer detected by skill {skill_id}",
+                skill_id,
+            )
+    except Exception as e:
+        log.warning("Auto-resolution failed (non-fatal): %s", e)
 
     # ── Append run record ────────────────────────────────────────────────────
     run_record = {

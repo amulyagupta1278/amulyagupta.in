@@ -25,7 +25,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
 # ── Categories the fixer can handle ──────────────────────────────────────────
-FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers"}
+FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers", "open-graph", "social"}
 
 
 def load_issues() -> list[dict]:
@@ -212,6 +212,179 @@ def fix_schema(issues: list[dict]) -> tuple[bool, str]:
     return True, "\n".join(applied)
 
 
+# ── Open Graph / Twitter Card meta tag fixer ─────────────────────────────────
+
+# Maps URL path → (file path relative to repo root, page title, description, image)
+_PAGE_META: dict[str, dict] = {
+    "/": {
+        "file": "index.html",
+        "title": "Amulya Gupta — AI Systems Engineer",
+        "description": "AI Systems Engineer building agentic AI workflows, LLM pipelines, and production ML infrastructure. Based in India.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "website",
+    },
+    "/about.html": {
+        "file": "about.html",
+        "title": "About — Amulya Gupta",
+        "description": "Learn about Amulya Gupta's background in AI systems engineering, MLOps, and production LLM infrastructure.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "profile",
+    },
+    "/projects.html": {
+        "file": "projects.html",
+        "title": "Projects — Amulya Gupta",
+        "description": "AI and MLOps projects by Amulya Gupta: agentic workflows, LLM pipelines, RAG systems, and production ML infrastructure.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "website",
+    },
+    "/experience.html": {
+        "file": "experience.html",
+        "title": "Experience — Amulya Gupta",
+        "description": "Work experience of Amulya Gupta in AI engineering, machine learning, and data science roles.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "profile",
+    },
+    "/amulya-gupta.html": {
+        "file": "amulya-gupta.html",
+        "title": "Amulya Gupta — AI Systems Engineer Profile",
+        "description": "Full professional profile of Amulya Gupta: AI Systems Engineer specialising in LLMs, MLOps, and agentic AI workflows.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "profile",
+    },
+    "/contact.html": {
+        "file": "contact.html",
+        "title": "Contact — Amulya Gupta",
+        "description": "Get in touch with Amulya Gupta for AI engineering consulting, collaboration, or opportunities.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "website",
+    },
+    "/blog/index.html": {
+        "file": "blog/index.html",
+        "title": "Blog — Amulya Gupta | AI & MLOps",
+        "description": "AI engineering and MLOps articles by Amulya Gupta: LLM pipelines, RAG systems, production ML infrastructure.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "website",
+    },
+    "/blog/post-1-mlops-pipeline.html": {
+        "file": "blog/post-1-mlops-pipeline.html",
+        "title": "Building a Production MLOps Pipeline — Amulya Gupta",
+        "description": "A practical guide to building end-to-end MLOps pipelines with CI/CD, model versioning, and production monitoring.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "article",
+    },
+    "/blog/post-2-mlops-stack.html": {
+        "file": "blog/post-2-mlops-stack.html",
+        "title": "MLOps in 2025: The Stack I Actually Use — Amulya Gupta",
+        "description": "The exact MLOps stack I use in production: experiment tracking, model serving, feature stores, and observability.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "article",
+    },
+    "/blog/ai-ml-guide-2026.html": {
+        "file": "blog/ai-ml-guide-2026.html",
+        "title": "AI/ML Career Roadmap 2026 — Amulya Gupta",
+        "description": "A comprehensive roadmap for AI and ML engineering careers in 2026: skills, tools, frameworks, and job market insights.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "article",
+    },
+    "/privacy.html": {
+        "file": "privacy.html",
+        "title": "Privacy Policy — Amulya Gupta",
+        "description": "Privacy policy for amulyagupta.in — how data is collected and used.",
+        "image": "https://amulyagupta.in/assets/img/og-cover.png",
+        "type": "website",
+    },
+}
+
+_TWITTER_CARD_BLOCK = '<meta name="twitter:card" content="summary_large_image">\n  <meta name="twitter:site" content="@amulyagupta">\n  <meta name="twitter:creator" content="@amulyagupta">'
+
+
+def _build_og_block(path: str, meta: dict) -> str:
+    canonical = "https://amulyagupta.in" + (path if path != "/" else "/")
+    return (
+        f'<meta property="og:title" content="{meta["title"]}">\n'
+        f'  <meta property="og:description" content="{meta["description"]}">\n'
+        f'  <meta property="og:image" content="{meta["image"]}">\n'
+        f'  <meta property="og:url" content="{canonical}">\n'
+        f'  <meta property="og:type" content="{meta["type"]}">\n'
+        f'  <meta property="og:site_name" content="Amulya Gupta">'
+    )
+
+
+def fix_meta_og(issues: list[dict]) -> tuple[bool, str]:
+    """Add missing Open Graph and Twitter Card meta tags to HTML files."""
+    og_issues = [i for i in issues if i.get("category") in ("open-graph", "social")]
+    if not og_issues:
+        return False, ""
+
+    # Collect affected paths (deduplicate by file)
+    affected_paths: set[str] = set()
+    for issue in og_issues:
+        url = issue.get("url", "")
+        path = url.replace("https://amulyagupta.in", "").rstrip("/") or "/"
+        if path in _PAGE_META:
+            affected_paths.add(path)
+
+    if not affected_paths:
+        return False, ""
+
+    applied = []
+    for path in sorted(affected_paths):
+        meta = _PAGE_META[path]
+        file_path = os.path.join(REPO_ROOT, meta["file"])
+        if not os.path.exists(file_path):
+            continue
+
+        with open(file_path, encoding="utf-8") as f:
+            content = f.read()
+
+        # Skip if OG tags are already present
+        if 'og:title' in content and 'og:description' in content:
+            continue
+
+        og_block = _build_og_block(path, meta)
+        twitter_block = _TWITTER_CARD_BLOCK
+
+        # Determine what's missing
+        needs_og = 'og:title' not in content
+        needs_twitter = 'twitter:card' not in content
+
+        if not needs_og and not needs_twitter:
+            continue
+
+        # Inject before </head> — find the last occurrence to handle malformed HTML
+        insert_marker = "</head>"
+        if insert_marker not in content.lower():
+            continue
+
+        # Build the insertion block
+        parts = []
+        if needs_og:
+            parts.append(f"  {og_block}")
+        if needs_twitter:
+            parts.append(f"  {twitter_block}")
+        insert_html = "\n".join(parts) + "\n  "
+
+        # Case-insensitive replacement of the first </head>
+        head_idx = content.lower().find(insert_marker)
+        if head_idx == -1:
+            continue
+        new_content = content[:head_idx] + insert_html + content[head_idx:]
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+
+        tags_added = []
+        if needs_og:
+            tags_added.append("og:title/description/image/url/type")
+        if needs_twitter:
+            tags_added.append("twitter:card")
+        applied.append(f"  - `{meta['file']}`: added {', '.join(tags_added)}")
+
+    if not applied:
+        return False, ""
+    return True, "\n".join(applied)
+
+
 # ── Robots fixer ──────────────────────────────────────────────────────────────
 
 _AI_BOTS = ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "OAI-SearchBot"]
@@ -264,8 +437,9 @@ def main() -> int:
     sitemap_ok, sitemap_notes = fix_sitemap(issues)
     schema_ok, schema_notes = fix_schema(issues)
     robots_ok, robots_notes = fix_robots(issues)
+    og_ok, og_notes = fix_meta_og(issues)
 
-    any_fixed = sitemap_ok or schema_ok or robots_ok
+    any_fixed = sitemap_ok or schema_ok or robots_ok or og_ok
     if not any_fixed:
         print("All fixable issues already resolved — no changes generated.")
         return 2
@@ -277,6 +451,8 @@ def main() -> int:
         sections.append(f"### Structured Data\n{schema_notes}")
     if robots_ok:
         sections.append(f"### Robots.txt\n{robots_notes}")
+    if og_ok:
+        sections.append(f"### Open Graph & Social Meta Tags\n{og_notes}")
 
     critical_count = sum(1 for i in issues if i.get("severity") == "critical")
     warning_count = sum(1 for i in issues if i.get("severity") == "warning")
@@ -298,6 +474,8 @@ def main() -> int:
 ### Review Checklist
 - [ ] Verify schema additions render correctly in [Rich Results Test](https://search.google.com/test/rich-results)
 - [ ] Check sitemap at [Google Search Console → Sitemaps](https://search.google.com/search-console)
+- [ ] Test Open Graph tags with [Facebook Debugger](https://developers.facebook.com/tools/debug/) or [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)
+- [ ] Preview Twitter Card with [Twitter Card Validator](https://cards-dev.twitter.com/validator)
 - [ ] Confirm no visual regressions on affected pages
 
 > ⚠️ This PR was auto-generated by the SEO Runtime. **Human review and manual merge required** — the runtime has no auto-merge authority.

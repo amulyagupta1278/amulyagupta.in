@@ -86,6 +86,7 @@ def save_issues(issues: dict):
 
 
 def upsert_issue(skill_id: int, finding: dict) -> dict:
+    """Upsert a single finding. Prefer upsert_issues_batch for multiple findings."""
     issues = load_issues()
     iid = make_issue_id(skill_id, finding.get("category", ""), finding.get("url", ""), finding.get("title", ""))
     now = datetime.utcnow().isoformat()
@@ -112,6 +113,72 @@ def upsert_issue(skill_id: int, finding: dict) -> dict:
 
     save_issues(issues)
     return issues[iid]
+
+
+def upsert_issues_batch(skill_id: int, findings: list[dict]) -> tuple[list[dict], set]:
+    """
+    Upsert all findings for a skill in a single read-write cycle.
+    Returns (list of upserted issue dicts, set of issue IDs found this run).
+    Using this instead of repeated upsert_issue() calls reduces disk I/O from
+    O(N) reads+writes to 1 read + 1 write regardless of finding count.
+    """
+    issues = load_issues()
+    now = datetime.utcnow().isoformat()
+    upserted: list[dict] = []
+    ids: set = set()
+
+    for finding in findings:
+        iid = make_issue_id(
+            skill_id,
+            finding.get("category", ""),
+            finding.get("url", ""),
+            finding.get("title", ""),
+        )
+        if iid in issues:
+            issues[iid]["last_seen"] = now
+            issues[iid]["occurrences"] = issues[iid].get("occurrences", 1) + 1
+            issues[iid]["severity"] = finding.get("severity", issues[iid]["severity"])
+            issues[iid]["status"] = "active"
+        else:
+            issues[iid] = {
+                "issue_id": iid,
+                "first_seen": now,
+                "last_seen": now,
+                "skill_id": skill_id,
+                "severity": finding.get("severity", "info"),
+                "category": finding.get("category", ""),
+                "url": finding.get("url", ""),
+                "title": finding.get("title", ""),
+                "description": finding.get("description", ""),
+                "status": "active",
+                "occurrences": 1,
+            }
+        upserted.append(issues[iid])
+        ids.add(iid)
+
+    save_issues(issues)
+    return upserted, ids
+
+
+def resolve_stale_issues(skill_id: int, current_issue_ids: set) -> int:
+    """
+    Mark issues from this skill as resolved if they were not found in the
+    current run. This prevents stale findings from accumulating indefinitely.
+    Returns the number of issues auto-resolved.
+    """
+    issues = load_issues()
+    resolved_count = 0
+    now = datetime.utcnow().isoformat()
+    for iid, issue in issues.items():
+        if (issue.get("skill_id") == skill_id
+                and issue.get("status") == "active"
+                and iid not in current_issue_ids):
+            issue["status"] = "resolved"
+            issue["resolved_at"] = now
+            resolved_count += 1
+    if resolved_count:
+        save_issues(issues)
+    return resolved_count
 
 
 def load_score_history() -> list:
