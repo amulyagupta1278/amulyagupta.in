@@ -120,7 +120,7 @@ class Skill11AISearchReadiness(BaseSEOSkill):
                         title=f"AI crawler {bot} not explicitly permitted",
                         description=f"robots.txt has no explicit Allow for {bot}.",
                         severity="info",
-                        category="ai-seo",
+                        category="ai-crawlers",
                         url=f"{SITE_URL}/robots.txt",
                         recommendation=f"Explicitly allow {bot} in robots.txt for maximum AI search coverage.",
                     ))

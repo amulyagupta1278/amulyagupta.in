@@ -28,7 +28,7 @@ class Skill22AnchorText(BaseSEOSkill):
             if not soup or page.get("status") != 200:
                 continue
 
-            links = crawler.get_all_links(soup)
+            links = crawler.get_all_links(soup, base_url=url)
             for link in links["internal"]:
                 text = link["text"].strip().lower()
                 target = link["url"]

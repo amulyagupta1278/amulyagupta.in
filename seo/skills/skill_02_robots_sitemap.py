@@ -2,7 +2,7 @@ import re
 import xml.etree.ElementTree as ET
 import crawler
 from base import BaseSEOSkill, Finding, SkillResult
-from config import SITE_URL
+from config import SITE_URL, SITE_PAGES
 
 
 class Skill02RobotsSitemap(BaseSEOSkill):
@@ -53,10 +53,10 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                         url=f"{SITE_URL}/robots.txt",
                         recommendation="Remove or fix the 'Disallow: /' directive to allow search engine crawling.",
                     ))
-                for bot in ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"]:
+                for bot in ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "OAI-SearchBot"]:
                     if bot.lower() not in rb_content.lower():
                         findings.append(Finding(
-                            title=f"Missing {bot} directive in robots.txt",
+                            title=f"AI crawler {bot} not explicitly permitted",
                             description=f"No explicit rule for {bot} found.",
                             severity="info",
                             category="ai-crawlers",
@@ -93,10 +93,13 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                         recommendation="Add all site pages to the sitemap.",
                     ))
                 else:
-                    known_pages = {SITE_URL + p for p in ["/", "/about.html", "/projects.html",
-                                   "/experience.html", "/amulya-gupta.html", "/contact.html",
-                                   "/blog/index.html", "/blog/post-1-mlops-pipeline.html",
-                                   "/blog/post-2-mlops-stack.html", "/blog/ai-ml-guide-2026.html"]}
+                    # Use config.SITE_PAGES; exclude redirect/canonical-alias pages from
+                    # the "missing from sitemap" check since they defer to their canonical.
+                    _REDIRECT_PAGES = {"/blog/post-2-rag-system.html"}
+                    known_pages = {
+                        SITE_URL + p for p in SITE_PAGES
+                        if p not in _REDIRECT_PAGES
+                    }
                     sitemap_set = {u.rstrip("/") for u in url_texts}
                     missing = {u.rstrip("/") for u in known_pages} - sitemap_set
                     for m in missing:

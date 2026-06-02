@@ -25,7 +25,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
 # ── Categories the fixer can handle ──────────────────────────────────────────
-FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers"}
+FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers", "ai-seo", "open-graph", "social"}
 
 
 def load_issues() -> list[dict]:
@@ -218,8 +218,12 @@ _AI_BOTS = ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "OAI-Sear
 
 
 def fix_robots(issues: list[dict]) -> tuple[bool, str]:
-    bot_issues = [i for i in issues if i.get("category") == "ai-crawlers"
-                  and "missing" in i.get("title", "").lower()]
+    # Accept both "ai-crawlers" (current) and "ai-seo" (legacy) categories
+    bot_issues = [
+        i for i in issues
+        if i.get("category") in ("ai-crawlers", "ai-seo")
+        and "not explicitly permitted" in i.get("title", "").lower()
+    ]
     if not bot_issues:
         return False, ""
 
@@ -245,6 +249,102 @@ def fix_robots(issues: list[dict]) -> tuple[bool, str]:
     return True, "\n".join(added)
 
 
+# ── Open Graph tag fixer ──────────────────────────────────────────────────────
+
+_OG_DEFAULT_IMAGE = "https://github.com/amulyagupta1278.png"
+_SITE_BASE = "https://amulyagupta.in"
+
+
+def _url_to_filepath(url: str) -> str | None:
+    """Map a site URL to its repo-relative HTML file path."""
+    path = url.replace(_SITE_BASE, "").lstrip("/")
+    if not path or path == "/":
+        path = "index.html"
+    return os.path.join(REPO_ROOT, path)
+
+
+def fix_open_graph(issues: list[dict]) -> tuple[bool, str]:
+    """Insert missing OG and Twitter Card tags into affected HTML pages."""
+    og_issues = [
+        i for i in issues
+        if i.get("category") in ("open-graph", "social")
+        and i.get("severity") in ("warning", "info")
+    ]
+    if not og_issues:
+        return False, ""
+
+    # Group missing tags by URL
+    by_url: dict[str, set[str]] = {}
+    for issue in og_issues:
+        url = issue.get("url", "")
+        title = issue.get("title", "")
+        if "missing og:" in title.lower():
+            tag = title.split("Missing ")[1].split(":")[0].lower() + ":" + title.split(": ")[0].split(":")[1].strip() if ": " in title else ""
+            # Simpler parse: "Missing og:title: /path" → "og:title"
+            m = re.search(r"missing (og:[a-z]+)", title.lower())
+            if m:
+                by_url.setdefault(url, set()).add(m.group(1))
+        elif "missing twitter card" in title.lower():
+            by_url.setdefault(url, set()).add("twitter:card")
+
+    applied = []
+    for url, missing_tags in by_url.items():
+        filepath = _url_to_filepath(url)
+        if not filepath or not os.path.exists(filepath):
+            continue
+
+        with open(filepath, encoding="utf-8") as f:
+            content = f.read()
+
+        # Skip if all tags already present
+        missing = {t for t in missing_tags if t.replace(":", ":") not in content}
+        if not missing:
+            continue
+
+        # Extract existing title and description to generate OG values
+        title_m = re.search(r"<title[^>]*>(.*?)</title>", content, re.DOTALL | re.IGNORECASE)
+        page_title = re.sub(r"\s+", " ", title_m.group(1)).strip() if title_m else "Amulya Gupta"
+
+        desc_m = re.search(r'<meta\s+name="description"\s+content="([^"]+)"', content, re.IGNORECASE)
+        if not desc_m:
+            desc_m = re.search(r'<meta\s+content="([^"]+)"\s+name="description"', content, re.IGNORECASE)
+        page_desc = desc_m.group(1).strip() if desc_m else page_title
+
+        # Build the block of tags to insert
+        new_tags = []
+        if "og:title" in missing:
+            new_tags.append(f'  <meta property="og:title" content="{page_title}" />')
+        if "og:description" in missing:
+            new_tags.append(f'  <meta property="og:description" content="{page_desc[:160]}" />')
+        if "og:url" in missing:
+            new_tags.append(f'  <meta property="og:url" content="{url}" />')
+        if "og:image" in missing:
+            new_tags.append(f'  <meta property="og:image" content="{_OG_DEFAULT_IMAGE}" />')
+        if "twitter:card" in missing:
+            new_tags.append('  <meta name="twitter:card" content="summary_large_image" />')
+
+        if not new_tags:
+            continue
+
+        insert_block = "\n".join(new_tags) + "\n"
+        if "</head>" not in content:
+            continue
+
+        new_content = content.replace("</head>", insert_block + "</head>", 1)
+        if new_content == content:
+            continue
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(new_content)
+
+        path = url.replace(_SITE_BASE, "") or "/"
+        applied.append(f"  - Added missing OG/social tags to `{path}`")
+
+    if not applied:
+        return False, ""
+    return True, "\n".join(applied)
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> int:
@@ -264,8 +364,9 @@ def main() -> int:
     sitemap_ok, sitemap_notes = fix_sitemap(issues)
     schema_ok, schema_notes = fix_schema(issues)
     robots_ok, robots_notes = fix_robots(issues)
+    og_ok, og_notes = fix_open_graph(issues)
 
-    any_fixed = sitemap_ok or schema_ok or robots_ok
+    any_fixed = sitemap_ok or schema_ok or robots_ok or og_ok
     if not any_fixed:
         print("All fixable issues already resolved — no changes generated.")
         return 2
@@ -277,6 +378,8 @@ def main() -> int:
         sections.append(f"### Structured Data\n{schema_notes}")
     if robots_ok:
         sections.append(f"### Robots.txt\n{robots_notes}")
+    if og_ok:
+        sections.append(f"### Open Graph / Social Tags\n{og_notes}")
 
     critical_count = sum(1 for i in issues if i.get("severity") == "critical")
     warning_count = sum(1 for i in issues if i.get("severity") == "warning")

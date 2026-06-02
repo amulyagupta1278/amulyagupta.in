@@ -26,7 +26,7 @@ class Skill17BacklinkOutbound(BaseSEOSkill):
             if not soup or page.get("status") != 200:
                 continue
 
-            links = crawler.get_all_links(soup)
+            links = crawler.get_all_links(soup, base_url=url)
             external = links["external"]
             all_external.extend({"from": url, **e} for e in external)
 
