@@ -445,6 +445,16 @@ def run() -> None:
                 alert_html,
                 alert_text,
             )
+            memory.append_email_log({
+                "date": now.isoformat(),
+                "type": "critical_alert",
+                "subject": f"[SEO CRITICAL] {result.critical_count} critical issue(s) — Skill {skill_id}",
+                "status": "sent",
+                "run_id": run_id,
+                "skill_id": skill_id,
+                "skill_name": skill_name,
+                "score": result.score,
+            })
         except Exception as e:
             log.warning("Critical alert email failed: %s", e)
 
@@ -471,6 +481,16 @@ def run() -> None:
         "" if email_ok else "Check GMAIL credentials",
         run_id,
     ])
+    memory.append_email_log({
+        "date": now.isoformat(),
+        "type": "morning_brief",
+        "subject": subject,
+        "status": "sent" if email_ok else "failed",
+        "run_id": run_id,
+        "skill_id": skill_id,
+        "skill_name": skill_name,
+        "score": result.score,
+    })
 
     # ── Save state ───────────────────────────────────────────────────────────
     memory.save_run_state(skill_id, run_id)
@@ -509,6 +529,16 @@ def run() -> None:
                 "" if cycle_ok else "Check GMAIL credentials",
                 run_id,
             ])
+            memory.append_email_log({
+                "date": now.isoformat(),
+                "type": "cycle_completion",
+                "subject": f"Cycle {completed_cycle} Completion Report — All 23 Skills",
+                "status": "sent" if cycle_ok else "failed",
+                "run_id": run_id,
+                "skill_id": 23,
+                "skill_name": skill_name,
+                "score": result.score,
+            })
             sheets.append("seo_reports", [
                 f"cycle-{completed_cycle}", now.isoformat(), 23, "cycle-completion",
                 f"Cycle {completed_cycle} Completion — All 23 Skills",

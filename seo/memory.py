@@ -438,6 +438,52 @@ def build_weekly_summary_data(runs: list, scores: list, issues: dict) -> dict:
     }
 
 
+def load_email_log() -> list:
+    return load_json("emails.json", [])
+
+
+def append_email_log(entry: dict):
+    entries = load_email_log()
+    entries.append(entry)
+    if len(entries) > 100:
+        entries = entries[-100:]
+    save_json("emails.json", entries)
+
+
+def build_cwv_summary(findings: list) -> dict:
+    """Extract Core Web Vitals from findings and produce a concise summary."""
+    cwv = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": [], "records": []}
+    for f in findings:
+        cat = f.get("category", "")
+        meta = f.get("meta", {}) or {}
+        if cat == "cwv":
+            for metric in ("lcp", "cls", "fid", "inp", "ttfb"):
+                val = meta.get(metric)
+                if val is not None:
+                    try:
+                        cwv[metric].append(float(val))
+                    except (TypeError, ValueError):
+                        pass
+            if meta:
+                cwv["records"].append({
+                    "url": f.get("url", ""),
+                    "strategy": meta.get("strategy", "mobile"),
+                    "lcp_ms": meta.get("lcp"),
+                    "cls": meta.get("cls"),
+                    "fid_ms": meta.get("fid"),
+                    "inp_ms": meta.get("inp"),
+                    "ttfb_ms": meta.get("ttfb"),
+                })
+    return {
+        "lcp_avg": round(sum(cwv["lcp"]) / len(cwv["lcp"]), 0) if cwv["lcp"] else None,
+        "cls_avg": round(sum(cwv["cls"]) / len(cwv["cls"]), 3) if cwv["cls"] else None,
+        "fid_avg": round(sum(cwv["fid"]) / len(cwv["fid"]), 0) if cwv["fid"] else None,
+        "inp_avg": round(sum(cwv["inp"]) / len(cwv["inp"]), 0) if cwv["inp"] else None,
+        "ttfb_avg": round(sum(cwv["ttfb"]) / len(cwv["ttfb"]), 0) if cwv["ttfb"] else None,
+        "records": cwv["records"][:20],
+    }
+
+
 def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: dict) -> dict:
     now = datetime.utcnow().isoformat()
     recent_runs = load_runs()[-30:]
@@ -462,6 +508,33 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
     # Historical comparison
     comparison = get_historical_comparison(recent_runs, scores)
 
+    # CWV summary from latest run findings
+    cwv_summary = build_cwv_summary(findings)
+
+    # Email delivery log (last 20 entries)
+    email_log = load_email_log()[-20:]
+
+    # Technical SEO snapshot: categorize findings by system area
+    tech_categories = {
+        "robots": [], "sitemap": [], "canonical": [], "schema": [],
+        "redirects": [], "cwv": [], "crawl": [], "indexation": [],
+    }
+    for f in findings:
+        cat = f.get("category", "")
+        if cat in tech_categories:
+            tech_categories[cat].append({
+                "title": f.get("title", ""),
+                "severity": f.get("severity", "info"),
+                "url": f.get("url", ""),
+                "recommendation": f.get("recommendation", ""),
+            })
+    # Also scan all active issues for technical categories
+    tech_issue_counts = {}
+    for issue in active_issues:
+        cat = issue.get("category", "")
+        if cat in tech_categories:
+            tech_issue_counts[cat] = tech_issue_counts.get(cat, 0) + 1
+
     snapshot = {
         "generated_at": now,
         "site_url": "https://amulyagupta.in",
@@ -484,6 +557,10 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
         "cycle_progress": cycle_progress,
         "forecast": forecast,
         "historical_comparison": comparison,
+        "cwv_summary": cwv_summary,
+        "email_log": email_log,
+        "technical_snapshot": {cat: items for cat, items in tech_categories.items()},
+        "technical_issue_counts": tech_issue_counts,
     }
     save_json("dashboard.json", snapshot)
     return snapshot
