@@ -25,7 +25,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
 # ── Categories the fixer can handle ──────────────────────────────────────────
-FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers"}
+FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers", "meta"}
 
 
 def load_issues() -> list[dict]:
@@ -165,8 +165,93 @@ _SCHEMA_FIXES: dict[str, dict] = {
     "itemListElement": [
       {"@type": "ListItem", "position": 1, "name": "Building a Production MLOps Pipeline", "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html"},
       {"@type": "ListItem", "position": 2, "name": "MLOps in 2025: The Stack I Actually Use", "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html"},
-      {"@type": "ListItem", "position": 3, "name": "AI/ML Roadmap 2026", "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html"}
+      {"@type": "ListItem", "position": 3, "name": "Building a Production RAG System", "url": "https://amulyagupta.in/blog/post-2-rag-system.html"},
+      {"@type": "ListItem", "position": 4, "name": "AI/ML Roadmap 2026", "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html"}
     ]
+  }
+  </script>
+""",
+    },
+    "missing blogposting schema: /blog/post-1-mlops-pipeline.html": {
+        "file": "blog/post-1-mlops-pipeline.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Building a Production MLOps Pipeline",
+    "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+    "datePublished": "2026-05-19",
+    "dateModified": "2026-05-19",
+    "author": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "publisher": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "description": "Step-by-step guide to building a production-grade MLOps pipeline with monitoring, CI/CD, and model registry.",
+    "keywords": ["MLOps", "ML Pipeline", "Model Deployment", "CI/CD", "Model Monitoring"],
+    "isPartOf": {"@type": "Blog", "url": "https://amulyagupta.in/blog/index.html"}
+  }
+  </script>
+""",
+    },
+    "missing blogposting schema: /blog/post-2-mlops-stack.html": {
+        "file": "blog/post-2-mlops-stack.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "MLOps in 2025: The Stack I Actually Use",
+    "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+    "datePublished": "2026-05-19",
+    "dateModified": "2026-05-19",
+    "author": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "publisher": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "description": "A practical breakdown of the MLOps tools and stack used in production AI systems in 2025.",
+    "keywords": ["MLOps", "ML Stack", "LangChain", "LangSmith", "Vector Database"],
+    "isPartOf": {"@type": "Blog", "url": "https://amulyagupta.in/blog/index.html"}
+  }
+  </script>
+""",
+    },
+    "missing blogposting schema: /blog/post-2-rag-system.html": {
+        "file": "blog/post-2-rag-system.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Building a Production RAG System",
+    "url": "https://amulyagupta.in/blog/post-2-rag-system.html",
+    "datePublished": "2026-05-19",
+    "dateModified": "2026-05-19",
+    "author": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "publisher": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "description": "How to architect and deploy a production RAG system with retrieval augmented generation, vector databases, and LLM pipelines.",
+    "keywords": ["RAG", "Retrieval Augmented Generation", "Vector Database", "LLM", "AI Engineering"],
+    "isPartOf": {"@type": "Blog", "url": "https://amulyagupta.in/blog/index.html"}
+  }
+  </script>
+""",
+    },
+    "missing blogposting schema: /blog/ai-ml-guide-2026.html": {
+        "file": "blog/ai-ml-guide-2026.html",
+        "marker": "</head>",
+        "block": """\
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "AI/ML Engineer Roadmap 2026: Skills, Tools & Career Paths",
+    "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+    "datePublished": "2026-05-19",
+    "dateModified": "2026-05-19",
+    "author": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "publisher": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
+    "description": "Complete 2026 roadmap for AI/ML engineers covering skills, tools, frameworks, and career progression paths.",
+    "keywords": ["AI Engineering", "ML Roadmap", "Career Guide", "LLM", "MLOps", "Deep Learning"],
+    "isPartOf": {"@type": "Blog", "url": "https://amulyagupta.in/blog/index.html"}
   }
   </script>
 """,
@@ -245,6 +330,101 @@ def fix_robots(issues: list[dict]) -> tuple[bool, str]:
     return True, "\n".join(added)
 
 
+# ── Meta description fixer ───────────────────────────────────────────────────
+
+_META_DESCRIPTIONS: dict[str, str] = {
+    "/": (
+        "Amulya Gupta — AI Systems Engineer building agentic AI workflows, "
+        "LLM pipelines, and production ML infrastructure at HCLTech."
+    ),
+    "/about.html": (
+        "About Amulya Gupta — AI Systems Engineer with expertise in LLM engineering, "
+        "MLOps, RAG pipelines, and agentic AI. M.Tech from BITS Pilani."
+    ),
+    "/projects.html": (
+        "AI & MLOps projects by Amulya Gupta: production RAG systems, "
+        "LangChain agents, MLOps pipelines, and open-source contributions."
+    ),
+    "/experience.html": (
+        "Work experience of Amulya Gupta — AI Systems Engineer at HCLTech "
+        "building production LLM systems and ML infrastructure."
+    ),
+    "/amulya-gupta.html": (
+        "Full professional profile of Amulya Gupta — AI Systems Engineer, "
+        "LLM specialist, MLOps practitioner. M.Tech BITS Pilani."
+    ),
+    "/contact.html": (
+        "Contact Amulya Gupta — AI Systems Engineer available for AI/ML consulting, "
+        "collaboration, and engineering roles."
+    ),
+    "/blog/index.html": (
+        "AI & MLOps blog by Amulya Gupta — practical guides on LLM engineering, "
+        "RAG systems, MLOps pipelines, and production AI."
+    ),
+    "/blog/post-1-mlops-pipeline.html": (
+        "How to build a production MLOps pipeline — step-by-step guide covering "
+        "model training, CI/CD, monitoring, and deployment."
+    ),
+    "/blog/post-2-mlops-stack.html": (
+        "The MLOps stack I actually use in 2025 — LangChain, LangSmith, "
+        "vector databases, and production-grade tooling."
+    ),
+    "/blog/post-2-rag-system.html": (
+        "Building a production RAG system — architecture, vector databases, "
+        "retrieval augmented generation, and LLM integration."
+    ),
+    "/blog/ai-ml-guide-2026.html": (
+        "AI/ML Engineer roadmap 2026 — skills, tools, frameworks, and "
+        "career paths for the modern AI engineer."
+    ),
+}
+
+
+def fix_meta_descriptions(issues: list[dict]) -> tuple[bool, str]:
+    meta_issues = [
+        i for i in issues
+        if i.get("category") == "meta"
+        and ("missing" in i.get("title", "").lower() and "description" in i.get("title", "").lower())
+    ]
+    if not meta_issues:
+        return False, ""
+
+    applied = []
+    for issue in meta_issues:
+        url = issue.get("url", "")
+        path = url.replace("https://amulyagupta.in", "").rstrip("/") or "/"
+        description = _META_DESCRIPTIONS.get(path) or _META_DESCRIPTIONS.get(path + ".html")
+        if not description:
+            continue
+
+        rel_file = path.lstrip("/") or "index.html"
+        if not rel_file.endswith(".html"):
+            rel_file = "index.html"
+
+        file_path = os.path.join(REPO_ROOT, rel_file)
+        if not os.path.exists(file_path):
+            continue
+
+        with open(file_path) as f:
+            content = f.read()
+
+        if 'name="description"' in content:
+            continue
+
+        meta_tag = f'  <meta name="description" content="{description}">\n'
+        new_content = content.replace("</head>", meta_tag + "</head>", 1)
+        if new_content == content:
+            continue
+
+        with open(file_path, "w") as f:
+            f.write(new_content)
+        applied.append(f"  - Added meta description to `{rel_file}`")
+
+    if not applied:
+        return False, ""
+    return True, "\n".join(applied)
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> int:
@@ -264,8 +444,9 @@ def main() -> int:
     sitemap_ok, sitemap_notes = fix_sitemap(issues)
     schema_ok, schema_notes = fix_schema(issues)
     robots_ok, robots_notes = fix_robots(issues)
+    meta_ok, meta_notes = fix_meta_descriptions(issues)
 
-    any_fixed = sitemap_ok or schema_ok or robots_ok
+    any_fixed = sitemap_ok or schema_ok or robots_ok or meta_ok
     if not any_fixed:
         print("All fixable issues already resolved — no changes generated.")
         return 2
@@ -277,6 +458,8 @@ def main() -> int:
         sections.append(f"### Structured Data\n{schema_notes}")
     if robots_ok:
         sections.append(f"### Robots.txt\n{robots_notes}")
+    if meta_ok:
+        sections.append(f"### Meta Descriptions\n{meta_notes}")
 
     critical_count = sum(1 for i in issues if i.get("severity") == "critical")
     warning_count = sum(1 for i in issues if i.get("severity") == "warning")
@@ -298,6 +481,7 @@ def main() -> int:
 ### Review Checklist
 - [ ] Verify schema additions render correctly in [Rich Results Test](https://search.google.com/test/rich-results)
 - [ ] Check sitemap at [Google Search Console → Sitemaps](https://search.google.com/search-console)
+- [ ] Preview meta descriptions in [SERP Simulator](https://www.google.com/search?q=site:amulyagupta.in)
 - [ ] Confirm no visual regressions on affected pages
 
 > ⚠️ This PR was auto-generated by the SEO Runtime. **Human review and manual merge required** — the runtime has no auto-merge authority.

@@ -11,6 +11,7 @@ EXPECTED_SCHEMAS = {
     "/experience.html": ["Person"],
     "/blog/post-1-mlops-pipeline.html": ["BlogPosting", "Article"],
     "/blog/post-2-mlops-stack.html": ["BlogPosting", "Article"],
+    "/blog/post-2-rag-system.html": ["BlogPosting", "Article"],
     "/blog/ai-ml-guide-2026.html": ["BlogPosting", "Article"],
     "/blog/index.html": ["Blog", "ItemList"],
     "/contact.html": ["Person"],

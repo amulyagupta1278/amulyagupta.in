@@ -74,9 +74,13 @@ class Skill20CompetitorAnalysis(BaseSEOSkill):
                     recommendation="Include 'Amulya Gupta' in the page title for personal brand visibility.",
                 ))
 
+        # Check llms.txt existence for competitive benchmark
+        llms_resp = crawler.fetch(f"{SITE_URL}/llms.txt")
+        llms_exists = llms_resp["status"] == 200
+
         # Self-assessment vs competitive benchmarks
         benchmarks = [
-            ("llms.txt exists", True),
+            ("llms.txt exists", llms_exists),
             ("Blog section active", len(blog_pages) > 0),
             ("Person schema", "Person" in own_schema_types),
             ("Multiple schema types", len(own_schema_types) >= 3),
