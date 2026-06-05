@@ -67,7 +67,8 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap"></noscript>
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="assets/css/home.css" />
   <link rel="canonical" href="https://amulyagupta.in/" />
@@ -93,26 +94,26 @@
 <!-- ======= NAV ======= -->
 <nav class="nav" role="navigation" aria-label="Main navigation">
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo">AG<span>.</span></a>
+    <a href="/" class="nav-logo">AG<span>.</span></a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="projects.html">Projects</a></li>
-      <li><a href="experience.html">Experience</a></li>
-      <li><a href="blog/index.html">Blog</a></li>
-      <li><a href="contact.html" class="btn-nav" data-ga-event="nav_contact_click">Contact</a></li>
+      <li><a href="/">Home</a></li>
+      <li><a href="/about.html">About</a></li>
+      <li><a href="/projects.html">Projects</a></li>
+      <li><a href="/experience.html">Experience</a></li>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/contact.html" class="btn-nav" data-ga-event="nav_contact_click">Contact</a></li>
     </ul>
     <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   </div>
   <div class="nav-mobile" id="nav-mobile" aria-hidden="true">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="projects.html">Projects</a>
-    <a href="experience.html">Experience</a>
-    <a href="blog/index.html">Blog</a>
-    <a href="contact.html">Contact</a>
+    <a href="/">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/projects.html">Projects</a>
+    <a href="/experience.html">Experience</a>
+    <a href="/blog/">Blog</a>
+    <a href="/contact.html">Contact</a>
   </div>
 </nav>
 
@@ -136,11 +137,11 @@
           I design and build real AI systems — agentic workflows, LLM pipelines, RAG architectures, and the ML infrastructure underneath. At HCLTech I shipped campaign systems to 20M+ users. On my own time, I build end-to-end: from model training to Kubernetes-deployed APIs with monitoring that pages me when something drifts.
         </p>
         <div class="hero-cta">
-          <a href="projects.html" class="btn btn-primary" data-ga-event="hero_projects_click">
+          <a href="/projects.html" class="btn btn-primary" data-ga-event="hero_projects_click">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             View My Projects
           </a>
-          <a href="blog/index.html" class="btn btn-outline" data-ga-event="hero_blog_click">
+          <a href="/blog/" class="btn btn-outline" data-ga-event="hero_blog_click">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             Read My Blog
           </a>
@@ -267,7 +268,7 @@
           </div>
         </div>
         <div class="project-card-footer">
-          <a href="projects.html#agentic-ai" class="btn btn-outline btn-sm" data-ga-event="project_card_click" data-ga-label="agentic-ai">Architecture →</a>
+          <a href="/projects.html#agentic-ai" class="btn btn-outline btn-sm" data-ga-event="project_card_click" data-ga-label="agentic-ai">Architecture →</a>
           <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener" class="btn btn-outline btn-sm" data-ga-event="project_github_click" data-ga-label="agentic-ai">GitHub ↗</a>
         </div>
       </article>
@@ -291,7 +292,7 @@
           </div>
         </div>
         <div class="project-card-footer">
-          <a href="projects.html#support-ticket" class="btn btn-outline btn-sm" data-ga-event="project_card_click" data-ga-label="support-ticket">Architecture →</a>
+          <a href="/projects.html#support-ticket" class="btn btn-outline btn-sm" data-ga-event="project_card_click" data-ga-label="support-ticket">Architecture →</a>
           <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener" class="btn btn-outline btn-sm" data-ga-event="project_github_click" data-ga-label="support-ticket">GitHub ↗</a>
         </div>
       </article>
@@ -315,7 +316,7 @@
           </div>
         </div>
         <div class="project-card-footer">
-          <a href="projects.html#heart-disease" class="btn btn-outline btn-sm" data-ga-event="project_card_click" data-ga-label="heart-disease">Architecture →</a>
+          <a href="/projects.html#heart-disease" class="btn btn-outline btn-sm" data-ga-event="project_card_click" data-ga-label="heart-disease">Architecture →</a>
           <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener" class="btn btn-outline btn-sm" data-ga-event="project_github_click" data-ga-label="heart-disease">GitHub ↗</a>
         </div>
       </article>
@@ -338,13 +339,13 @@
           </div>
         </div>
         <div class="project-card-footer">
-          <a href="projects.html#hcltech" class="btn btn-outline btn-sm" data-ga-event="project_card_click" data-ga-label="hcltech">Case Study →</a>
+          <a href="/projects.html#hcltech" class="btn btn-outline btn-sm" data-ga-event="project_card_click" data-ga-label="hcltech">Case Study →</a>
         </div>
       </article>
     </div>
 
     <div style="text-align:center;margin-top:40px;" class="fade-in">
-      <a href="projects.html" class="btn btn-outline" data-ga-event="all_projects_click">View All Projects →</a>
+      <a href="/projects.html" class="btn btn-outline" data-ga-event="all_projects_click">View All Projects →</a>
     </div>
   </div>
 </section>
@@ -428,7 +429,7 @@
         M.Tech AI/ML at BITS Pilani. Deep into agentic AI architectures, LLM fine-tuning, and multi-agent systems. Looking for roles where I can design and ship AI systems end-to-end — not just train models, but own the entire stack from architecture to deployment.
       </p>
       <div style="margin-top:20px;">
-        <a href="contact.html" class="btn btn-primary btn-sm" data-ga-event="currently_contact_click">Let's Talk →</a>
+        <a href="/contact.html" class="btn btn-primary btn-sm" data-ga-event="currently_contact_click">Let's Talk →</a>
       </div>
     </div>
   </div>
@@ -442,8 +443,8 @@
     <div class="footer-logo">AG<span>.</span> Amulya Gupta</div>
     <p class="footer-copy">© 2026 Amulya Gupta · AI Systems Engineer · BITS Pilani</p>
     <div class="footer-links">
-      <a href="sitemap.xml">Sitemap</a>
-      <a href="privacy.html">Privacy</a>
+      <a href="/sitemap.xml">Sitemap</a>
+      <a href="/privacy.html">Privacy</a>
       <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>
       <a href="https://linkedin.com/in/amulya-gupta-bits-pilani" target="_blank" rel="noopener">LinkedIn</a>
     </div>
