@@ -85,11 +85,8 @@ def save_issues(issues: dict):
     save_json("issues.json", issues)
 
 
-def upsert_issue(skill_id: int, finding: dict) -> dict:
-    issues = load_issues()
+def _upsert_one(issues: dict, skill_id: int, finding: dict, now: str) -> dict:
     iid = make_issue_id(skill_id, finding.get("category", ""), finding.get("url", ""), finding.get("title", ""))
-    now = datetime.utcnow().isoformat()
-
     if iid in issues:
         issues[iid]["last_seen"] = now
         issues[iid]["occurrences"] = issues[iid].get("occurrences", 1) + 1
@@ -109,9 +106,23 @@ def upsert_issue(skill_id: int, finding: dict) -> dict:
             "status": "active",
             "occurrences": 1,
         }
-
-    save_issues(issues)
     return issues[iid]
+
+
+def upsert_issue(skill_id: int, finding: dict) -> dict:
+    issues = load_issues()
+    result = _upsert_one(issues, skill_id, finding, datetime.utcnow().isoformat())
+    save_issues(issues)
+    return result
+
+
+def batch_upsert_issues(skill_id: int, findings: list) -> list:
+    """Load once, upsert all findings, save once — O(1) file I/O regardless of N."""
+    issues = load_issues()
+    now = datetime.utcnow().isoformat()
+    results = [_upsert_one(issues, skill_id, f, now) for f in findings]
+    save_issues(issues)
+    return results
 
 
 def load_score_history() -> list:
