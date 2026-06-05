@@ -1,6 +1,8 @@
+import re
 import time
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
 from config import SITE_URL, SITE_PAGES
 
 SESSION = requests.Session()
@@ -50,18 +52,37 @@ def crawl_all_pages(delay: float = 0.5) -> list[dict]:
     return results
 
 
-def get_all_links(soup: BeautifulSoup, base_url: str = SITE_URL) -> dict:
+def _normalize_url(url: str) -> str:
+    """Normalize index.html paths to their canonical / form and strip fragments/query."""
+    url = url.split("?")[0].split("#")[0]
+    url = re.sub(r'/index\.html?$', '/', url)
+    return url.rstrip("/") or url
+
+
+def get_all_links(soup: BeautifulSoup, base_url: str = SITE_URL, page_url: str = None) -> dict:
+    """Extract internal and external links, correctly resolving relative URLs.
+
+    :param page_url: Full URL of the page being parsed (used to resolve relative hrefs).
+                     Falls back to base_url if not provided.
+    """
+    effective_base = page_url or base_url
+    site_netloc = urlparse(base_url).netloc
     internal, external = [], []
+
     for a in soup.find_all("a", href=True):
         href = a["href"].strip()
         text = a.get_text(strip=True)
         if not href or href.startswith("#") or href.startswith("mailto:") or href.startswith("tel:"):
             continue
-        if href.startswith("/") or base_url in href:
-            full = (base_url + href) if href.startswith("/") else href
+
+        full = urljoin(effective_base, href)
+        parsed = urlparse(full)
+
+        if parsed.netloc == site_netloc:
             internal.append({"url": full, "text": text, "element": str(a)[:200]})
-        elif href.startswith("http"):
-            external.append({"url": href, "text": text})
+        elif full.startswith("http"):
+            external.append({"url": full, "text": text})
+
     return {"internal": internal, "external": external}
 
 

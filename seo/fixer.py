@@ -25,7 +25,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
 # ── Categories the fixer can handle ──────────────────────────────────────────
-FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers"}
+FIXABLE_CATEGORIES = {"schema", "sitemap", "robots", "ai-crawlers", "open-graph", "social"}
 
 
 def load_issues() -> list[dict]:
@@ -245,6 +245,92 @@ def fix_robots(issues: list[dict]) -> tuple[bool, str]:
     return True, "\n".join(added)
 
 
+# ── OG / Social meta tag fixer ────────────────────────────────────────────────
+
+# Per-page OG tag injection configs.  Path → block inserted before </head>.
+_OG_FIXES: dict[str, dict] = {
+    "/privacy.html": {
+        "file": "privacy.html",
+        "og_title": "Privacy Policy | Amulya Gupta",
+        "og_description": "Privacy policy for amulyagupta.in — data collection, usage, your rights as a visitor, and GDPR compliance.",
+        "og_url": "https://amulyagupta.in/privacy.html",
+        "og_image": "https://github.com/amulyagupta1278.png",
+        "twitter_title": "Privacy Policy | Amulya Gupta",
+        "twitter_description": "Privacy policy for amulyagupta.in — data collection, usage, your rights, and GDPR compliance.",
+    },
+}
+
+
+def _build_og_block(cfg: dict) -> str:
+    return (
+        f'  <!-- Open Graph -->\n'
+        f'  <meta property="og:title" content="{cfg["og_title"]}" />\n'
+        f'  <meta property="og:description" content="{cfg["og_description"]}" />\n'
+        f'  <meta property="og:url" content="{cfg["og_url"]}" />\n'
+        f'  <meta property="og:type" content="website" />\n'
+        f'  <meta property="og:image" content="{cfg["og_image"]}" />\n'
+        f'  <!-- Twitter Card -->\n'
+        f'  <meta name="twitter:card" content="summary_large_image" />\n'
+        f'  <meta name="twitter:title" content="{cfg["twitter_title"]}" />\n'
+        f'  <meta name="twitter:description" content="{cfg["twitter_description"]}" />\n'
+        f'  <meta name="twitter:image" content="{cfg["og_image"]}" />\n'
+    )
+
+
+def fix_og_tags(issues: list[dict]) -> tuple[bool, str]:
+    """Add missing Open Graph and Twitter Card tags to pages that need them."""
+    og_issues = [
+        i for i in issues
+        if i.get("category") in ("open-graph", "social")
+        and "missing" in i.get("title", "").lower()
+    ]
+    if not og_issues:
+        return False, ""
+
+    # Collect unique page paths that need OG fixes
+    pages_needing_fix: set[str] = set()
+    for issue in og_issues:
+        url = issue.get("url", "")
+        path = "/" + url.split("amulyagupta.in/", 1)[-1] if "amulyagupta.in/" in url else url
+        if not path.startswith("/"):
+            path = "/" + path
+        pages_needing_fix.add(path)
+
+    applied = []
+    for path in pages_needing_fix:
+        cfg = _OG_FIXES.get(path)
+        if not cfg:
+            continue
+
+        file_path = os.path.join(REPO_ROOT, cfg["file"])
+        if not os.path.exists(file_path):
+            continue
+
+        with open(file_path) as f:
+            content = f.read()
+
+        # Only inject if og:title is truly absent
+        if 'property="og:title"' in content or "property='og:title'" in content:
+            continue
+
+        og_block = _build_og_block(cfg)
+        marker = "</head>"
+        if marker not in content:
+            continue
+
+        new_content = content.replace(marker, og_block + marker, 1)
+        if new_content == content:
+            continue
+
+        with open(file_path, "w") as f:
+            f.write(new_content)
+        applied.append(f"  - Added OG + Twitter Card tags to `{cfg['file']}`")
+
+    if not applied:
+        return False, ""
+    return True, "\n".join(applied)
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> int:
@@ -264,8 +350,9 @@ def main() -> int:
     sitemap_ok, sitemap_notes = fix_sitemap(issues)
     schema_ok, schema_notes = fix_schema(issues)
     robots_ok, robots_notes = fix_robots(issues)
+    og_ok, og_notes = fix_og_tags(issues)
 
-    any_fixed = sitemap_ok or schema_ok or robots_ok
+    any_fixed = sitemap_ok or schema_ok or robots_ok or og_ok
     if not any_fixed:
         print("All fixable issues already resolved — no changes generated.")
         return 2
@@ -277,6 +364,8 @@ def main() -> int:
         sections.append(f"### Structured Data\n{schema_notes}")
     if robots_ok:
         sections.append(f"### Robots.txt\n{robots_notes}")
+    if og_ok:
+        sections.append(f"### Open Graph & Social Meta Tags\n{og_notes}")
 
     critical_count = sum(1 for i in issues if i.get("severity") == "critical")
     warning_count = sum(1 for i in issues if i.get("severity") == "warning")

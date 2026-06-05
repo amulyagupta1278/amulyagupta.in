@@ -14,6 +14,8 @@ class Skill07InternalLinking(BaseSEOSkill):
         inbound = defaultdict(list)
         outbound = defaultdict(list)
         all_urls = {SITE_URL + p for p in SITE_PAGES}
+        # Normalised set used for matching (strips trailing /, resolves index.html)
+        norm_url_set = {crawler._normalize_url(u) for u in all_urls}
 
         for page in pages:
             url = page["url"]
@@ -21,19 +23,20 @@ class Skill07InternalLinking(BaseSEOSkill):
             if not soup:
                 continue
 
-            links = crawler.get_all_links(soup)
+            links = crawler.get_all_links(soup, page_url=url)
             for link in links["internal"]:
-                target = link["url"].split("?")[0].split("#")[0].rstrip("/")
-                if target in {u.rstrip("/") for u in all_urls}:
+                target = crawler._normalize_url(link["url"])
+                if target in norm_url_set:
                     outbound[url].append(link)
                     inbound[target].append({"from": url, "text": link["text"]})
 
-        # Orphan pages (no inbound links)
+        # Orphan pages (no inbound links) — skip homepage
+        homepage_norm = crawler._normalize_url(SITE_URL + "/")
         for page_url in all_urls:
-            norm = page_url.rstrip("/")
-            if norm == SITE_URL and page_url in {SITE_URL + "/", SITE_URL}:
+            norm = crawler._normalize_url(page_url)
+            if norm == homepage_norm:
                 continue
-            if not inbound.get(norm) and not inbound.get(page_url):
+            if not inbound.get(norm):
                 path = page_url.replace(SITE_URL, "")
                 findings.append(Finding(
                     title=f"Orphan page: {path}",
@@ -64,7 +67,7 @@ class Skill07InternalLinking(BaseSEOSkill):
             soup = page.get("soup")
             if not soup:
                 continue
-            links = crawler.get_all_links(soup)
+            links = crawler.get_all_links(soup, page_url=url)
             for link in links["internal"]:
                 if link["text"].lower().strip() in generic_anchors:
                     path = url.replace(SITE_URL, "")
@@ -79,13 +82,14 @@ class Skill07InternalLinking(BaseSEOSkill):
                     ))
 
         # Pages with very few outbound links (potential link equity hoarding)
+        skip_paths = {"/privacy.html", "/contact.html"}
         for page in pages:
             url = page["url"]
             path = url.replace(SITE_URL, "")
             soup = page.get("soup")
             if not soup or page.get("status") != 200:
                 continue
-            if len(outbound.get(url, [])) == 0 and path not in ["/privacy.html", "/contact.html"]:
+            if len(outbound.get(url, [])) == 0 and path not in skip_paths:
                 findings.append(Finding(
                     title=f"No internal links on {path}",
                     description="Page has no outbound internal links, reducing link equity flow.",
