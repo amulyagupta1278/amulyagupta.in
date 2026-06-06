@@ -439,6 +439,7 @@ def run() -> None:
 
     # ── Build enriched intelligence for reporting ────────────────────────────
     runs_history = memory.load_runs()
+    issues = memory.load_issues()
     try:
         comparison = memory.get_historical_comparison(runs_history, scores)
         forecast = memory.build_predictive_forecast(scores)
@@ -497,7 +498,7 @@ def run() -> None:
         f"Score {result.score}/100 | {now.strftime('%b %d')}"
     )
     if result.critical_count > 0:
-        subject = f"[SEO CRITICAL] " + subject.lstrip("[SEO ✗] ")
+        subject = "[SEO CRITICAL] " + subject.split("] ", 1)[-1]
     email_ok = emailer.send_report(subject, html, text)
     sheets.append("seo_emails", [
         now.isoformat(), config.REPORT_EMAIL, subject,
@@ -520,7 +521,7 @@ def run() -> None:
         log.warning("Failed to append email log: %s", e)
 
     # ── Dashboard snapshot (after email log is finalized) ─────────────────────
-    issues = memory.load_issues()
+    issues = memory.load_issues()  # reload — email log now written
     snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
     log.info("Dashboard snapshot written")
 
