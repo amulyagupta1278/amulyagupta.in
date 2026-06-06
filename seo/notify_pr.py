@@ -38,7 +38,7 @@ def main() -> int:
 
     pr_body_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "pr_body.txt")
     try:
-        with open(pr_body_path) as f:
+        with open(pr_body_path, encoding='utf-8') as f:
             pr_body = f.read()
     except OSError:
         pr_body = "(PR body unavailable)"

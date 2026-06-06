@@ -437,11 +437,6 @@ def run() -> None:
         f"seo/data/runs.json", run_id,
     ])
 
-    # ── Dashboard snapshot ───────────────────────────────────────────────────
-    issues = memory.load_issues()
-    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
-    log.info("Dashboard snapshot written")
-
     # ── Build enriched intelligence for reporting ────────────────────────────
     runs_history = memory.load_runs()
     try:
@@ -468,7 +463,7 @@ def run() -> None:
             alert_html, alert_text = emailer.build_critical_incident_alert(
                 run_id, skill_id, findings_dicts
             )
-            emailer.send_report(
+            critical_alert_sent = emailer.send_report(
                 f"[SEO CRITICAL] {result.critical_count} critical issue(s) — "
                 f"Skill {skill_id} | {skill_name} | {now.strftime('%b %d')}",
                 alert_html,
@@ -478,7 +473,7 @@ def run() -> None:
                 "date": now.isoformat(),
                 "type": "critical_alert",
                 "subject": f"[SEO CRITICAL] {result.critical_count} critical issue(s) — Skill {skill_id}",
-                "status": "sent",
+                "status": "sent" if critical_alert_sent else "failed",
                 "run_id": run_id,
                 "skill_id": skill_id,
                 "skill_name": skill_name,
@@ -510,16 +505,24 @@ def run() -> None:
         "" if email_ok else "Check GMAIL credentials",
         run_id,
     ])
-    memory.append_email_log({
-        "date": now.isoformat(),
-        "type": "morning_brief",
-        "subject": subject,
-        "status": "sent" if email_ok else "failed",
-        "run_id": run_id,
-        "skill_id": skill_id,
-        "skill_name": skill_name,
-        "score": result.score,
-    })
+    try:
+        memory.append_email_log({
+            "date": now.isoformat(),
+            "type": "morning_brief",
+            "subject": subject,
+            "status": "sent" if email_ok else "failed",
+            "run_id": run_id,
+            "skill_id": skill_id,
+            "skill_name": skill_name,
+            "score": result.score,
+        })
+    except Exception as e:
+        log.warning("Failed to append email log: %s", e)
+
+    # ── Dashboard snapshot (after email log is finalized) ─────────────────────
+    issues = memory.load_issues()
+    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
+    log.info("Dashboard snapshot written")
 
     # ── Save state ───────────────────────────────────────────────────────────
     memory.save_run_state(skill_id, run_id)

@@ -2008,9 +2008,9 @@ function renderTechnicalSEOPage(findings, issues, scores, cwvSummary, techSnapsh
     }
   }
 
-  const sitemapIssues = (techSnapshot.sitemap || []).length + (techIssueCounts.sitemap || 0);
-  const robotsIssues  = (techSnapshot.robots  || []).length + (techIssueCounts.robots  || 0);
-  const schemaIssues  = (techSnapshot.schema  || []).length + (techIssueCounts.schema  || 0);
+  const sitemapIssues = (techSnapshot.sitemap || []).length;
+  const robotsIssues  = (techSnapshot.robots  || []).length;
+  const schemaIssues  = (techSnapshot.schema  || []).length;
 
   function setStatusKpi(id, issueCount) {
     const el = document.getElementById(id);
@@ -2212,7 +2212,7 @@ function renderEmailLog(emailLog, runs) {
     date: r.date,
     type: 'morning_brief',
     subject: `[SEO] Skill ${r.skill_id}/23 — ${r.skill_name||''}`,
-    status: 'sent',
+    status: 'unknown',
     run_id: r.run_id,
     skill_id: r.skill_id,
     score: r.score,

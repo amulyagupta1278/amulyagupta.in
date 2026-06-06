@@ -466,10 +466,9 @@ def build_cwv_summary(findings: list) -> dict:
     cwv = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": [], "records": []}
     for f in findings:
         cat = f.get("category", "")
-        meta = f.get("meta", {}) or {}
         if cat == "cwv":
             for metric in ("lcp", "cls", "fid", "inp", "ttfb"):
-                val = meta.get(metric)
+                val = f.get(metric)
                 if val is not None:
                     try:
                         cwv[metric].append(float(val))
