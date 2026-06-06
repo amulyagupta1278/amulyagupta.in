@@ -531,6 +531,54 @@ def build_morning_brief(
 # Weekly Summary Email
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _build_git_activity_section(git_activity: dict) -> str:
+    if not git_activity:
+        return ""
+
+    branch = git_activity.get("branch", "?")
+    commits = git_activity.get("commits", [])
+    shortstat = git_activity.get("shortstat", "")
+
+    if not commits:
+        return ""
+
+    commit_rows = "".join(
+        f"""<tr>
+          <td style="font-family:monospace;color:#0284c7;white-space:nowrap">{c['hash']}</td>
+          <td style="color:#64748b;white-space:nowrap;font-size:11px">{c['date']}</td>
+          <td style="color:#1e293b">{c['subject']}</td>
+          <td style="color:#64748b;font-size:11px">{c['author']}</td>
+        </tr>"""
+        for c in commits
+    )
+
+    stat_html = (
+        f"<p style='margin:10px 0 0;font-size:12px;color:#64748b'>{shortstat}</p>"
+        if shortstat else ""
+    )
+
+    return f"""<div class="card">
+    <div class="card-title">Git Activity — Last 7 Days</div>
+    <p style="margin:0 0 12px;font-size:13px">
+      <strong>Branch:</strong>
+      <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px">{branch}</code>
+      &nbsp;·&nbsp; <strong>{len(commits)}</strong> commit{"s" if len(commits) != 1 else ""}
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Commit</th>
+          <th>Date</th>
+          <th>Message</th>
+          <th>Author</th>
+        </tr>
+      </thead>
+      <tbody>{commit_rows}</tbody>
+    </table>
+    {stat_html}
+  </div>"""
+
+
 def build_weekly_summary(
     runs: list,
     issues: dict,
@@ -538,6 +586,7 @@ def build_weekly_summary(
     forecast: dict,
     comparison: dict,
     recurring: list,
+    git_activity: dict = None,
 ) -> tuple[str, str]:
     import memory
     summary = memory.build_weekly_summary_data(runs, scores, issues)
@@ -587,6 +636,7 @@ def build_weekly_summary(
 
     forecast_html = _build_predictive_forecast_section(forecast)
     recurring_html = _build_recurring_issues_section(recurring)
+    git_html = _build_git_activity_section(git_activity or {})
 
     html = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">{_BASE_STYLES}</head>
@@ -664,10 +714,25 @@ def build_weekly_summary(
   <!-- Predictive Forecast -->
   {forecast_html}
 
+  <!-- Git Activity -->
+  {git_html}
+
   <div class="footer">
     SEO Runtime Bot 2.0 &nbsp;·&nbsp; amulyagupta.in &nbsp;·&nbsp; Weekly Summary
   </div>
 </div></body></html>"""
+
+    git_text = ""
+    if git_activity:
+        git_text = (
+            f"\nGIT ACTIVITY (last 7 days)\n{'='*60}\n"
+            f"Branch: {git_activity.get('branch','?')}\n"
+            f"Commits: {len(git_activity.get('commits',[]))}\n"
+        )
+        for c in git_activity.get("commits", []):
+            git_text += f"  {c['hash']} {c['date']} — {c['subject']}\n"
+        if git_activity.get("shortstat"):
+            git_text += f"\nChanges: {git_activity['shortstat']}\n"
 
     text = (
         f"SEO Weekly Intelligence Summary\n"
@@ -678,6 +743,7 @@ def build_weekly_summary(
         f"Critical Issues: {summary.get('critical_issues',0)}\n"
         f"Recurring Issues: {summary.get('recurring_issues',0)}\n\n"
         f"Forecast Trend: {forecast.get('trend','?').upper() if forecast else 'N/A'}\n"
+        f"{git_text}"
     )
 
     return html, text

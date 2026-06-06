@@ -96,6 +96,24 @@ def validate_skill_result(result) -> list[str]:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Pre-flight Checks
+# ─────────────────────────────────────────────────────────────────────────────
+
+def preflight_log() -> None:
+    """Log availability of optional secrets so failures are diagnosable in CI logs."""
+    checks = {
+        "PAGESPEED_API_KEY": bool(config.PAGESPEED_API_KEY),
+        "GOOGLE_SHEETS": bool(config.GOOGLE_SHEETS_SPREADSHEET_ID and config.GOOGLE_SERVICE_ACCOUNT_JSON),
+        "GMAIL": bool(config.GMAIL_SENDER and config.GMAIL_APP_PASSWORD),
+        "GOOGLE_SEARCH_CONSOLE": bool(getattr(config, "GOOGLE_SEARCH_CONSOLE_CREDENTIALS", None)),
+        "GOOGLE_ANALYTICS": bool(getattr(config, "GOOGLE_ANALYTICS_CREDENTIALS", None)),
+    }
+    for name, available in checks.items():
+        status = "OK" if available else "MISSING (skill may skip or degrade)"
+        log.info("Secret check %-30s %s", name, status)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Failure Handler
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -185,6 +203,7 @@ def run() -> None:
         enabled_skills,
     )
     log.info("=" * 60)
+    preflight_log()
 
     if not enabled_skills:
         log.error("No skills enabled — set ENABLED_SKILL_GROUP ≥ 1")
@@ -328,12 +347,22 @@ def run() -> None:
     log.info(result.summary_line())
     log.info("Duration: %ds", duration)
 
-    # ── Persist findings ─────────────────────────────────────────────────────
+    # ── Persist findings (batched: 1 load + 1 save regardless of finding count) ─
     findings_dicts = result.findings_as_dicts()
 
-    for finding in findings_dicts:
+    try:
+        upserted = memory.batch_upsert_issues(skill_id, findings_dicts)
+    except Exception as e:
+        log.warning("batch_upsert_issues failed, falling back to per-issue: %s", e)
+        upserted = []
+        for finding in findings_dicts:
+            try:
+                upserted.append(memory.upsert_issue(skill_id, finding))
+            except Exception as e2:
+                log.warning("Failed to persist finding: %s", e2)
+
+    for issue, finding in zip(upserted, findings_dicts):
         try:
-            issue = memory.upsert_issue(skill_id, finding)
             sheets.append("seo_issues", [
                 issue["issue_id"], issue["first_seen"], issue["last_seen"],
                 issue["skill_id"], issue["severity"], issue["category"],
@@ -349,7 +378,7 @@ def run() -> None:
                     "active", "", run_id,
                 ])
         except Exception as e:
-            log.warning("Failed to persist finding: %s", e)
+            log.warning("Failed to sync finding to Sheets: %s", e)
 
     # ── Append run record ────────────────────────────────────────────────────
     run_record = {
@@ -408,11 +437,6 @@ def run() -> None:
         f"seo/data/runs.json", run_id,
     ])
 
-    # ── Dashboard snapshot ───────────────────────────────────────────────────
-    issues = memory.load_issues()
-    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
-    log.info("Dashboard snapshot written")
-
     # ── Build enriched intelligence for reporting ────────────────────────────
     runs_history = memory.load_runs()
     try:
@@ -439,12 +463,22 @@ def run() -> None:
             alert_html, alert_text = emailer.build_critical_incident_alert(
                 run_id, skill_id, findings_dicts
             )
-            emailer.send_report(
+            critical_alert_sent = emailer.send_report(
                 f"[SEO CRITICAL] {result.critical_count} critical issue(s) — "
                 f"Skill {skill_id} | {skill_name} | {now.strftime('%b %d')}",
                 alert_html,
                 alert_text,
             )
+            memory.append_email_log({
+                "date": now.isoformat(),
+                "type": "critical_alert",
+                "subject": f"[SEO CRITICAL] {result.critical_count} critical issue(s) — Skill {skill_id}",
+                "status": "sent" if critical_alert_sent else "failed",
+                "run_id": run_id,
+                "skill_id": skill_id,
+                "skill_name": skill_name,
+                "score": result.score,
+            })
         except Exception as e:
             log.warning("Critical alert email failed: %s", e)
 
@@ -471,6 +505,24 @@ def run() -> None:
         "" if email_ok else "Check GMAIL credentials",
         run_id,
     ])
+    try:
+        memory.append_email_log({
+            "date": now.isoformat(),
+            "type": "morning_brief",
+            "subject": subject,
+            "status": "sent" if email_ok else "failed",
+            "run_id": run_id,
+            "skill_id": skill_id,
+            "skill_name": skill_name,
+            "score": result.score,
+        })
+    except Exception as e:
+        log.warning("Failed to append email log: %s", e)
+
+    # ── Dashboard snapshot (after email log is finalized) ─────────────────────
+    issues = memory.load_issues()
+    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
+    log.info("Dashboard snapshot written")
 
     # ── Save state ───────────────────────────────────────────────────────────
     memory.save_run_state(skill_id, run_id)
@@ -509,6 +561,16 @@ def run() -> None:
                 "" if cycle_ok else "Check GMAIL credentials",
                 run_id,
             ])
+            memory.append_email_log({
+                "date": now.isoformat(),
+                "type": "cycle_completion",
+                "subject": f"Cycle {completed_cycle} Completion Report — All 23 Skills",
+                "status": "sent" if cycle_ok else "failed",
+                "run_id": run_id,
+                "skill_id": 23,
+                "skill_name": skill_name,
+                "score": result.score,
+            })
             sheets.append("seo_reports", [
                 f"cycle-{completed_cycle}", now.isoformat(), 23, "cycle-completion",
                 f"Cycle {completed_cycle} Completion — All 23 Skills",

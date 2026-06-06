@@ -251,6 +251,7 @@
     <div class="nav-tabs" id="nav-tabs">
       <button class="nav-tab active" data-page="overview" onclick="switchPage('overview',this)">Overview</button>
       <button class="nav-tab" data-page="runtime" onclick="switchPage('runtime',this)">Runtime</button>
+      <button class="nav-tab" data-page="technical" onclick="switchPage('technical',this)">Technical SEO</button>
       <button class="nav-tab" data-page="issues" onclick="switchPage('issues',this)">Issues</button>
       <button class="nav-tab" data-page="ai" onclick="switchPage('ai',this)">AI Visibility</button>
       <button class="nav-tab" data-page="intelligence" onclick="switchPage('intelligence',this)">Intelligence</button>
@@ -453,6 +454,87 @@
     </div>
   </div>
 </div><!-- /page-runtime -->
+
+
+<!-- ════════════════════════════════════════════════ PAGE: TECHNICAL SEO -->
+<div class="page" id="page-technical">
+
+  <!-- Technical SEO health KPIs -->
+  <div class="g4" style="margin-bottom:20px" id="tech-kpi-grid">
+    <div class="card accent-left">
+      <div class="card-title"><span class="card-icon">🔍</span>Crawl Health</div>
+      <div class="kpi-val" id="tech-crawl" style="color:var(--green)">—</div>
+      <div class="kpi-lbl">pages reachable</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🗺️</span>Sitemap Status</div>
+      <div class="kpi-val" id="tech-sitemap" style="color:var(--green);font-size:22px">—</div>
+      <div class="kpi-lbl">sitemap.xml validity</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🤖</span>robots.txt Status</div>
+      <div class="kpi-val" id="tech-robots" style="color:var(--green);font-size:22px">—</div>
+      <div class="kpi-lbl">crawl directive health</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🏗️</span>Schema Health</div>
+      <div class="kpi-val" id="tech-schema" style="color:var(--green);font-size:22px">—</div>
+      <div class="kpi-lbl">structured data quality</div>
+    </div>
+  </div>
+
+  <!-- Core Web Vitals -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="section-hdr">
+      <div class="section-title">Core Web Vitals</div>
+      <div class="section-sub">From Skill 5 (Core Web Vitals) & Skill 15 (Page Speed Deep Dive)</div>
+    </div>
+    <div id="cwv-panel">
+      <div class="loading">Loading CWV data<span class="spinner"></span></div>
+    </div>
+  </div>
+
+  <!-- Technical systems grid -->
+  <div class="g2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Technical SEO System Status</div>
+        <div class="section-sub">robots · sitemap · canonicals · schema · redirects · indexation</div>
+      </div>
+      <div id="tech-systems-panel">
+        <div class="loading">Loading<span class="spinner"></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-hdr">
+        <div class="section-title">Indexation & Crawl Coverage</div>
+        <div class="section-sub">From Skills 1, 2, 3, 16</div>
+      </div>
+      <div id="tech-indexation-panel">
+        <div class="loading">Loading<span class="spinner"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical issues table -->
+  <div class="card">
+    <div class="section-hdr">
+      <div class="section-title">Technical SEO Issues</div>
+      <div class="section-sub">robots.txt · sitemap · canonical · schema · redirects · crawl · indexation</div>
+    </div>
+    <div class="tbl-wrap scroll-table">
+      <table>
+        <thead><tr>
+          <th>Severity</th><th>System</th><th>Issue</th><th>URL</th><th>Fix</th>
+        </tr></thead>
+        <tbody id="tech-issues-tbody">
+          <tr><td colspan="5" class="loading">Loading<span class="spinner"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /page-technical -->
 
 
 <!-- ══════════════════════════════════════════════════════════ PAGE: ISSUES -->
@@ -903,6 +985,11 @@ function renderAll(data) {
   const comparison = data.historical_comparison || {};
   const generatedAt = data.generated_at || '';
 
+  const cwvSummary = data.cwv_summary || {};
+  const emailLog = data.email_log || [];
+  const technicalSnapshot = data.technical_snapshot || {};
+  const technicalIssueCounts = data.technical_issue_counts || {};
+
   updateTimestamp(generatedAt);
   renderKPIs(summary, currentRun, scores, issues, recurring);
   renderCriticalBanner(issues);
@@ -918,6 +1005,9 @@ function renderAll(data) {
   renderSkillGrid(currentRun, scores);
   renderRunsTable(runs);
   renderTimelineChart(scores);
+
+  // Technical SEO page (new dedicated module)
+  renderTechnicalSEOPage(findings, issues, scores, cwvSummary, technicalSnapshot, technicalIssueCounts);
 
   // Issues page
   renderIssueTable(issues, recurring);
@@ -937,6 +1027,7 @@ function renderAll(data) {
 
   // Reports page
   renderReportsPage(runs, summary);
+  renderEmailLog(emailLog, runs);
 
   // Memory page
   renderMemoryPage(scores, runs, issues, recurring);
@@ -1879,6 +1970,298 @@ function renderMemoryPage(scores, runs, issues, recurring) {
       }).join('');
     }
   }
+}
+
+/* ── Technical SEO Page ───────────────────────────────────────────────────── */
+const TECH_SKILL_IDS = new Set([1, 2, 3, 4, 5, 13, 14, 15, 16]);
+const TECH_CATS = new Set(['robots','sitemap','canonical','schema','redirects','cwv','crawl','indexation']);
+const CWV_THRESHOLDS = {
+  lcp:  { good: 2500, poor: 4000, unit:'ms', label:'LCP' },
+  cls:  { good: 0.1,  poor: 0.25, unit:'',   label:'CLS' },
+  fid:  { good: 100,  poor: 300,  unit:'ms', label:'FID' },
+  inp:  { good: 200,  poor: 500,  unit:'ms', label:'INP' },
+  ttfb: { good: 800,  poor: 1800, unit:'ms', label:'TTFB' },
+};
+
+function cwvRating(metric, value) {
+  if (value == null) return { rating:'N/A', color:'var(--muted)' };
+  const t = CWV_THRESHOLDS[metric];
+  if (!t) return { rating:'?', color:'var(--muted)' };
+  if (value <= t.good) return { rating:'GOOD', color:'var(--green)' };
+  if (value <= t.poor) return { rating:'NEEDS IMPROVEMENT', color:'var(--yellow)' };
+  return { rating:'POOR', color:'var(--red)' };
+}
+
+function renderTechnicalSEOPage(findings, issues, scores, cwvSummary, techSnapshot, techIssueCounts) {
+  const techIssues = issues.filter(i => TECH_CATS.has(i.category));
+  const techFindings = findings.filter(f => TECH_CATS.has(f.category));
+
+  // ── KPI cells ──────────────────────────────────────────────────────────────
+  const crawlScore = scores.find(s => s.skill_id === 1);
+  const techCrawlEl = document.getElementById('tech-crawl');
+  if (techCrawlEl) {
+    if (crawlScore) {
+      techCrawlEl.textContent = crawlScore.score + '/100';
+      techCrawlEl.style.color = scoreColor(crawlScore.score);
+    } else {
+      techCrawlEl.textContent = '—';
+    }
+  }
+
+  const sitemapIssues = (techSnapshot.sitemap || []).length;
+  const robotsIssues  = (techSnapshot.robots  || []).length;
+  const schemaIssues  = (techSnapshot.schema  || []).length;
+
+  function setStatusKpi(id, issueCount) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = issueCount === 0 ? '✓ PASS' : `✗ ${issueCount} issue${issueCount>1?'s':''}`;
+    el.style.color = issueCount === 0 ? 'var(--green)' : issueCount < 3 ? 'var(--yellow)' : 'var(--red)';
+  }
+  setStatusKpi('tech-sitemap', sitemapIssues);
+  setStatusKpi('tech-robots',  robotsIssues);
+  setStatusKpi('tech-schema',  schemaIssues);
+
+  // ── Core Web Vitals panel ──────────────────────────────────────────────────
+  const cwvEl = document.getElementById('cwv-panel');
+  if (cwvEl) {
+    const metrics = ['lcp','cls','fid','inp','ttfb'];
+    const vals = {
+      lcp:  cwvSummary.lcp_avg,
+      cls:  cwvSummary.cls_avg,
+      fid:  cwvSummary.fid_avg,
+      inp:  cwvSummary.inp_avg,
+      ttfb: cwvSummary.ttfb_avg,
+    };
+
+    // Also pull CWV from findings if cwvSummary is empty
+    if (Object.values(vals).every(v => v == null)) {
+      const cwvFindings = findings.filter(f => f.category === 'cwv' || (f.title && f.title.match(/LCP|CLS|FID|INP|TTFB/)));
+      if (!cwvFindings.length) {
+        cwvEl.innerHTML = `<div style="color:var(--muted);font-size:12px;padding:14px 0;text-align:center">
+          Core Web Vitals data appears after Skill 5 or Skill 15 runs.<br>
+          Requires PAGESPEED_API_KEY in GitHub Secrets for live measurements.
+        </div>`;
+      } else {
+        // Show CWV findings as issues
+        cwvEl.innerHTML = `<div style="color:var(--muted);font-size:12px;margin-bottom:12px">
+          Showing CWV audit findings (no live measurements yet — configure PAGESPEED_API_KEY for live data):
+        </div>` + cwvFindings.slice(0,6).map(f => `
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border2)">
+            <span class="sev sev-${f.severity||'info'}">${(f.severity||'info').toUpperCase()}</span>
+            <span style="font-size:12px;flex:1">${f.title||''}</span>
+            <span style="font-size:11px;color:var(--muted)">${(f.recommendation||'').substring(0,80)}</span>
+          </div>`).join('');
+      }
+    } else {
+      const cards = metrics.map(m => {
+        const v = vals[m];
+        const t = CWV_THRESHOLDS[m];
+        const r = cwvRating(m, v);
+        const displayVal = v == null ? '—' : (m === 'cls' ? v.toFixed(3) : Math.round(v) + t.unit);
+        return `<div style="text-align:center;background:var(--surface2);border:1px solid var(--border2);
+                            border-radius:12px;padding:18px 12px;flex:1;min-width:100px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+                      color:var(--muted);margin-bottom:8px">${t.label}</div>
+          <div style="font-size:28px;font-weight:800;color:${r.color};line-height:1">${displayVal}</div>
+          <div style="font-size:10px;font-weight:700;color:${r.color};margin-top:6px">${r.rating}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px">
+            Good ≤ ${m==='cls'?t.good:t.good+t.unit}
+          </div>
+        </div>`;
+      });
+      cwvEl.innerHTML = `<div style="display:flex;gap:12px;flex-wrap:wrap">${cards.join('')}</div>`;
+    }
+  }
+
+  // ── Technical systems status grid ──────────────────────────────────────────
+  const systemsEl = document.getElementById('tech-systems-panel');
+  if (systemsEl) {
+    const systemDefs = [
+      { cat:'robots',     label:'robots.txt',         icon:'🤖', skillIds:[2]  },
+      { cat:'sitemap',    label:'sitemap.xml',         icon:'🗺️', skillIds:[2]  },
+      { cat:'canonical',  label:'Canonical Tags',      icon:'🔗', skillIds:[3]  },
+      { cat:'schema',     label:'Structured Data',     icon:'📋', skillIds:[4]  },
+      { cat:'redirects',  label:'Redirects',           icon:'↩️', skillIds:[3]  },
+      { cat:'crawl',      label:'Crawl Health',        icon:'🕷️', skillIds:[1]  },
+      { cat:'cwv',        label:'Core Web Vitals',     icon:'⚡', skillIds:[5,15] },
+      { cat:'indexation', label:'Indexation Coverage', icon:'📇', skillIds:[16] },
+    ];
+
+    const allCatIssues = {};
+    issues.forEach(i => {
+      const cat = i.category || '';
+      if (!allCatIssues[cat]) allCatIssues[cat] = [];
+      allCatIssues[cat].push(i);
+    });
+    findings.forEach(f => {
+      const cat = f.category || '';
+      if (!allCatIssues[cat]) allCatIssues[cat] = [];
+    });
+
+    systemsEl.innerHTML = systemDefs.map(({ cat, label, icon, skillIds }) => {
+      const catIssues = allCatIssues[cat] || [];
+      const crit = catIssues.filter(i => i.severity === 'critical').length;
+      const warn = catIssues.filter(i => i.severity === 'warning').length;
+      const hasRun = skillIds.some(sid => scores.find(s => s.skill_id === sid));
+      const status = !hasRun ? '—' : crit > 0 ? '✗' : warn > 0 ? '⚠' : '✓';
+      const col = !hasRun ? 'var(--muted)' : crit > 0 ? 'var(--red)' : warn > 0 ? 'var(--yellow)' : 'var(--green)';
+      const skillLabel = skillIds.map(s => 'S'+s).join('/');
+      return `<div style="display:flex;align-items:center;justify-content:space-between;
+                          padding:10px 0;border-bottom:1px solid var(--border2)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:16px">${icon}</span>
+          <div>
+            <div style="font-size:13px;font-weight:600">${label}</div>
+            <div style="font-size:10px;color:var(--muted)">Skill ${skillLabel}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${crit ? `<span class="sev sev-critical">${crit}</span>` : ''}
+          ${warn ? `<span class="sev sev-warning">${warn}</span>` : ''}
+          <span style="font-size:20px;color:${col};font-weight:700">${status}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Indexation / Crawl panel ───────────────────────────────────────────────
+  const indexEl = document.getElementById('tech-indexation-panel');
+  if (indexEl) {
+    const crawlIssues = issues.filter(i => ['crawl','indexation','robots','sitemap'].includes(i.category));
+    const crawlScore1 = scores.find(s => s.skill_id === 1);
+    const crawlScore2 = scores.find(s => s.skill_id === 2);
+    const crawlScore16 = scores.find(s => s.skill_id === 16);
+
+    const makeScoreRow = (label, sc) => sc
+      ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px">
+          <span style="color:var(--muted)">${label}</span>
+          <strong style="color:${scoreColor(sc.score)}">${sc.score}/100</strong>
+        </div>`
+      : `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px">
+          <span style="color:var(--muted)">${label}</span>
+          <span style="color:var(--muted);font-size:11px">Not run yet</span>
+        </div>`;
+
+    indexEl.innerHTML = `
+      ${makeScoreRow('Technical Crawl Audit (S1)', crawlScore1)}
+      ${makeScoreRow('Robots & Sitemap (S2)', crawlScore2)}
+      ${makeScoreRow('Indexation Coverage (S16)', crawlScore16)}
+      <div style="margin-top:14px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px">
+          Crawl &amp; Indexation Issues
+        </div>
+        ${crawlIssues.length === 0
+          ? `<div style="color:var(--green);font-size:12px;padding:8px 0">✓ No crawl or indexation issues detected</div>`
+          : crawlIssues.slice(0,6).map(i => `
+            <div style="padding:6px 0;border-bottom:1px solid var(--border2)">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="sev sev-${i.severity||'info'}">${(i.severity||'info').toUpperCase()}</span>
+                <span style="font-size:12px">${i.title||''}</span>
+              </div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px;padding-left:4px">${i.category}</div>
+            </div>`).join('')
+        }
+      </div>`;
+  }
+
+  // ── Technical issues table ─────────────────────────────────────────────────
+  const techTbody = document.getElementById('tech-issues-tbody');
+  if (techTbody) {
+    // Combine findings + issues filtered to technical categories
+    const combined = [];
+    techFindings.forEach(f => combined.push({ ...f, source: 'latest' }));
+    techIssues.forEach(i => {
+      if (!combined.find(c => c.title === i.title && c.category === i.category)) {
+        combined.push({ ...i, source: 'tracked' });
+      }
+    });
+    combined.sort((a, b) => {
+      const sev = { critical: 3, warning: 2, info: 1 };
+      return (sev[b.severity] || 0) - (sev[a.severity] || 0);
+    });
+
+    if (!combined.length) {
+      techTbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">
+        No technical SEO issues detected — or technical skills have not run yet (Skills 1–5, 13–16).
+      </td></tr>`;
+    } else {
+      techTbody.innerHTML = combined.slice(0, 40).map(f => {
+        const sc = 'sev sev-' + (f.severity || 'info');
+        const url = (f.url || '').replace('https://amulyagupta.in', '') || '/';
+        const rec = (f.recommendation || '').substring(0, 100);
+        return `<tr>
+          <td><span class="${sc}">${(f.severity||'info').toUpperCase()}</span></td>
+          <td><span class="tag">${f.category||'—'}</span></td>
+          <td style="font-size:12px;max-width:240px;word-break:break-word">${f.title||''}</td>
+          <td style="font-family:monospace;font-size:10px;color:var(--muted)">${url}</td>
+          <td style="font-size:11px;color:var(--muted);max-width:200px">${rec}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+}
+
+/* ── Email delivery log (Reports page) ────────────────────────────────────── */
+function renderEmailLog(emailLog, runs) {
+  const el = document.getElementById('email-log');
+  if (!el) return;
+
+  // Use local email log if available, otherwise infer from runs
+  const entries = emailLog.length > 0 ? emailLog : runs.map(r => ({
+    date: r.date,
+    type: 'morning_brief',
+    subject: `[SEO] Skill ${r.skill_id}/23 — ${r.skill_name||''}`,
+    status: 'unknown',
+    run_id: r.run_id,
+    skill_id: r.skill_id,
+    score: r.score,
+  }));
+
+  const recent = [...entries].reverse().slice(0, 15);
+  const sentCount = entries.filter(e => e.status === 'sent').length;
+  const failedCount = entries.filter(e => e.status === 'failed').length;
+
+  // Update email rate KPI accurately
+  const rateEl = document.getElementById('rpt-email-rate');
+  if (rateEl && entries.length > 0) {
+    const rate = Math.round(sentCount / entries.length * 100);
+    rateEl.textContent = rate + '%';
+    rateEl.style.color = rate >= 90 ? 'var(--green)' : rate >= 70 ? 'var(--yellow)' : 'var(--red)';
+  }
+
+  const typeIcon = { morning_brief:'📧', critical_alert:'🚨', cycle_completion:'🔁', weekly_summary:'📅', pr_notification:'🔀' };
+
+  el.innerHTML = `
+    <div style="display:flex;gap:16px;margin-bottom:14px">
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--green)">${sentCount}</div>
+        <div style="font-size:10px;color:var(--muted)">Sent</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:${failedCount>0?'var(--red)':'var(--muted)'}">${failedCount}</div>
+        <div style="font-size:10px;color:var(--muted)">Failed</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--accent)">${entries.length}</div>
+        <div style="font-size:10px;color:var(--muted)">Total</div>
+      </div>
+    </div>
+    ${recent.map(e => {
+      const d = e.date ? new Date(e.date).toLocaleDateString() : '—';
+      const icon = typeIcon[e.type] || '📧';
+      const ok = e.status === 'sent';
+      return `<div class="report-item">
+        <div class="report-icon">${icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="report-title" style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            ${e.subject || 'SEO Report'}
+          </div>
+          <div class="report-meta">${d} · Skill ${e.skill_id||'?'}/23 · Score: ${e.score||'?'}/100</div>
+        </div>
+        <span class="sev ${ok?'sev-good':'sev-critical'}" style="flex-shrink:0">${ok?'SENT':'FAILED'}</span>
+      </div>`;
+    }).join('') || `<div style="color:var(--muted);font-size:12px">No email logs yet. Logs appear after the first run.</div>`}`;
 }
 
 /* ── Auto-refresh every 5 minutes ─────────────────────────────────────────── */
