@@ -437,6 +437,9 @@ def run() -> None:
         f"seo/data/runs.json", run_id,
     ])
 
+    # ── Load issues once — used for intelligence enrichment + dashboard snapshot ─
+    issues = memory.load_issues()
+
     # ── Build enriched intelligence for reporting ────────────────────────────
     runs_history = memory.load_runs()
     try:
@@ -520,8 +523,7 @@ def run() -> None:
         log.warning("Failed to append email log: %s", e)
 
     # ── Dashboard snapshot (after email log is finalized) ─────────────────────
-    issues = memory.load_issues()
-    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
+    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues, result.metadata)
     log.info("Dashboard snapshot written")
 
     # ── Save state ───────────────────────────────────────────────────────────
