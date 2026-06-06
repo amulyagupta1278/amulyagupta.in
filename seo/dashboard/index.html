@@ -912,7 +912,17 @@ const SKILL_GROUPS = { 1:[2,6,7,12], 2:[1,4,5,13,14,15], 3:[3,8,9,10,11,16,17,18
 const PHASE_LABELS = { 1:'Phase 1 — Foundational', 2:'Phase 2 — Technical SEO', 3:'Phase 3 — All 23 Skills' };
 const AI_SKILL_IDS = new Set([11, 23]);
 const PIN_KEY = 'seo_auth_v2';
-const DATA_URL = '../data/dashboard.json';
+
+// ── PHASE 3: Google Sheets Dashboard Data Source ──────────────────────────────
+// After deploying Apps Script Web App, paste the endpoint URL here:
+// Format: https://script.google.com/macros/s/[YOUR_DEPLOYMENT_ID]/exec
+const CONFIG = {
+  dataSource: 'sheets', // 'sheets' or 'legacy' (fallback to ../data/dashboard.json)
+  sheetsEndpoint: 'https://script.google.com/macros/s/REPLACE_WITH_YOUR_SCRIPT_ID/exec',
+  legacyEndpoint: '../data/dashboard.json'
+};
+
+const DATA_URL = CONFIG.dataSource === 'sheets' ? CONFIG.sheetsEndpoint : CONFIG.legacyEndpoint;
 
 let charts = {};
 
