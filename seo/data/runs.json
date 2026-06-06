@@ -89,5 +89,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 7/23",
     "cycle": 1
+  },
+  {
+    "run_id": "17b27248",
+    "date": "2026-06-06T19:49:32.171598",
+    "skill_id": 8,
+    "skill_name": "Content Quality Audit",
+    "score": 58,
+    "issues_found": 8,
+    "issues_critical": 1,
+    "duration_s": 6,
+    "status": "completed",
+    "notes": "Group 3 | skill 8/23",
+    "cycle": 1
   }
 ]

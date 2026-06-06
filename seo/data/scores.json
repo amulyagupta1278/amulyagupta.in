@@ -68,5 +68,15 @@
     "delta": 0,
     "cycle": 1,
     "run_id": "fbc18b83"
+  },
+  {
+    "date": "2026-06-06T19:49:38.883620",
+    "skill_id": 8,
+    "skill_name": "Content Quality Audit",
+    "score": 58,
+    "prev_score": null,
+    "delta": 0,
+    "cycle": 1,
+    "run_id": "17b27248"
   }
 ]
