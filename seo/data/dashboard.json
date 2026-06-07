@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-06-06T19:49:42.727702",
+  "generated_at": "2026-06-07T00:02:21.873479",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "17b27248",
-    "date": "2026-06-06T19:49:32.171598",
-    "skill_id": 8,
-    "skill_name": "Content Quality Audit",
-    "score": 58,
-    "issues_found": 8,
-    "issues_critical": 1,
-    "duration_s": 6,
+    "run_id": "ba3ea34e",
+    "date": "2026-06-07T00:02:12.767673",
+    "skill_id": 9,
+    "skill_name": "Duplicate Content Detection",
+    "score": 100,
+    "issues_found": 0,
+    "issues_critical": 0,
+    "duration_s": 7,
     "status": "completed",
-    "notes": "Group 3 | skill 8/23",
+    "notes": "Group 3 | skill 9/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 59.9,
+    "avg_score": 64.3,
     "active_issues": 58,
     "critical_issues": 5,
     "warning_issues": 48,
-    "total_runs": 8,
+    "total_runs": 9,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 35
+    "cycle_percent": 39
   },
   "recent_runs": [
     {
@@ -128,82 +128,22 @@
       "status": "completed",
       "notes": "Group 3 | skill 8/23",
       "cycle": 1
+    },
+    {
+      "run_id": "ba3ea34e",
+      "date": "2026-06-07T00:02:12.767673",
+      "skill_id": 9,
+      "skill_name": "Duplicate Content Detection",
+      "score": 100,
+      "issues_found": 0,
+      "issues_critical": 0,
+      "duration_s": 7,
+      "status": "completed",
+      "notes": "Group 3 | skill 9/23",
+      "cycle": 1
     }
   ],
-  "latest_findings": [
-    {
-      "title": "Below-ideal content length: / (534 words)",
-      "description": "534 words \u2014 aim for 600+ words for better ranking potential.",
-      "severity": "warning",
-      "category": "content-quality",
-      "url": "https://amulyagupta.in/",
-      "recommendation": "Add more comprehensive content: examples, case studies, technical depth.",
-      "evidence": ""
-    },
-    {
-      "title": "Very difficult readability: /",
-      "description": "Flesch score 29 \u2014 content may be too complex for general readers.",
-      "severity": "info",
-      "category": "content-quality",
-      "url": "https://amulyagupta.in/",
-      "recommendation": "Simplify language, use shorter sentences and paragraphs.",
-      "evidence": ""
-    },
-    {
-      "title": "Very difficult readability: /projects.html",
-      "description": "Flesch score 16 \u2014 content may be too complex for general readers.",
-      "severity": "info",
-      "category": "content-quality",
-      "url": "https://amulyagupta.in/projects.html",
-      "recommendation": "Simplify language, use shorter sentences and paragraphs.",
-      "evidence": ""
-    },
-    {
-      "title": "Very difficult readability: /experience.html",
-      "description": "Flesch score -22 \u2014 content may be too complex for general readers.",
-      "severity": "info",
-      "category": "content-quality",
-      "url": "https://amulyagupta.in/experience.html",
-      "recommendation": "Simplify language, use shorter sentences and paragraphs.",
-      "evidence": ""
-    },
-    {
-      "title": "Thin content: /contact.html (144 words)",
-      "description": "Only 144 words \u2014 below 300 threshold.",
-      "severity": "critical",
-      "category": "content-quality",
-      "url": "https://amulyagupta.in/contact.html",
-      "recommendation": "Expand content to at least 600 words with substantive, unique information.",
-      "evidence": ""
-    },
-    {
-      "title": "Very difficult readability: /contact.html",
-      "description": "Flesch score 28 \u2014 content may be too complex for general readers.",
-      "severity": "info",
-      "category": "content-quality",
-      "url": "https://amulyagupta.in/contact.html",
-      "recommendation": "Simplify language, use shorter sentences and paragraphs.",
-      "evidence": ""
-    },
-    {
-      "title": "Below-ideal content length: /blog/index.html (329 words)",
-      "description": "329 words \u2014 aim for 600+ words for better ranking potential.",
-      "severity": "warning",
-      "category": "content-quality",
-      "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Add more comprehensive content: examples, case studies, technical depth.",
-      "evidence": ""
-    },
-    {
-      "title": "Below-ideal content length: /privacy.html (534 words)",
-      "description": "534 words \u2014 aim for 600+ words for better ranking potential.",
-      "severity": "warning",
-      "category": "content-quality",
-      "url": "https://amulyagupta.in/privacy.html",
-      "recommendation": "Add more comprehensive content: examples, case studies, technical depth.",
-      "evidence": ""
-    }
-  ],
+  "latest_findings": [],
   "score_history": [
     {
       "date": "2026-05-23T23:58:42.788315",
@@ -284,6 +224,16 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "17b27248"
+    },
+    {
+      "date": "2026-06-07T00:02:20.358315",
+      "skill_id": 9,
+      "skill_name": "Duplicate Content Detection",
+      "score": 100,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "ba3ea34e"
     }
   ],
   "active_issues_list": [
@@ -940,13 +890,13 @@
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 8,
+    "position": 9,
     "total": 23,
-    "percent": 35,
+    "percent": 39,
     "cycle": 1,
-    "current_skill_id": 8,
-    "skills_completed_this_cycle": 8,
-    "next_skill_id": 9
+    "current_skill_id": 9,
+    "skills_completed_this_cycle": 9,
+    "next_skill_id": 10
   },
   "forecast": {
     "trend": "first_cycle_in_progress",
@@ -955,8 +905,8 @@
     "confidence": "low",
     "momentum": "neutral",
     "risk_level": "low",
-    "data_points": 8,
-    "cycle_status": "Cycle 1 in progress \u2014 8/23 skills run",
+    "data_points": 9,
+    "cycle_status": "Cycle 1 in progress \u2014 9/23 skills run",
     "lowest_scoring_skills": [
       [
         6,
@@ -981,28 +931,28 @@
         100
       ],
       [
-        2,
-        95
+        9,
+        100
       ]
     ]
   },
   "historical_comparison": {
-    "current_skill_id": 8,
-    "current_score": 58,
+    "current_skill_id": 9,
+    "current_score": 100,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 8,
+    "current_issues_found": 0,
     "issue_delta": null,
     "skill_trend": [
-      58
+      100
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 58.0,
-    "avg_score_prev_7d": 60.1,
-    "week_over_week_delta": -2.1,
-    "total_runs_completed": 8,
+    "avg_score_last_7d": 79.0,
+    "avg_score_prev_7d": 53.5,
+    "week_over_week_delta": 25.5,
+    "total_runs_completed": 9,
     "cycle_number": 1
   },
   "cwv_summary": {
@@ -1033,6 +983,16 @@
       "skill_id": 8,
       "skill_name": "Content Quality Audit",
       "score": 58
+    },
+    {
+      "date": "2026-06-07T00:02:12.767673",
+      "type": "morning_brief",
+      "subject": "[SEO \u2713] Skill 09/23 \u2014 Duplicate Content Detection | Score 100/100 | Jun 07",
+      "status": "sent",
+      "run_id": "ba3ea34e",
+      "skill_id": 9,
+      "skill_name": "Duplicate Content Detection",
+      "score": 100
     }
   ],
   "technical_snapshot": {

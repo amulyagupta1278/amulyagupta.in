@@ -18,5 +18,15 @@
     "skill_id": 8,
     "skill_name": "Content Quality Audit",
     "score": 58
+  },
+  {
+    "date": "2026-06-07T00:02:12.767673",
+    "type": "morning_brief",
+    "subject": "[SEO \u2713] Skill 09/23 \u2014 Duplicate Content Detection | Score 100/100 | Jun 07",
+    "status": "sent",
+    "run_id": "ba3ea34e",
+    "skill_id": 9,
+    "skill_name": "Duplicate Content Detection",
+    "score": 100
   }
 ]
