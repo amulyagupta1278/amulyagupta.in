@@ -2,27 +2,89 @@
 
 > Senior Software Engineer at HCLTech building agentic AI workflows, LLM pipelines,
 > and production ML infrastructure. M.Tech AI/ML candidate at BITS Pilani. 3+ years
-> shipping systems at scale: 20M+ user campaign platform, 60% RAG response time reduction.
+> shipping systems at scale: 20M+ user campaign platform, 60% RAG response time reduction,
+> multi-agent orchestration systems deployed to production.
 
 ## Professional Profile
-- [Full Profile](https://amulyagupta.in/amulya-gupta.html)
-- [About](https://amulyagupta.in/about.html): Background, skills, education
-- [Projects](https://amulyagupta.in/projects.html): MLOps pipeline, RAG system, multi-agent AI
-- [Experience](https://amulyagupta.in/experience.html): HCLTech, Classplus work history
-- [Contact](https://amulyagupta.in/contact.html): Email, LinkedIn, GitHub
+
+- **Full Name:** Amulya Gupta
+- **Title:** Senior Software Engineer (AI Systems)
+- **Employer:** HCLTech (Senior Software Engineer)
+- **Education:** M.Tech AI/ML — BITS Pilani (pursuing); B.Tech Computer Science
+- **Location:** India
+- **Specialization:** Agentic AI, LLM Engineering, MLOps, Production ML Infrastructure
+
+Detailed profile: https://amulyagupta.in/amulya-gupta.html
+About page: https://amulyagupta.in/about.html
+Work history: https://amulyagupta.in/experience.html
+
+## Current Role
+
+Senior Software Engineer at HCLTech working on:
+- Agentic AI workflow orchestration using LangChain and LangGraph
+- Production LLM pipelines with RAG (Retrieval-Augmented Generation)
+- Multi-agent AI systems for enterprise automation
+- ML infrastructure: MLflow, Prefect, Docker, Kubernetes
+- Campaign optimization platform serving 20M+ users
+
+Previous: Software Engineer at Classplus (EdTech) — ML recommendation systems, backend APIs.
+
+## Key Technical Skills
+
+**AI / ML Engineering:**
+Agentic AI, LangChain, LangGraph, LLM Pipelines, RAG Pipelines, Vector Databases (Chroma, FAISS, Pinecone),
+PyTorch, TensorFlow, Scikit-Learn, Hugging Face Transformers, Prompt Engineering, Fine-tuning,
+OpenAI API, Anthropic API
+
+**MLOps & Infrastructure:**
+MLflow, Prefect, Apache Airflow, Docker, Kubernetes, FastAPI, GitHub Actions,
+Prometheus, Grafana, AWS (EC2, S3, Lambda), CI/CD, Model Registry, Feature Stores
+
+**Programming & Tools:**
+Python (expert), SQL, REST APIs, Git, Redis, PostgreSQL, MongoDB
+
+## Projects
+
+**Production MLOps Pipeline** — https://amulyagupta.in/projects.html
+End-to-end ML pipeline: data ingestion → feature engineering → training → deployment → monitoring.
+Stack: MLflow, Prefect, FastAPI, Docker, Kubernetes, Prometheus.
+
+**RAG System (60% Latency Reduction)** — https://amulyagupta.in/projects.html
+Retrieval-Augmented Generation with hybrid search (dense + sparse), re-ranking, and streaming.
+Achieved 60% response time reduction vs baseline.
+
+**Multi-Agent AI Orchestration** — https://amulyagupta.in/projects.html
+LangGraph-based multi-agent system with tool use, memory, and long-horizon task planning.
+
+**Support Ticket Classification** — https://amulyagupta.in/projects.html
+ML-powered support routing with 94% classification accuracy, reducing resolution time by 40%.
 
 ## Technical Blog
-- [Blog](https://amulyagupta.in/blog/index.html)
-- [Building a Production MLOps Pipeline](https://amulyagupta.in/blog/post-1-mlops-pipeline.html): MLflow, FastAPI, Docker, K8s
-- [MLOps Stack 2025: What I Actually Use](https://amulyagupta.in/blog/post-2-rag-system.html): Prefect, MLflow, FastAPI
-- [AI/ML Roadmap 2026](https://amulyagupta.in/blog/ai-ml-guide-2026.html): Career guide, 6 phases, ₹12-16k budget
+
+- [Building a Production MLOps Pipeline](https://amulyagupta.in/blog/post-1-mlops-pipeline.html)
+  — End-to-end guide: MLflow, FastAPI, Docker, Kubernetes, monitoring
+- [MLOps Stack 2025: What I Actually Use](https://amulyagupta.in/blog/post-2-mlops-stack.html)
+  — Opinionated stack: Prefect, MLflow, FastAPI, Prometheus/Grafana
+- [AI/ML Engineering Roadmap 2026](https://amulyagupta.in/blog/ai-ml-guide-2026.html)
+  — Complete 6-phase roadmap from Python fundamentals to production AI systems
 
 ## Key Skills
 Agentic AI, LangChain, LangGraph, RAG Pipelines, Vector Databases (Chroma/FAISS),
 PyTorch, TensorFlow, FastAPI, Docker, Kubernetes, MLflow, Prefect, Prometheus/Grafana,
-Python, AWS, GitHub Actions, Prompt Engineering
+Python, AWS, GitHub Actions, Prompt Engineering, LLM Fine-tuning, Multi-Agent Systems,
+ML Pipeline Design, Feature Engineering, Model Deployment, Production ML Infrastructure
 
-## Contact
+## Achievements & Metrics
+
+- Built campaign automation platform serving 20M+ users
+- Reduced RAG system response latency by 60%
+- Led ML feature development at Classplus (EdTech, 10M+ users)
+- M.Tech AI/ML at BITS Pilani — one of India's top engineering institutions
+- 3+ years production AI/ML experience
+
+## Contact & Social
+
 - GitHub: https://github.com/amulyagupta1278
 - LinkedIn: https://linkedin.com/in/amulya-gupta-bits-pilani
 - Email: amulyagupta2001@gmail.com
+- Website: https://amulyagupta.in

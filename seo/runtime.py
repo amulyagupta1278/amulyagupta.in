@@ -438,6 +438,7 @@ def run() -> None:
     ])
 
     # ── Build enriched intelligence for reporting ────────────────────────────
+    issues = memory.load_issues()
     runs_history = memory.load_runs()
     try:
         comparison = memory.get_historical_comparison(runs_history, scores)
