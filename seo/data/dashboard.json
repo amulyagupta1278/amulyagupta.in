@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-06-07T00:02:21.873479",
+  "generated_at": "2026-06-08T00:04:34.279199",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "ba3ea34e",
-    "date": "2026-06-07T00:02:12.767673",
-    "skill_id": 9,
-    "skill_name": "Duplicate Content Detection",
-    "score": 100,
-    "issues_found": 0,
+    "run_id": "3774c192",
+    "date": "2026-06-08T00:04:26.227576",
+    "skill_id": 10,
+    "skill_name": "Keyword Optimization Audit",
+    "score": 0,
+    "issues_found": 20,
     "issues_critical": 0,
-    "duration_s": 7,
+    "duration_s": 6,
     "status": "completed",
-    "notes": "Group 3 | skill 9/23",
+    "notes": "Group 3 | skill 10/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 64.3,
-    "active_issues": 58,
+    "avg_score": 57.9,
+    "active_issues": 78,
     "critical_issues": 5,
-    "warning_issues": 48,
-    "total_runs": 9,
+    "warning_issues": 62,
+    "total_runs": 10,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 39
+    "cycle_percent": 43
   },
   "recent_runs": [
     {
@@ -141,9 +141,203 @@
       "status": "completed",
       "notes": "Group 3 | skill 9/23",
       "cycle": 1
+    },
+    {
+      "run_id": "3774c192",
+      "date": "2026-06-08T00:04:26.227576",
+      "skill_id": 10,
+      "skill_name": "Keyword Optimization Audit",
+      "score": 0,
+      "issues_found": 20,
+      "issues_critical": 0,
+      "duration_s": 6,
+      "status": "completed",
+      "notes": "Group 3 | skill 10/23",
+      "cycle": 1
     }
   ],
-  "latest_findings": [],
+  "latest_findings": [
+    {
+      "title": "Primary keyword missing from meta description: /",
+      "description": "'amulya gupta' not in meta description.",
+      "severity": "info",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/",
+      "recommendation": "Naturally incorporate 'amulya gupta' in the meta description.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from meta description: /about.html",
+      "description": "'amulya gupta' not in meta description.",
+      "severity": "info",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/about.html",
+      "recommendation": "Naturally incorporate 'amulya gupta' in the meta description.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from title: /projects.html",
+      "description": "'mlops pipeline' not in title: 'Projects | Amulya Gupta \u2014 AI & MLOps Engineer'",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/projects.html",
+      "recommendation": "Include 'mlops pipeline' in the page title, ideally near the beginning.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from H1: /projects.html",
+      "description": "'mlops pipeline' not in H1 heading.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/projects.html",
+      "recommendation": "Include 'mlops pipeline' in the main H1 heading.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from meta description: /projects.html",
+      "description": "'mlops pipeline' not in meta description.",
+      "severity": "info",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/projects.html",
+      "recommendation": "Naturally incorporate 'mlops pipeline' in the meta description.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword not in body: /projects.html",
+      "description": "'mlops pipeline' not found in body content.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/projects.html",
+      "recommendation": "Use 'mlops pipeline' naturally throughout the content (aim for 1\u20132% density).",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from title: /experience.html",
+      "description": "'hcltech' not in title: 'Experience | Amulya Gupta \u2014 AI Systems Engineer'",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/experience.html",
+      "recommendation": "Include 'hcltech' in the page title, ideally near the beginning.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from H1: /experience.html",
+      "description": "'hcltech' not in H1 heading.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/experience.html",
+      "recommendation": "Include 'hcltech' in the main H1 heading.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from H1: /contact.html",
+      "description": "'contact amulya' not in H1 heading.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/contact.html",
+      "recommendation": "Include 'contact amulya' in the main H1 heading.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from meta description: /contact.html",
+      "description": "'contact amulya' not in meta description.",
+      "severity": "info",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/contact.html",
+      "recommendation": "Naturally incorporate 'contact amulya' in the meta description.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from title: /blog/index.html",
+      "description": "'ai blog' not in title: 'Blog | Amulya Gupta \u2014 AI, Agentic AI & MLOps'",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Include 'ai blog' in the page title, ideally near the beginning.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from H1: /blog/index.html",
+      "description": "'ai blog' not in H1 heading.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Include 'ai blog' in the main H1 heading.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from meta description: /blog/index.html",
+      "description": "'ai blog' not in meta description.",
+      "severity": "info",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Naturally incorporate 'ai blog' in the meta description.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword not in body: /blog/index.html",
+      "description": "'ai blog' not found in body content.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Use 'ai blog' naturally throughout the content (aim for 1\u20132% density).",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword not in body: /blog/post-1-mlops-pipeline.html",
+      "description": "'mlops pipeline' not found in body content.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
+      "recommendation": "Use 'mlops pipeline' naturally throughout the content (aim for 1\u20132% density).",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from H1: /blog/post-2-mlops-stack.html",
+      "description": "'mlops stack' not in H1 heading.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
+      "recommendation": "Include 'mlops stack' in the main H1 heading.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from title: /blog/ai-ml-guide-2026.html",
+      "description": "'ai ml guide' not in title: 'AI/ML Roadmap 2026: From Zero to Job-Ready | Amulya Gupta'",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "recommendation": "Include 'ai ml guide' in the page title, ideally near the beginning.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from H1: /blog/ai-ml-guide-2026.html",
+      "description": "'ai ml guide' not in H1 heading.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "recommendation": "Include 'ai ml guide' in the main H1 heading.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword missing from meta description: /blog/ai-ml-guide-2026.html",
+      "description": "'ai ml guide' not in meta description.",
+      "severity": "info",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "recommendation": "Naturally incorporate 'ai ml guide' in the meta description.",
+      "evidence": ""
+    },
+    {
+      "title": "Primary keyword not in body: /blog/ai-ml-guide-2026.html",
+      "description": "'ai ml guide' not found in body content.",
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
+      "recommendation": "Use 'ai ml guide' naturally throughout the content (aim for 1\u20132% density).",
+      "evidence": ""
+    }
+  ],
   "score_history": [
     {
       "date": "2026-05-23T23:58:42.788315",
@@ -234,6 +428,16 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "ba3ea34e"
+    },
+    {
+      "date": "2026-06-08T00:04:33.188501",
+      "skill_id": 10,
+      "skill_name": "Keyword Optimization Audit",
+      "score": 0,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "3774c192"
     }
   ],
   "active_issues_list": [
@@ -862,41 +1066,41 @@
       "occurrences": 1
     },
     {
-      "issue_id": "c480b3b2441f",
-      "first_seen": "2026-05-28T17:27:39.828706",
-      "last_seen": "2026-05-28T17:27:39.828706",
-      "skill_id": 6,
-      "severity": "info",
-      "category": "social",
-      "url": "https://amulyagupta.in/privacy.html",
-      "title": "Missing Twitter Card: /privacy.html",
-      "description": "No twitter:card meta tag found.",
+      "issue_id": "d9f5f34f6f63",
+      "first_seen": "2026-06-08T00:04:33.186892",
+      "last_seen": "2026-06-08T00:04:33.186892",
+      "skill_id": 10,
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/projects.html",
+      "title": "Primary keyword missing from title: /projects.html",
+      "description": "'mlops pipeline' not in title: 'Projects | Amulya Gupta \u2014 AI & MLOps Engineer'",
       "status": "active",
       "occurrences": 1
     },
     {
-      "issue_id": "e7cbdaa2dec0",
-      "first_seen": "2026-06-06T19:49:38.882239",
-      "last_seen": "2026-06-06T19:49:38.882239",
-      "skill_id": 8,
-      "severity": "info",
-      "category": "content-quality",
-      "url": "https://amulyagupta.in/",
-      "title": "Very difficult readability: /",
-      "description": "Flesch score 29 \u2014 content may be too complex for general readers.",
+      "issue_id": "7e405e533f92",
+      "first_seen": "2026-06-08T00:04:33.186892",
+      "last_seen": "2026-06-08T00:04:33.186892",
+      "skill_id": 10,
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/projects.html",
+      "title": "Primary keyword missing from H1: /projects.html",
+      "description": "'mlops pipeline' not in H1 heading.",
       "status": "active",
       "occurrences": 1
     }
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 9,
+    "position": 10,
     "total": 23,
-    "percent": 39,
+    "percent": 43,
     "cycle": 1,
-    "current_skill_id": 9,
-    "skills_completed_this_cycle": 9,
-    "next_skill_id": 10
+    "current_skill_id": 10,
+    "skills_completed_this_cycle": 10,
+    "next_skill_id": 11
   },
   "forecast": {
     "trend": "first_cycle_in_progress",
@@ -905,9 +1109,13 @@
     "confidence": "low",
     "momentum": "neutral",
     "risk_level": "low",
-    "data_points": 9,
-    "cycle_status": "Cycle 1 in progress \u2014 9/23 skills run",
+    "data_points": 10,
+    "cycle_status": "Cycle 1 in progress \u2014 10/23 skills run",
     "lowest_scoring_skills": [
+      [
+        10,
+        0
+      ],
       [
         6,
         5
@@ -915,10 +1123,6 @@
       [
         7,
         10
-      ],
-      [
-        5,
-        46
       ]
     ],
     "highest_scoring_skills": [
@@ -937,22 +1141,22 @@
     ]
   },
   "historical_comparison": {
-    "current_skill_id": 9,
-    "current_score": 100,
+    "current_skill_id": 10,
+    "current_score": 0,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 0,
+    "current_issues_found": 20,
     "issue_delta": null,
     "skill_trend": [
-      100
+      0
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 79.0,
-    "avg_score_prev_7d": 53.5,
-    "week_over_week_delta": 25.5,
-    "total_runs_completed": 9,
+    "avg_score_last_7d": 52.7,
+    "avg_score_prev_7d": 45.2,
+    "week_over_week_delta": 7.5,
+    "total_runs_completed": 10,
     "cycle_number": 1
   },
   "cwv_summary": {
@@ -993,6 +1197,16 @@
       "skill_id": 9,
       "skill_name": "Duplicate Content Detection",
       "score": 100
+    },
+    {
+      "date": "2026-06-08T00:04:26.227576",
+      "type": "morning_brief",
+      "subject": "[SEO \u2717] Skill 10/23 \u2014 Keyword Optimization Audit | Score 0/100 | Jun 08",
+      "status": "sent",
+      "run_id": "3774c192",
+      "skill_id": 10,
+      "skill_name": "Keyword Optimization Audit",
+      "score": 0
     }
   ],
   "technical_snapshot": {

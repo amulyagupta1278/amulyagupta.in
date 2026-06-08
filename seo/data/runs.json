@@ -115,5 +115,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 9/23",
     "cycle": 1
+  },
+  {
+    "run_id": "3774c192",
+    "date": "2026-06-08T00:04:26.227576",
+    "skill_id": 10,
+    "skill_name": "Keyword Optimization Audit",
+    "score": 0,
+    "issues_found": 20,
+    "issues_critical": 0,
+    "duration_s": 6,
+    "status": "completed",
+    "notes": "Group 3 | skill 10/23",
+    "cycle": 1
   }
 ]
