@@ -64,6 +64,38 @@
     ]
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is an MLOps pipeline?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "An MLOps pipeline is an automated system that manages the full lifecycle of machine learning models — from experiment tracking and training to containerised deployment, serving via an API, and continuous monitoring in production."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What tools does this MLOps pipeline use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The pipeline uses MLflow for experiment tracking and model registry, FastAPI for the inference server, Docker for containerisation, Kubernetes for orchestration and auto-scaling, Prometheus and Grafana for observability, and GitHub Actions for CI/CD."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you deploy ML models to Kubernetes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The model is packaged as a Docker image, pushed to a container registry, and deployed as a Kubernetes Deployment with a Service and HPA (Horizontal Pod Autoscaler). Health checks, rolling updates, and resource limits ensure production stability."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
@@ -255,6 +287,7 @@ async def health():
     <div class="footer-logo">AG<span>.</span> Amulya Gupta</div>
     <p class="footer-copy">© 2026 Amulya Gupta · AI Systems Engineer · BITS Pilani</p>
     <div class="footer-links">
+      <a href="/amulya-gupta.html">Profile</a>
       <a href="/sitemap.xml">Sitemap</a>
       <a href="/privacy.html">Privacy</a>
       <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>
@@ -263,6 +296,6 @@ async def health():
   </div>
 </footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js" defer></script>
 </body>
 </html>

@@ -3,6 +3,13 @@ import crawler
 from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL, SITE_PAGES
 
+# Map URL aliases produced by navigation links to their canonical SITE_PAGES URL.
+# e.g. /blog/ in nav links resolves to /blog/index.html in SITE_PAGES.
+_URL_ALIASES: dict[str, str] = {
+    SITE_URL + "/blog/": SITE_URL + "/blog/index.html",
+    SITE_URL + "/blog":  SITE_URL + "/blog/index.html",
+}
+
 
 class Skill07InternalLinking(BaseSEOSkill):
     SKILL_ID = 7
@@ -14,6 +21,12 @@ class Skill07InternalLinking(BaseSEOSkill):
         inbound = defaultdict(list)
         outbound = defaultdict(list)
         all_urls = {SITE_URL + p for p in SITE_PAGES}
+        # Normalised set used for membership tests (rstrip trailing slash).
+        norm_urls = {u.rstrip("/") for u in all_urls}
+
+        def _resolve_alias(target: str) -> str:
+            """Resolve URL aliases so nav-style /blog/ matches /blog/index.html."""
+            return _URL_ALIASES.get(target, _URL_ALIASES.get(target.rstrip("/"), target))
 
         for page in pages:
             url = page["url"]
@@ -23,15 +36,18 @@ class Skill07InternalLinking(BaseSEOSkill):
 
             links = crawler.get_all_links(soup)
             for link in links["internal"]:
-                target = link["url"].split("?")[0].split("#")[0].rstrip("/")
-                if target in {u.rstrip("/") for u in all_urls}:
+                target = _resolve_alias(
+                    link["url"].split("?")[0].split("#")[0].rstrip("/")
+                )
+                if target in norm_urls:
                     outbound[url].append(link)
                     inbound[target].append({"from": url, "text": link["text"]})
 
         # Orphan pages (no inbound links)
         for page_url in all_urls:
             norm = page_url.rstrip("/")
-            if norm == SITE_URL and page_url in {SITE_URL + "/", SITE_URL}:
+            # Skip the homepage — it's always reachable from the root.
+            if norm == SITE_URL or norm == SITE_URL.rstrip("/"):
                 continue
             if not inbound.get(norm) and not inbound.get(page_url):
                 path = page_url.replace(SITE_URL, "")

@@ -64,6 +64,38 @@
     ]
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What tools are in the MLOps stack?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The production MLOps stack includes MLflow for experiment tracking and model registry, Prefect for workflow orchestration, FastAPI for model serving, Docker and Kubernetes for containerisation, Prometheus and Grafana for monitoring, and GitHub Actions for CI/CD pipelines."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why use Prefect for ML workflow orchestration?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Prefect provides Python-native orchestration with built-in retry logic, observability, and scheduling. Unlike Airflow it requires minimal boilerplate, integrates cleanly with Python ML code, and scales from local development to production cloud environments."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you monitor ML models in production?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The stack uses Prometheus to scrape inference metrics (latency, throughput, error rate) from the FastAPI server, and Grafana dashboards for visualisation. Alerting rules trigger on latency spikes, prediction drift, or service health degradation."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
@@ -222,6 +254,7 @@
     <div class="footer-logo">AG<span>.</span> Amulya Gupta</div>
     <p class="footer-copy">© 2026 Amulya Gupta · AI Systems Engineer · BITS Pilani</p>
     <div class="footer-links">
+      <a href="/amulya-gupta.html">Profile</a>
       <a href="/sitemap.xml">Sitemap</a>
       <a href="/privacy.html">Privacy</a>
       <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>
@@ -230,6 +263,6 @@
   </div>
 </footer>
 
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js" defer></script>
 </body>
 </html>

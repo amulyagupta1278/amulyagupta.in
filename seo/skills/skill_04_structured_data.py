@@ -9,11 +9,20 @@ EXPECTED_SCHEMAS = {
     "/amulya-gupta.html": ["Person"],
     "/projects.html": ["ItemList"],
     "/experience.html": ["Person"],
-    "/blog/post-1-mlops-pipeline.html": ["BlogPosting", "Article"],
-    "/blog/post-2-mlops-stack.html": ["BlogPosting", "Article"],
-    "/blog/ai-ml-guide-2026.html": ["BlogPosting", "Article"],
+    # BlogPosting is a Schema.org subtype of Article — either type satisfies the requirement.
+    "/blog/post-1-mlops-pipeline.html": ["BlogPosting"],
+    "/blog/post-2-mlops-stack.html": ["BlogPosting"],
+    "/blog/ai-ml-guide-2026.html": ["BlogPosting"],
     "/blog/index.html": ["Blog", "ItemList"],
     "/contact.html": ["Person"],
+}
+
+# Schema.org type hierarchy: keys satisfy any of their listed parents.
+_SCHEMA_SUBTYPES: dict[str, list[str]] = {
+    "BlogPosting": ["Article", "CreativeWork"],
+    "NewsArticle": ["Article", "CreativeWork"],
+    "TechArticle": ["Article", "CreativeWork"],
+    "WebPage": ["CreativeWork"],
 }
 
 REQUIRED_PROPS = {
@@ -34,6 +43,13 @@ def flatten_schemas(raw: list) -> list[dict]:
         else:
             flat.append(item)
     return flat
+
+
+def _schema_satisfies(actual_type: str, required_type: str) -> bool:
+    """Return True if actual_type equals or is a Schema.org subtype of required_type."""
+    if required_type.lower() in actual_type.lower():
+        return True
+    return required_type in _SCHEMA_SUBTYPES.get(actual_type, [])
 
 
 class Skill04StructuredData(BaseSEOSkill):
@@ -73,7 +89,7 @@ class Skill04StructuredData(BaseSEOSkill):
 
             expected = EXPECTED_SCHEMAS.get(path, [])
             for exp in expected:
-                if not any(exp.lower() in str(st).lower() for st in schema_types):
+                if not any(_schema_satisfies(st, exp) for st in schema_types):
                     findings.append(Finding(
                         title=f"Missing {exp} schema: {path}",
                         description=f"Expected {exp} schema not found. Found: {schema_types}",

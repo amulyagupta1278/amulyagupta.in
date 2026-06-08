@@ -123,5 +123,8 @@ class Skill10KeywordOptimization(BaseSEOSkill):
             scores.append(page_score / max_score * 100)
 
         avg = int(sum(scores) / len(scores)) if scores else 50
-        score = self.clamp_score(avg, penalty_per_critical=10, penalty_per_warning=5, findings=findings)
+        # Use a lighter per-warning penalty here — keyword issues are informational
+        # optimisations rather than technical errors, so a 2-point deduction per
+        # warning (vs the default 5) keeps scores calibrated against actual coverage.
+        score = self.clamp_score(avg, penalty_per_critical=10, penalty_per_warning=2, findings=findings)
         return self.result(score, findings, {"pages_analyzed": len(scores)})
