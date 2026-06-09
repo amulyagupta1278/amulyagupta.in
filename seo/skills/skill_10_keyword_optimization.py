@@ -13,6 +13,7 @@ PAGE_KEYWORDS = {
     "/blog/post-1-mlops-pipeline.html": ["mlops pipeline", "mlflow", "fastapi", "kubernetes"],
     "/blog/post-2-mlops-stack.html": ["mlops stack", "prefect", "mlflow"],
     "/blog/ai-ml-guide-2026.html": ["ai ml guide", "machine learning roadmap", "2026"],
+    "/blog/post-2-rag-system.html": ["rag system", "retrieval augmented generation", "vector database"],
     "/blog/index.html": ["ai blog", "machine learning blog"],
 }
 
