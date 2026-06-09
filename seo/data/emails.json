@@ -38,5 +38,15 @@
     "skill_id": 10,
     "skill_name": "Keyword Optimization Audit",
     "score": 0
+  },
+  {
+    "date": "2026-06-09T00:03:33.961110",
+    "type": "morning_brief",
+    "subject": "[SEO \u2713] Skill 11/23 \u2014 AI Search Readiness | Score 85/100 | Jun 09",
+    "status": "sent",
+    "run_id": "e1d8739c",
+    "skill_id": 11,
+    "skill_name": "AI Search Readiness",
+    "score": 85
   }
 ]

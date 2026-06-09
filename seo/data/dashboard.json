@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-06-08T00:04:34.279199",
+  "generated_at": "2026-06-09T00:03:42.654987",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "3774c192",
-    "date": "2026-06-08T00:04:26.227576",
-    "skill_id": 10,
-    "skill_name": "Keyword Optimization Audit",
-    "score": 0,
-    "issues_found": 20,
+    "run_id": "e1d8739c",
+    "date": "2026-06-09T00:03:33.961110",
+    "skill_id": 11,
+    "skill_name": "AI Search Readiness",
+    "score": 85,
+    "issues_found": 10,
     "issues_critical": 0,
-    "duration_s": 6,
+    "duration_s": 7,
     "status": "completed",
-    "notes": "Group 3 | skill 10/23",
+    "notes": "Group 3 | skill 11/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 57.9,
-    "active_issues": 78,
+    "avg_score": 60.4,
+    "active_issues": 88,
     "critical_issues": 5,
-    "warning_issues": 62,
-    "total_runs": 10,
+    "warning_issues": 65,
+    "total_runs": 11,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 43
+    "cycle_percent": 48
   },
   "recent_runs": [
     {
@@ -154,187 +154,110 @@
       "status": "completed",
       "notes": "Group 3 | skill 10/23",
       "cycle": 1
+    },
+    {
+      "run_id": "e1d8739c",
+      "date": "2026-06-09T00:03:33.961110",
+      "skill_id": 11,
+      "skill_name": "AI Search Readiness",
+      "score": 85,
+      "issues_found": 10,
+      "issues_critical": 0,
+      "duration_s": 7,
+      "status": "completed",
+      "notes": "Group 3 | skill 11/23",
+      "cycle": 1
     }
   ],
   "latest_findings": [
     {
-      "title": "Primary keyword missing from meta description: /",
-      "description": "'amulya gupta' not in meta description.",
+      "title": "Missing Speakable schema: /",
+      "description": "Speakable schema helps voice search and AI assistants identify key content.",
       "severity": "info",
-      "category": "keyword",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/",
-      "recommendation": "Naturally incorporate 'amulya gupta' in the meta description.",
+      "recommendation": "Add Speakable schema pointing to the most important content sections.",
       "evidence": ""
     },
     {
-      "title": "Primary keyword missing from meta description: /about.html",
-      "description": "'amulya gupta' not in meta description.",
+      "title": "Missing Speakable schema: /about.html",
+      "description": "Speakable schema helps voice search and AI assistants identify key content.",
       "severity": "info",
-      "category": "keyword",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/about.html",
-      "recommendation": "Naturally incorporate 'amulya gupta' in the meta description.",
+      "recommendation": "Add Speakable schema pointing to the most important content sections.",
       "evidence": ""
     },
     {
-      "title": "Primary keyword missing from title: /projects.html",
-      "description": "'mlops pipeline' not in title: 'Projects | Amulya Gupta \u2014 AI & MLOps Engineer'",
-      "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/projects.html",
-      "recommendation": "Include 'mlops pipeline' in the page title, ideally near the beginning.",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword missing from H1: /projects.html",
-      "description": "'mlops pipeline' not in H1 heading.",
-      "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/projects.html",
-      "recommendation": "Include 'mlops pipeline' in the main H1 heading.",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword missing from meta description: /projects.html",
-      "description": "'mlops pipeline' not in meta description.",
+      "title": "Person schema missing knowsAbout: /about.html",
+      "description": "knowsAbout property tells AI engines your areas of expertise.",
       "severity": "info",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/projects.html",
-      "recommendation": "Naturally incorporate 'mlops pipeline' in the meta description.",
+      "category": "ai-seo",
+      "url": "https://amulyagupta.in/about.html",
+      "recommendation": "Add knowsAbout: ['AI Engineering', 'LLMs', 'MLOps'] to Person schema.",
       "evidence": ""
     },
     {
-      "title": "Primary keyword not in body: /projects.html",
-      "description": "'mlops pipeline' not found in body content.",
-      "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/projects.html",
-      "recommendation": "Use 'mlops pipeline' naturally throughout the content (aim for 1\u20132% density).",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword missing from title: /experience.html",
-      "description": "'hcltech' not in title: 'Experience | Amulya Gupta \u2014 AI Systems Engineer'",
-      "severity": "warning",
-      "category": "keyword",
+      "title": "Person schema missing knowsAbout: /experience.html",
+      "description": "knowsAbout property tells AI engines your areas of expertise.",
+      "severity": "info",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/experience.html",
-      "recommendation": "Include 'hcltech' in the page title, ideally near the beginning.",
+      "recommendation": "Add knowsAbout: ['AI Engineering', 'LLMs', 'MLOps'] to Person schema.",
       "evidence": ""
     },
     {
-      "title": "Primary keyword missing from H1: /experience.html",
-      "description": "'hcltech' not in H1 heading.",
-      "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/experience.html",
-      "recommendation": "Include 'hcltech' in the main H1 heading.",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword missing from H1: /contact.html",
-      "description": "'contact amulya' not in H1 heading.",
-      "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/contact.html",
-      "recommendation": "Include 'contact amulya' in the main H1 heading.",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword missing from meta description: /contact.html",
-      "description": "'contact amulya' not in meta description.",
+      "title": "Missing Speakable schema: /amulya-gupta.html",
+      "description": "Speakable schema helps voice search and AI assistants identify key content.",
       "severity": "info",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/contact.html",
-      "recommendation": "Naturally incorporate 'contact amulya' in the meta description.",
+      "category": "ai-seo",
+      "url": "https://amulyagupta.in/amulya-gupta.html",
+      "recommendation": "Add Speakable schema pointing to the most important content sections.",
       "evidence": ""
     },
     {
-      "title": "Primary keyword missing from title: /blog/index.html",
-      "description": "'ai blog' not in title: 'Blog | Amulya Gupta \u2014 AI, Agentic AI & MLOps'",
-      "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Include 'ai blog' in the page title, ideally near the beginning.",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword missing from H1: /blog/index.html",
-      "description": "'ai blog' not in H1 heading.",
-      "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Include 'ai blog' in the main H1 heading.",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword missing from meta description: /blog/index.html",
-      "description": "'ai blog' not in meta description.",
+      "title": "Person schema missing knowsAbout: /contact.html",
+      "description": "knowsAbout property tells AI engines your areas of expertise.",
       "severity": "info",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Naturally incorporate 'ai blog' in the meta description.",
+      "category": "ai-seo",
+      "url": "https://amulyagupta.in/contact.html",
+      "recommendation": "Add knowsAbout: ['AI Engineering', 'LLMs', 'MLOps'] to Person schema.",
       "evidence": ""
     },
     {
-      "title": "Primary keyword not in body: /blog/index.html",
-      "description": "'ai blog' not found in body content.",
+      "title": "Missing FAQ schema on blog post: /blog/post-1-mlops-pipeline.html",
+      "description": "Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
       "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Use 'ai blog' naturally throughout the content (aim for 1\u20132% density).",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword not in body: /blog/post-1-mlops-pipeline.html",
-      "description": "'mlops pipeline' not found in body content.",
-      "severity": "warning",
-      "category": "keyword",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
-      "recommendation": "Use 'mlops pipeline' naturally throughout the content (aim for 1\u20132% density).",
+      "recommendation": "Add FAQPage JSON-LD schema with common questions and answers about the topic.",
       "evidence": ""
     },
     {
-      "title": "Primary keyword missing from H1: /blog/post-2-mlops-stack.html",
-      "description": "'mlops stack' not in H1 heading.",
+      "title": "Missing FAQ schema on blog post: /blog/post-2-mlops-stack.html",
+      "description": "Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
       "severity": "warning",
-      "category": "keyword",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
-      "recommendation": "Include 'mlops stack' in the main H1 heading.",
+      "recommendation": "Add FAQPage JSON-LD schema with common questions and answers about the topic.",
       "evidence": ""
     },
     {
-      "title": "Primary keyword missing from title: /blog/ai-ml-guide-2026.html",
-      "description": "'ai ml guide' not in title: 'AI/ML Roadmap 2026: From Zero to Job-Ready | Amulya Gupta'",
+      "title": "Missing FAQ schema on blog post: /blog/ai-ml-guide-2026.html",
+      "description": "Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
       "severity": "warning",
-      "category": "keyword",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Include 'ai ml guide' in the page title, ideally near the beginning.",
+      "recommendation": "Add FAQPage JSON-LD schema with common questions and answers about the topic.",
       "evidence": ""
     },
     {
-      "title": "Primary keyword missing from H1: /blog/ai-ml-guide-2026.html",
-      "description": "'ai ml guide' not in H1 heading.",
-      "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Include 'ai ml guide' in the main H1 heading.",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword missing from meta description: /blog/ai-ml-guide-2026.html",
-      "description": "'ai ml guide' not in meta description.",
+      "title": "AI crawler OAI-SearchBot not explicitly permitted",
+      "description": "robots.txt has no explicit Allow for OAI-SearchBot.",
       "severity": "info",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Naturally incorporate 'ai ml guide' in the meta description.",
-      "evidence": ""
-    },
-    {
-      "title": "Primary keyword not in body: /blog/ai-ml-guide-2026.html",
-      "description": "'ai ml guide' not found in body content.",
-      "severity": "warning",
-      "category": "keyword",
-      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Use 'ai ml guide' naturally throughout the content (aim for 1\u20132% density).",
+      "category": "ai-seo",
+      "url": "https://amulyagupta.in/robots.txt",
+      "recommendation": "Explicitly allow OAI-SearchBot in robots.txt for maximum AI search coverage.",
       "evidence": ""
     }
   ],
@@ -438,6 +361,16 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "3774c192"
+    },
+    {
+      "date": "2026-06-09T00:03:41.340467",
+      "skill_id": 11,
+      "skill_name": "AI Search Readiness",
+      "score": 85,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "e1d8739c"
     }
   ],
   "active_issues_list": [
@@ -1094,13 +1027,13 @@
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 10,
+    "position": 11,
     "total": 23,
-    "percent": 43,
+    "percent": 48,
     "cycle": 1,
-    "current_skill_id": 10,
-    "skills_completed_this_cycle": 10,
-    "next_skill_id": 11
+    "current_skill_id": 11,
+    "skills_completed_this_cycle": 11,
+    "next_skill_id": 12
   },
   "forecast": {
     "trend": "first_cycle_in_progress",
@@ -1109,8 +1042,8 @@
     "confidence": "low",
     "momentum": "neutral",
     "risk_level": "low",
-    "data_points": 10,
-    "cycle_status": "Cycle 1 in progress \u2014 10/23 skills run",
+    "data_points": 11,
+    "cycle_status": "Cycle 1 in progress \u2014 11/23 skills run",
     "lowest_scoring_skills": [
       [
         10,
@@ -1141,22 +1074,22 @@
     ]
   },
   "historical_comparison": {
-    "current_skill_id": 10,
-    "current_score": 0,
+    "current_skill_id": 11,
+    "current_score": 85,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 20,
+    "current_issues_found": 10,
     "issue_delta": null,
     "skill_trend": [
-      0
+      85
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 52.7,
+    "avg_score_last_7d": 60.8,
     "avg_score_prev_7d": 45.2,
-    "week_over_week_delta": 7.5,
-    "total_runs_completed": 10,
+    "week_over_week_delta": 15.5,
+    "total_runs_completed": 11,
     "cycle_number": 1
   },
   "cwv_summary": {
@@ -1207,6 +1140,16 @@
       "skill_id": 10,
       "skill_name": "Keyword Optimization Audit",
       "score": 0
+    },
+    {
+      "date": "2026-06-09T00:03:33.961110",
+      "type": "morning_brief",
+      "subject": "[SEO \u2713] Skill 11/23 \u2014 AI Search Readiness | Score 85/100 | Jun 09",
+      "status": "sent",
+      "run_id": "e1d8739c",
+      "skill_id": 11,
+      "skill_name": "AI Search Readiness",
+      "score": 85
     }
   ],
   "technical_snapshot": {

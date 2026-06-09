@@ -128,5 +128,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 10/23",
     "cycle": 1
+  },
+  {
+    "run_id": "e1d8739c",
+    "date": "2026-06-09T00:03:33.961110",
+    "skill_id": 11,
+    "skill_name": "AI Search Readiness",
+    "score": 85,
+    "issues_found": 10,
+    "issues_critical": 0,
+    "duration_s": 7,
+    "status": "completed",
+    "notes": "Group 3 | skill 11/23",
+    "cycle": 1
   }
 ]

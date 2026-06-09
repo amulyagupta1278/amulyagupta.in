@@ -98,5 +98,15 @@
     "delta": 0,
     "cycle": 1,
     "run_id": "3774c192"
+  },
+  {
+    "date": "2026-06-09T00:03:41.340467",
+    "skill_id": 11,
+    "skill_name": "AI Search Readiness",
+    "score": 85,
+    "prev_score": null,
+    "delta": 0,
+    "cycle": 1,
+    "run_id": "e1d8739c"
   }
 ]
