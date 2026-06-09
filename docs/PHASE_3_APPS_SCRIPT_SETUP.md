@@ -257,13 +257,13 @@ function doGet() {
     
     return ContentService
       .createTextOutput(JSON.stringify(snapshot))
-      .setMimeType(ContentType.JSON)
+      .setMimeType(ContentService.MimeType.JSON)
       .setHeader('Access-Control-Allow-Origin', '*');
       
   } catch (error) {
     return ContentService
       .createTextOutput(JSON.stringify({ error: error.toString() }))
-      .setMimeType(ContentType.JSON)
+      .setMimeType(ContentService.MimeType.JSON)
       .setHeader('Access-Control-Allow-Origin', '*');
   }
 }
