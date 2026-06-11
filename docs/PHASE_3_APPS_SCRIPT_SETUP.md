@@ -1,8 +1,13 @@
 # Phase 3: Google Sheets Dashboard Setup Guide
 
-**Status:** Implementation Complete (Awaiting Apps Script Deployment)  
-**Date:** 2026-06-06  
+**Status:** Live — Apps Script deployed at configured endpoint  
+**Date:** 2026-06-06 (updated 2026-06-11)  
 **Duration:** 2–3 hours total (5 min manual Google Sheets setup + remainder automated)
+
+> **⚠ Action required:** The Apps Script code in Section 2 has been significantly improved.
+> Open your Google Sheets → Extensions → Apps Script, replace the existing `Code.gs` with
+> the updated code below, then click **Deploy → Manage deployments → Edit → New version → Deploy**.
+> The dashboard will immediately reflect the improvements.
 
 ---
 
@@ -108,6 +113,24 @@ The dashboard now reads from Google Sheets via a public Apps Script Web App endp
 
 ---
 
+## Apps Script Changelog
+
+### v2 (2026-06-11) — Intelligence Upgrade
+
+| Area | Before | After |
+|------|--------|-------|
+| **Score comparison** | `score_delta: 0` always | Actual delta vs previous run of same skill |
+| **Trend direction** | `'stable'` always | Calculated from per-skill score history |
+| **Forecast** | Current avg returned as projection | Linear regression on same-skill deltas across cycles |
+| **CWV data** | Empty (never read `seo_cwv` sheet) | Populated from `seo_cwv` sheet with averages + records |
+| **Recurring issues** | Counted duplicate sheet rows | Uses `occurrences` field per unique `issue_id` |
+| **Issue deduplication** | Raw rows (many dupes per issue) | Deduplicated by `issue_id`, highest `occurrences` wins |
+| **Stats** | `runs_this_week: min(7, total)` | Actual count from last 7 days |
+| **New issues** | Always 0 | Counts issues with `first_seen` in last 7 days |
+| **Issue sorting** | Unordered | Sorted: critical → warning → info |
+
+---
+
 ## Section 2: Complete Apps Script Code
 
 Copy-paste this entire code block into `Code.gs`:
@@ -116,8 +139,7 @@ Copy-paste this entire code block into `Code.gs`:
 function doGet() {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    
-    // Helper: get sheet data as objects
+
     function getSheetData(sheetName) {
       const sheet = ss.getSheetByName(sheetName);
       if (!sheet) return [];
@@ -126,145 +148,201 @@ function doGet() {
       const headers = data[0];
       return data.slice(1).map(row => {
         const obj = {};
-        headers.forEach((header, i) => {
-          obj[header] = row[i];
-        });
+        headers.forEach((h, i) => { obj[h] = row[i]; });
         return obj;
       });
     }
-    
+
     // Load all tabs
-    const runs = getSheetData('seo_runs');
-    const scores = getSheetData('seo_scores');
-    const issues = getSheetData('seo_issues');
-    const emails = getSheetData('seo_emails');
-    const incidents = getSheetData('seo_incidents');
-    const aiVisibility = getSheetData('seo_ai_visibility');
-    const competitors = getSheetData('seo_competitors');
-    const cwv = getSheetData('seo_cwv');
-    const reports = getSheetData('seo_reports');
-    const logs = getSheetData('seo_runtime_logs');
-    
-    // Build dashboard snapshot schema
+    const runs    = getSheetData('seo_runs');
+    const scores  = getSheetData('seo_scores');
+    const issues  = getSheetData('seo_issues');
+    const emails  = getSheetData('seo_emails');
+    const cwvData = getSheetData('seo_cwv');
+
     const recentRuns = runs.slice(-30);
     const currentRun = recentRuns.length > 0 ? recentRuns[recentRuns.length - 1] : {};
-    
-    // Calculate summaries
-    const activeIssues = issues.filter(i => i.status === 'active');
-    const criticalIssues = activeIssues.filter(i => i.severity === 'critical');
-    const warningIssues = activeIssues.filter(i => i.severity === 'warning');
-    
-    const avgScore = scores.length > 0 
-      ? (scores.slice(-23).reduce((sum, s) => sum + (parseFloat(s.score) || 0), 0) / Math.min(23, scores.length)).toFixed(1)
-      : 0;
-    
-    // Get latest cycle info
-    let cycleNumber = 1;
-    let cyclePercent = 0;
-    if (recentRuns.length > 0) {
-      const lastRun = recentRuns[recentRuns.length - 1];
-      cycleNumber = parseInt(lastRun.cycle || 1);
-      const skillPos = parseInt(lastRun.skill_id || 1);
-      cyclePercent = Math.round((skillPos / 23) * 100);
-    }
-    
-    // Detect recurring issues (3+ occurrences)
-    const issueFreq = {};
+
+    // ── Deduplicate issues by issue_id — keep row with highest occurrences ──
+    const issueMap = {};
     issues.forEach(issue => {
       const key = issue.issue_id;
-      issueFreq[key] = (issueFreq[key] || 0) + 1;
-    });
-    const recurring = issues
-      .filter(i => issueFreq[i.issue_id] >= 3 && i.status === 'active')
-      .slice(-20);
-    
-    // Build category counts
-    const techCategories = {
-      'robots': [], 'sitemap': [], 'canonical': [], 'schema': [],
-      'redirects': [], 'cwv': [], 'crawl': [], 'indexation': []
-    };
-    const techIssueCounts = {};
-    
-    issues.forEach(issue => {
-      const cat = issue.category || '';
-      if (cat in techCategories) {
-        techIssueCounts[cat] = (techIssueCounts[cat] || 0) + 1;
+      if (!key) return;
+      const occ = parseInt(issue.occurrences) || 1;
+      if (!issueMap[key] || (parseInt(issueMap[key].occurrences) || 1) < occ) {
+        issueMap[key] = issue;
       }
     });
-    
-    // Placeholder forecast & comparison
-    const forecast = {
-      trend: 'stable',
-      projected_score_7d: Math.round(avgScore),
-      projected_score_30d: Math.round(avgScore),
-      confidence: 'medium',
+    const uniqueIssues   = Object.values(issueMap);
+    const activeIssues   = uniqueIssues.filter(i => String(i.status).toLowerCase() === 'active');
+    const criticalIssues = activeIssues.filter(i => i.severity === 'critical');
+    const warningIssues  = activeIssues.filter(i => i.severity === 'warning');
+
+    // Recurring: active issues with occurrences >= 3
+    const recurring = activeIssues
+      .filter(i => (parseInt(i.occurrences) || 1) >= 3)
+      .slice(0, 20);
+
+    // Average score from last 23 skill runs
+    const last23 = scores.slice(-23);
+    const avgScore = last23.length > 0
+      ? (last23.reduce((s, r) => s + (parseFloat(r.score) || 0), 0) / last23.length).toFixed(1)
+      : '0';
+
+    // Cycle info
+    let cycleNumber = 1, cyclePercent = 0;
+    if (recentRuns.length > 0) {
+      const lastRun = recentRuns[recentRuns.length - 1];
+      cycleNumber  = parseInt(lastRun.cycle) || 1;
+      cyclePercent = Math.round(((parseInt(lastRun.skill_id) || 1) / 23) * 100);
+    }
+
+    // ── Historical comparison: current vs previous run of SAME skill ──────
+    let comparison = { prev_score: null, current_score: 0, score_delta: null, trend_direction: 'stable' };
+    if (scores.length > 0) {
+      const curr = scores[scores.length - 1];
+      comparison.current_score = parseFloat(curr.score) || 0;
+      for (let i = scores.length - 2; i >= 0; i--) {
+        if (scores[i].skill_id == curr.skill_id) {
+          const prev = parseFloat(scores[i].score) || 0;
+          comparison.prev_score      = prev;
+          comparison.score_delta     = parseFloat((comparison.current_score - prev).toFixed(1));
+          comparison.trend_direction = comparison.score_delta > 1 ? 'improving'
+                                     : comparison.score_delta < -1 ? 'declining' : 'stable';
+          break;
+        }
+      }
+    }
+
+    // ── Predictive forecast: linear trend from per-skill deltas ───────────
+    const skillCounts = {};
+    scores.forEach(s => { if (s.skill_id) skillCounts[s.skill_id] = (skillCounts[s.skill_id] || 0) + 1; });
+    const hasMultiCycle = Object.values(skillCounts).some(c => c >= 2);
+
+    // Latest score per skill for lowest/highest analysis
+    const latestBySkill = {};
+    scores.forEach(s => { if (s.skill_id) latestBySkill[s.skill_id] = parseFloat(s.score) || 0; });
+    const sortedByScore = Object.entries(latestBySkill).sort((a, b) => a[1] - b[1]);
+    const lowestSkills  = sortedByScore.slice(0, 3).map(([sid, sc]) => [parseInt(sid), sc]);
+
+    let forecast = {
+      trend: 'first_cycle_in_progress',
+      projected_score_7d: null,
+      projected_score_30d: null,
+      confidence: 'low',
       data_points: scores.length,
-      lowest_scoring_skills: []
+      cycle_status: `Cycle 1 in progress — ${scores.length}/23 skills run`,
+      lowest_scoring_skills: lowestSkills
     };
-    
-    const comparison = {
-      prev_score: scores.length > 23 ? parseInt(scores[scores.length - 24].score) : null,
-      current_score: scores.length > 0 ? parseInt(scores[scores.length - 1].score) : 0,
-      score_delta: 0,
-      trend_direction: 'stable'
-    };
-    
-    // CWV summary
+
+    if (hasMultiCycle) {
+      const skillDeltas = [];
+      Object.keys(skillCounts).forEach(sid => {
+        if (skillCounts[sid] >= 2) {
+          const ss2 = scores.filter(s => s.skill_id == sid).map(s => parseFloat(s.score) || 0);
+          skillDeltas.push(ss2[ss2.length - 1] - ss2[ss2.length - 2]);
+        }
+      });
+      const avgDelta  = skillDeltas.length > 0 ? skillDeltas.reduce((a, b) => a + b, 0) / skillDeltas.length : 0;
+      const currVal   = scores.length > 0 ? parseFloat(scores[scores.length - 1].score) || 0 : 0;
+      const maxCycles = Math.max(...Object.values(skillCounts));
+      const critRatio = sortedByScore.filter(([, sc]) => sc < 50).length / Math.max(1, sortedByScore.length);
+
+      forecast = {
+        trend: avgDelta > 1 ? 'improving' : avgDelta < -1 ? 'declining' : 'stable',
+        projected_score_7d:  Math.min(100, Math.max(0, Math.round(currVal + avgDelta * 7))),
+        projected_score_30d: Math.min(100, Math.max(0, Math.round(currVal + avgDelta * 30))),
+        confidence:   maxCycles >= 3 ? 'high' : maxCycles >= 2 ? 'medium' : 'low',
+        momentum:     avgDelta > 1 ? 'positive' : avgDelta < -1 ? 'negative' : 'neutral',
+        risk_level:   critRatio > 0.3 ? 'high' : critRatio > 0.1 ? 'medium' : 'low',
+        avg_delta_recent: parseFloat(avgDelta.toFixed(2)),
+        slope_per_day:    parseFloat((avgDelta / 23).toFixed(3)),
+        data_points:      scores.length,
+        lowest_scoring_skills: lowestSkills
+      };
+    }
+
+    // ── CWV summary from seo_cwv sheet ─────────────────────────────────────
+    const cwvAcc = { lcp: [], cls: [], fid: [], inp: [], ttfb: [] };
+    const cwvByKey = {};
+    cwvData.slice(-90).forEach(row => {
+      const metric = String(row.metric || '').toLowerCase();
+      const val    = parseFloat(row.value);
+      if (!isNaN(val) && metric in cwvAcc) cwvAcc[metric].push(val);
+      const key = `${row.url}|${String(row.date).slice(0, 10)}`;
+      if (!cwvByKey[key]) cwvByKey[key] = { url: row.url, date: row.date, device: row.device || 'mobile' };
+      if (!isNaN(val)) cwvByKey[key][metric + '_ms'] = val;
+    });
+    function avg(arr) { return arr.length > 0 ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : null; }
     const cwvSummary = {
-      lcp: [],
-      cls: [],
-      fid: [],
-      inp: [],
-      ttfb: [],
-      records: []
+      lcp_avg:  avg(cwvAcc.lcp),
+      cls_avg:  cwvAcc.cls.length > 0 ? parseFloat((cwvAcc.cls.reduce((a, b) => a + b, 0) / cwvAcc.cls.length).toFixed(3)) : null,
+      fid_avg:  avg(cwvAcc.fid),
+      inp_avg:  avg(cwvAcc.inp),
+      ttfb_avg: avg(cwvAcc.ttfb),
+      records:  Object.values(cwvByKey).slice(-20)
     };
-    
-    // Build final snapshot
+
+    // ── Technical issue counts (active only) ───────────────────────────────
+    const techCats = ['robots','sitemap','canonical','schema','redirects','cwv','crawl','indexation'];
+    const techIssueCounts = {};
+    activeIssues.forEach(issue => {
+      const cat = issue.category || '';
+      if (techCats.includes(cat)) techIssueCounts[cat] = (techIssueCounts[cat] || 0) + 1;
+    });
+
+    // ── Date-range stats ───────────────────────────────────────────────────
+    const now     = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const runsThisWeek     = recentRuns.filter(r => { try { return new Date(r.date) >= weekAgo; } catch(e) { return false; } }).length;
+    const newIssuesThisWeek = uniqueIssues.filter(i => { try { return new Date(i.first_seen) >= weekAgo; } catch(e) { return false; } }).length;
+
     const snapshot = {
       generated_at: new Date().toISOString(),
       site_url: 'https://amulyagupta.in',
       current_run: currentRun,
       summary: {
-        avg_score: parseFloat(avgScore),
-        active_issues: activeIssues.length,
-        critical_issues: criticalIssues.length,
-        warning_issues: warningIssues.length,
-        total_runs: recentRuns.length,
-        recurring_issues: recurring.length,
-        cycle_number: cycleNumber,
-        cycle_percent: cyclePercent,
-        runs_this_week: Math.min(7, recentRuns.length),
-        new_issues_this_week: 0
+        avg_score:          parseFloat(avgScore),
+        active_issues:      activeIssues.length,
+        critical_issues:    criticalIssues.length,
+        warning_issues:     warningIssues.length,
+        total_runs:         recentRuns.length,
+        recurring_issues:   recurring.length,
+        cycle_number:       cycleNumber,
+        cycle_percent:      cyclePercent,
+        runs_this_week:     runsThisWeek,
+        new_issues_this_week: newIssuesThisWeek
       },
-      recent_runs: recentRuns,
+      recent_runs:    recentRuns,
       latest_findings: [],
-      score_history: scores.slice(-46),
-      active_issues_list: activeIssues.slice(0, 50),
+      score_history:  scores.slice(-46),
+      active_issues_list: activeIssues.sort((a, b) => {
+        const o = { critical: 0, warning: 1, info: 2 };
+        return (o[a.severity] || 2) - (o[b.severity] || 2);
+      }).slice(0, 50),
       recurring_issues: recurring,
       cycle_progress: {
-        position: Math.min(currentRun.skill_id || 1, 23),
+        position: Math.min(parseInt(currentRun.skill_id) || 1, 23),
         total: 23,
         percent: cyclePercent,
         cycle: cycleNumber
       },
-      forecast: forecast,
+      forecast:            forecast,
       historical_comparison: comparison,
-      cwv_summary: cwvSummary,
-      email_log: emails.slice(-20),
-      technical_snapshot: techCategories,
+      cwv_summary:         cwvSummary,
+      email_log:           emails.slice(-20),
+      technical_snapshot:  {},
       technical_issue_counts: techIssueCounts
     };
-    
+
     return ContentService
       .createTextOutput(JSON.stringify(snapshot))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeader('Access-Control-Allow-Origin', '*');
-      
+      .setMimeType(ContentService.MimeType.JSON);
+
   } catch (error) {
     return ContentService
       .createTextOutput(JSON.stringify({ error: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeader('Access-Control-Allow-Origin', '*');
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 ```

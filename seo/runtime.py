@@ -397,11 +397,14 @@ def run() -> None:
     sheets.append("seo_runs", list(run_record.values()))
 
     # ── Score history ────────────────────────────────────────────────────────
-    memory.append_score(skill_id, skill_name, result.score, run_id)
+    score_delta = memory.append_score(skill_id, skill_name, result.score, run_id)
     scores = memory.load_score_history()
+    latest_score_entry = scores[-1] if scores else {}
     sheets.append("seo_scores", [
         now.isoformat(), skill_id, skill_name, result.score,
-        result.score, 0, config.ENABLED_SKILL_GROUP, run_id,
+        latest_score_entry.get("prev_score", ""),
+        score_delta,
+        memory.get_cycle_number(), run_id,
     ])
 
     # ── Specialty tracking ───────────────────────────────────────────────────

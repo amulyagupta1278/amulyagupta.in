@@ -474,6 +474,7 @@ def build_cwv_summary(findings: list) -> dict:
                         cwv[metric].append(float(val))
                     except (TypeError, ValueError):
                         pass
+            meta = f.get("metadata", {})
             if meta:
                 cwv["records"].append({
                     "url": f.get("url", ""),
