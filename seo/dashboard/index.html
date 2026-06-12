@@ -970,15 +970,27 @@ function switchPage(id, btn) {
 
 /* ── Data loading ─────────────────────────────────────────────────────────── */
 async function loadData() {
-  try {
-    const r = await fetch(DATA_URL + '?t=' + Date.now());
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const data = await r.json();
-    renderAll(data);
-  } catch(e) {
-    console.warn('Failed to load dashboard data:', e.message);
-    document.getElementById('last-updated').textContent = 'Data unavailable — run the workflow to populate';
+  // Try primary source (Sheets endpoint), then fall back to local JSON
+  const sources = CONFIG.dataSource === 'sheets'
+    ? [CONFIG.sheetsEndpoint + '?t=' + Date.now(), CONFIG.legacyEndpoint]
+    : [CONFIG.legacyEndpoint];
+
+  for (const url of sources) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      if (url !== sources[0]) {
+        console.info('Primary endpoint unavailable — loaded from local fallback');
+        document.getElementById('last-updated').textContent += ' (local fallback)';
+      }
+      renderAll(data);
+      return;
+    } catch(e) {
+      console.warn('Source unavailable:', url, e.message);
+    }
   }
+  document.getElementById('last-updated').textContent = 'Data unavailable — run the SEO workflow to populate';
 }
 
 /* ── Master render ────────────────────────────────────────────────────────── */
