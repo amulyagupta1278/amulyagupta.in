@@ -72,6 +72,11 @@ permissions:
   contents: read
   pull-requests: write
 
+# Opt into Node.js 24 ahead of the June 16, 2026 forced migration
+# (actions/checkout@v4, setup-python@v5, upload-artifact@v4 all support Node 24)
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: seo-runtime
   cancel-in-progress: false
