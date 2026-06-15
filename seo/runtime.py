@@ -361,6 +361,14 @@ def run() -> None:
             except Exception as e2:
                 log.warning("Failed to persist finding: %s", e2)
 
+    # ── Auto-resolve stale issues — issues from this skill that didn't reappear ─
+    try:
+        resolved_ids = memory.resolve_stale_issues(skill_id, findings_dicts)
+        if resolved_ids:
+            log.info("Auto-resolved %d stale issue(s) from skill %d", len(resolved_ids), skill_id)
+    except Exception as e:
+        log.warning("resolve_stale_issues failed (non-fatal): %s", e)
+
     for issue, finding in zip(upserted, findings_dicts):
         try:
             sheets.append("seo_issues", [
@@ -484,29 +492,29 @@ def run() -> None:
             log.warning("Critical alert email failed: %s", e)
 
     # ── Email report — Humaniser layer (post-execution only) ─────────────────
-    governance.assert_humaniser_scope("emailer.build_morning_brief")
-    html, text = emailer.build_morning_brief(
-        run_record, findings_dicts, skill_name, result.score,
-        comparison=comparison,
-        forecast=forecast,
-        cycle_progress=cycle_progress,
-        recurring=recurring,
-    )
-    status_icon = "✓" if result.score >= 80 else "⚠" if result.score >= 50 else "✗"
-    subject = (
-        f"[SEO {status_icon}] Skill {skill_id:02d}/23 — {skill_name} | "
-        f"Score {result.score}/100 | {now.strftime('%b %d')}"
-    )
-    if result.critical_count > 0:
-        subject = "[SEO CRITICAL] " + subject.split("] ", 1)[-1]
-    email_ok = emailer.send_report(subject, html, text)
-    sheets.append("seo_emails", [
-        now.isoformat(), config.REPORT_EMAIL, subject,
-        "sent" if email_ok else "failed",
-        "" if email_ok else "Check GMAIL credentials",
-        run_id,
-    ])
     try:
+        governance.assert_humaniser_scope("emailer.build_morning_brief")
+        html, text = emailer.build_morning_brief(
+            run_record, findings_dicts, skill_name, result.score,
+            comparison=comparison,
+            forecast=forecast,
+            cycle_progress=cycle_progress,
+            recurring=recurring,
+        )
+        status_icon = "✓" if result.score >= 80 else "⚠" if result.score >= 50 else "✗"
+        subject = (
+            f"[SEO {status_icon}] Skill {skill_id:02d}/23 — {skill_name} | "
+            f"Score {result.score}/100 | {now.strftime('%b %d')}"
+        )
+        if result.critical_count > 0:
+            subject = "[SEO CRITICAL] " + subject.split("] ", 1)[-1]
+        email_ok = emailer.send_report(subject, html, text)
+        sheets.append("seo_emails", [
+            now.isoformat(), config.REPORT_EMAIL, subject,
+            "sent" if email_ok else "failed",
+            "" if email_ok else "Check GMAIL credentials",
+            run_id,
+        ])
         memory.append_email_log({
             "date": now.isoformat(),
             "type": "morning_brief",
@@ -518,12 +526,15 @@ def run() -> None:
             "score": result.score,
         })
     except Exception as e:
-        log.warning("Failed to append email log: %s", e)
+        log.error("Morning brief reporting failed (non-fatal): %s", e)
 
     # ── Dashboard snapshot (after email log is finalized) ─────────────────────
-    issues = memory.load_issues()  # reload — email log now written
-    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
-    log.info("Dashboard snapshot written")
+    try:
+        issues = memory.load_issues()  # reload — email log now written
+        memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
+        log.info("Dashboard snapshot written")
+    except Exception as e:
+        log.error("Dashboard snapshot failed (non-fatal): %s", e)
 
     # ── Save state ───────────────────────────────────────────────────────────
     memory.save_run_state(skill_id, run_id)

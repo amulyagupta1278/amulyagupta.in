@@ -125,6 +125,31 @@ def batch_upsert_issues(skill_id: int, findings: list) -> list:
     return results
 
 
+def resolve_stale_issues(skill_id: int, new_findings: list[dict]) -> list[str]:
+    """Mark active issues from this skill as resolved if they didn't reappear.
+
+    Called after batch_upsert_issues so the same load/save cycle is distinct.
+    Returns list of resolved issue IDs for logging.
+    """
+    issues = load_issues()
+    new_ids = {
+        make_issue_id(skill_id, f.get("category", ""), f.get("url", ""), f.get("title", ""))
+        for f in new_findings
+    }
+    now = datetime.utcnow().isoformat()
+    resolved = []
+    for iid, issue in issues.items():
+        if (issue.get("skill_id") == skill_id
+                and issue.get("status") == "active"
+                and iid not in new_ids):
+            issues[iid]["status"] = "resolved"
+            issues[iid]["last_seen"] = now
+            resolved.append(iid)
+    if resolved:
+        save_issues(issues)
+    return resolved
+
+
 def load_score_history() -> list:
     return load_json("scores.json", [])
 
@@ -474,16 +499,6 @@ def build_cwv_summary(findings: list) -> dict:
                         cwv[metric].append(float(val))
                     except (TypeError, ValueError):
                         pass
-            if meta:
-                cwv["records"].append({
-                    "url": f.get("url", ""),
-                    "strategy": meta.get("strategy", "mobile"),
-                    "lcp_ms": meta.get("lcp"),
-                    "cls": meta.get("cls"),
-                    "fid_ms": meta.get("fid"),
-                    "inp_ms": meta.get("inp"),
-                    "ttfb_ms": meta.get("ttfb"),
-                })
     return {
         "lcp_avg": round(sum(cwv["lcp"]) / len(cwv["lcp"]), 0) if cwv["lcp"] else None,
         "cls_avg": round(sum(cwv["cls"]) / len(cwv["cls"]), 3) if cwv["cls"] else None,
