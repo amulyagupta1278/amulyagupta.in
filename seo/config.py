@@ -29,6 +29,7 @@ SITE_PAGES = [
     "/blog/index.html",
     "/blog/post-1-mlops-pipeline.html",
     "/blog/post-2-mlops-stack.html",
+    "/blog/post-2-rag-system.html",
     "/blog/ai-ml-guide-2026.html",
     "/privacy.html",
 ]
