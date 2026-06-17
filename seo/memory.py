@@ -461,40 +461,33 @@ def append_email_log(entry: dict):
     save_json("emails.json", entries)
 
 
-def build_cwv_summary(findings: list) -> dict:
-    """Extract Core Web Vitals from findings and produce a concise summary."""
-    cwv = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": [], "records": []}
-    for f in findings:
-        cat = f.get("category", "")
-        if cat == "cwv":
-            for metric in ("lcp", "cls", "fid", "inp", "ttfb"):
-                val = f.get(metric)
-                if val is not None:
-                    try:
-                        cwv[metric].append(float(val))
-                    except (TypeError, ValueError):
-                        pass
-            if meta:
-                cwv["records"].append({
-                    "url": f.get("url", ""),
-                    "strategy": meta.get("strategy", "mobile"),
-                    "lcp_ms": meta.get("lcp"),
-                    "cls": meta.get("cls"),
-                    "fid_ms": meta.get("fid"),
-                    "inp_ms": meta.get("inp"),
-                    "ttfb_ms": meta.get("ttfb"),
-                })
+def build_cwv_summary(findings: list, cwv_records: list = None) -> dict:
+    """Build CWV summary from skill metadata records (preferred) or degrade gracefully."""
+    cwv: dict[str, list] = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": []}
+
+    for rec in (cwv_records or []):
+        for metric, key in [
+            ("lcp", "lcp_ms"), ("cls", "cls"), ("fid", "fid_ms"),
+            ("inp", "inp_ms"), ("ttfb", "ttfb_ms"),
+        ]:
+            val = rec.get(key)
+            if val is not None:
+                try:
+                    cwv[metric].append(float(val))
+                except (TypeError, ValueError):
+                    pass
+
     return {
         "lcp_avg": round(sum(cwv["lcp"]) / len(cwv["lcp"]), 0) if cwv["lcp"] else None,
         "cls_avg": round(sum(cwv["cls"]) / len(cwv["cls"]), 3) if cwv["cls"] else None,
         "fid_avg": round(sum(cwv["fid"]) / len(cwv["fid"]), 0) if cwv["fid"] else None,
         "inp_avg": round(sum(cwv["inp"]) / len(cwv["inp"]), 0) if cwv["inp"] else None,
         "ttfb_avg": round(sum(cwv["ttfb"]) / len(cwv["ttfb"]), 0) if cwv["ttfb"] else None,
-        "records": cwv["records"][:20],
+        "records": list(cwv_records or [])[:20],
     }
 
 
-def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: dict) -> dict:
+def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: dict, skill_metadata: dict = None) -> dict:
     now = datetime.utcnow().isoformat()
     recent_runs = load_runs()[-30:]
 
@@ -518,8 +511,9 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
     # Historical comparison
     comparison = get_historical_comparison(recent_runs, scores)
 
-    # CWV summary from latest run findings
-    cwv_summary = build_cwv_summary(findings)
+    # CWV summary — use skill metadata records when available (Skills 5 & 15)
+    cwv_records = (skill_metadata or {}).get("cwv_records", [])
+    cwv_summary = build_cwv_summary(findings, cwv_records=cwv_records)
 
     # Email delivery log (last 20 entries)
     email_log = load_email_log()[-20:]
