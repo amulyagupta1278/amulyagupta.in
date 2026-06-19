@@ -450,7 +450,11 @@ def build_weekly_summary_data(runs: list, scores: list, issues: dict) -> dict:
 
 
 def load_email_log() -> list:
-    return load_json("emails.json", [])
+    data = load_json("emails.json", [])
+    if not isinstance(data, list):
+        log.error("emails.json is corrupted (expected list, got %s) — resetting", type(data).__name__)
+        return []
+    return data
 
 
 def append_email_log(entry: dict):
@@ -461,29 +465,48 @@ def append_email_log(entry: dict):
     save_json("emails.json", entries)
 
 
-def build_cwv_summary(findings: list) -> dict:
-    """Extract Core Web Vitals from findings and produce a concise summary."""
-    cwv = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": [], "records": []}
-    for f in findings:
-        cat = f.get("category", "")
-        if cat == "cwv":
-            for metric in ("lcp", "cls", "fid", "inp", "ttfb"):
-                val = f.get(metric)
+def build_cwv_summary(findings: list, skill_metadata: dict | None = None) -> dict:
+    """Extract Core Web Vitals and produce a concise summary.
+
+    CWV metrics live in skill_metadata["cwv_records"] (from Skill 5/15), not
+    in individual findings. Findings may also contain numeric fields for
+    additional aggregation when available.
+    """
+    cwv: dict[str, list] = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": [], "records": []}
+
+    # Primary source: skill metadata from Skill 5 / Skill 15
+    if skill_metadata and "cwv_records" in skill_metadata:
+        for rec in skill_metadata["cwv_records"]:
+            for metric, key in [("lcp", "lcp_ms"), ("cls", "cls"), ("fid", "fid_ms"),
+                                 ("inp", "inp_ms"), ("ttfb", "ttfb_ms")]:
+                val = rec.get(key)
                 if val is not None:
                     try:
                         cwv[metric].append(float(val))
                     except (TypeError, ValueError):
                         pass
-            if meta:
-                cwv["records"].append({
-                    "url": f.get("url", ""),
-                    "strategy": meta.get("strategy", "mobile"),
-                    "lcp_ms": meta.get("lcp"),
-                    "cls": meta.get("cls"),
-                    "fid_ms": meta.get("fid"),
-                    "inp_ms": meta.get("inp"),
-                    "ttfb_ms": meta.get("ttfb"),
-                })
+            cwv["records"].append({
+                "url": rec.get("url", ""),
+                "strategy": rec.get("strategy", "mobile"),
+                "lcp_ms": rec.get("lcp_ms"),
+                "cls": rec.get("cls"),
+                "fid_ms": rec.get("fid_ms"),
+                "inp_ms": rec.get("inp_ms"),
+                "ttfb_ms": rec.get("ttfb_ms"),
+            })
+
+    # Secondary source: numeric metric fields embedded directly in findings
+    for f in findings:
+        if f.get("category", "") != "cwv":
+            continue
+        for metric in ("lcp", "cls", "fid", "inp", "ttfb"):
+            val = f.get(metric)
+            if val is not None:
+                try:
+                    cwv[metric].append(float(val))
+                except (TypeError, ValueError):
+                    pass
+
     return {
         "lcp_avg": round(sum(cwv["lcp"]) / len(cwv["lcp"]), 0) if cwv["lcp"] else None,
         "cls_avg": round(sum(cwv["cls"]) / len(cwv["cls"]), 3) if cwv["cls"] else None,
@@ -494,7 +517,8 @@ def build_cwv_summary(findings: list) -> dict:
     }
 
 
-def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: dict) -> dict:
+def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: dict,
+                              skill_metadata: dict | None = None) -> dict:
     now = datetime.utcnow().isoformat()
     recent_runs = load_runs()[-30:]
 
@@ -518,8 +542,8 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
     # Historical comparison
     comparison = get_historical_comparison(recent_runs, scores)
 
-    # CWV summary from latest run findings
-    cwv_summary = build_cwv_summary(findings)
+    # CWV summary — primary source is skill metadata, findings provide fallback
+    cwv_summary = build_cwv_summary(findings, skill_metadata)
 
     # Email delivery log (last 20 entries)
     email_log = load_email_log()[-20:]

@@ -521,9 +521,16 @@ def run() -> None:
         log.warning("Failed to append email log: %s", e)
 
     # ── Dashboard snapshot (after email log is finalized) ─────────────────────
-    issues = memory.load_issues()  # reload — email log now written
-    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
-    log.info("Dashboard snapshot written")
+    # Wrapped in try/except so a snapshot failure never prevents save_run_state.
+    try:
+        issues = memory.load_issues()  # reload — email log now written
+        snapshot = memory.build_dashboard_snapshot(
+            run_record, findings_dicts, scores, issues,
+            skill_metadata=result.metadata,
+        )
+        log.info("Dashboard snapshot written")
+    except Exception as e:
+        log.warning("Dashboard snapshot failed (non-fatal, rotation will still advance): %s", e)
 
     # ── Save state ───────────────────────────────────────────────────────────
     memory.save_run_state(skill_id, run_id)
