@@ -64,6 +64,46 @@
     ]
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is an end-to-end MLOps pipeline?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "An end-to-end MLOps pipeline covers the full ML lifecycle: data ingestion, experiment tracking with MLflow, model training, automated testing, containerization with Docker, deployment via FastAPI, Kubernetes orchestration, and observability with Prometheus and Grafana."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you deploy a machine learning model with FastAPI and Kubernetes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Package the model as a FastAPI service, containerize it with Docker, push to a container registry, then deploy to Kubernetes using a Deployment and Service manifest. Use MLflow model registry to version and track the deployed model artifact."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is MLflow used for in production ML systems?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "MLflow tracks experiments (parameters, metrics, artifacts), registers and versions production models in the Model Registry, and provides a UI to compare runs across training jobs — making it the backbone of reproducible ML pipelines."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you monitor ML models in production?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Instrument FastAPI endpoints with Prometheus metrics (latency, prediction distribution, error rate), visualize in Grafana dashboards, and set up alerts for data drift or performance degradation. GitHub Actions CI/CD ensures model quality gates before every deployment."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 

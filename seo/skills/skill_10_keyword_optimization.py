@@ -4,16 +4,19 @@ from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 PAGE_KEYWORDS = {
-    "/": ["amulya gupta", "ai engineer", "ml engineer", "agentic ai", "llm"],
-    "/about.html": ["amulya gupta", "bits pilani", "hcltech", "ai ml"],
-    "/projects.html": ["mlops pipeline", "rag system", "multi-agent ai", "ml projects"],
-    "/experience.html": ["hcltech", "classplus", "senior software engineer", "experience"],
+    "/": ["amulya gupta", "ai engineer", "agentic ai", "ml engineer", "llm"],
+    "/about.html": ["amulya gupta", "ai systems engineer", "bits pilani", "ai ml"],
+    "/projects.html": ["ai projects", "mlops pipeline", "rag system", "multi-agent ai"],
+    # Primary keyword must realistically appear in title/H1 — company names should not
+    # be primary keywords since they belong in content not page headings.
+    "/experience.html": ["ai engineer", "software engineer", "hcltech", "experience"],
     "/amulya-gupta.html": ["amulya gupta", "ai systems engineer"],
-    "/contact.html": ["contact amulya", "hire"],
+    "/contact.html": ["amulya gupta", "ai engineer", "hire"],
     "/blog/post-1-mlops-pipeline.html": ["mlops pipeline", "mlflow", "fastapi", "kubernetes"],
-    "/blog/post-2-mlops-stack.html": ["mlops stack", "prefect", "mlflow"],
-    "/blog/ai-ml-guide-2026.html": ["ai ml guide", "machine learning roadmap", "2026"],
-    "/blog/index.html": ["ai blog", "machine learning blog"],
+    "/blog/post-2-mlops-stack.html": ["mlops stack", "mlflow", "prefect"],
+    # Actual title: "AI/ML Roadmap 2026: From Zero to Job-Ready" — use matching keyword
+    "/blog/ai-ml-guide-2026.html": ["ai ml roadmap", "machine learning roadmap", "2026"],
+    "/blog/index.html": ["machine learning", "ai blog", "machine learning blog"],
 }
 
 

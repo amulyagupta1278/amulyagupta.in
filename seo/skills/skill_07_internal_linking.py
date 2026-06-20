@@ -3,6 +3,21 @@ import crawler
 from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL, SITE_PAGES
 
+# Directory index aliases: /blog/ resolves to /blog/index.html, etc.
+# Without this, nav links like <a href="/blog/"> never register as pointing
+# to /blog/index.html, causing every blog page to appear as an orphan.
+_DIR_ALIASES: dict[str, str] = {
+    SITE_URL + "/blog/": SITE_URL + "/blog/index.html",
+    SITE_URL + "/":      SITE_URL + "/",
+}
+
+
+def _canonical(url: str) -> str:
+    """Strip query/fragment, resolve known directory aliases, strip trailing slash."""
+    u = url.split("?")[0].split("#")[0]
+    u = _DIR_ALIASES.get(u.rstrip("/") + "/", _DIR_ALIASES.get(u, u))
+    return u.rstrip("/")
+
 
 class Skill07InternalLinking(BaseSEOSkill):
     SKILL_ID = 7
@@ -14,6 +29,7 @@ class Skill07InternalLinking(BaseSEOSkill):
         inbound = defaultdict(list)
         outbound = defaultdict(list)
         all_urls = {SITE_URL + p for p in SITE_PAGES}
+        canonical_set = {_canonical(u) for u in all_urls}
 
         for page in pages:
             url = page["url"]
@@ -23,17 +39,18 @@ class Skill07InternalLinking(BaseSEOSkill):
 
             links = crawler.get_all_links(soup)
             for link in links["internal"]:
-                target = link["url"].split("?")[0].split("#")[0].rstrip("/")
-                if target in {u.rstrip("/") for u in all_urls}:
+                target = _canonical(link["url"])
+                if target in canonical_set:
                     outbound[url].append(link)
                     inbound[target].append({"from": url, "text": link["text"]})
 
         # Orphan pages (no inbound links)
         for page_url in all_urls:
-            norm = page_url.rstrip("/")
-            if norm == SITE_URL and page_url in {SITE_URL + "/", SITE_URL}:
+            canon = _canonical(page_url)
+            # Homepage is always reachable as the root; skip orphan check
+            if canon == SITE_URL:
                 continue
-            if not inbound.get(norm) and not inbound.get(page_url):
+            if not inbound.get(canon):
                 path = page_url.replace(SITE_URL, "")
                 findings.append(Finding(
                     title=f"Orphan page: {path}",

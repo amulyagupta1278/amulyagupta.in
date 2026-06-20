@@ -53,7 +53,8 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                         url=f"{SITE_URL}/robots.txt",
                         recommendation="Remove or fix the 'Disallow: /' directive to allow search engine crawling.",
                     ))
-                for bot in ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"]:
+                for bot in ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot",
+                           "Google-Extended", "Applebot-Extended"]:
                     if bot.lower() not in rb_content.lower():
                         findings.append(Finding(
                             title=f"Missing {bot} directive in robots.txt",
@@ -95,7 +96,8 @@ class Skill02RobotsSitemap(BaseSEOSkill):
                 else:
                     known_pages = {SITE_URL + p for p in ["/", "/about.html", "/projects.html",
                                    "/experience.html", "/amulya-gupta.html", "/contact.html",
-                                   "/blog/index.html", "/blog/post-1-mlops-pipeline.html",
+                                   "/privacy.html", "/blog/index.html",
+                                   "/blog/post-1-mlops-pipeline.html",
                                    "/blog/post-2-mlops-stack.html", "/blog/ai-ml-guide-2026.html"]}
                     sitemap_set = {u.rstrip("/") for u in url_texts}
                     missing = {u.rstrip("/") for u in known_pages} - sitemap_set

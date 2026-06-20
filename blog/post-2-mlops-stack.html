@@ -64,6 +64,46 @@
     ]
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What MLOps stack should I use in 2025?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A practical MLOps stack for 2025: MLflow for experiment tracking and model registry, Prefect for workflow orchestration, FastAPI for model serving, Docker and Kubernetes for containerisation and scaling, Prometheus and Grafana for observability. Each tool solves a specific gap — MLflow replaces scattered notebooks, Prefect replaces fragile cron jobs, and Kubernetes handles elastic scaling under variable inference load."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is MLflow used for in a production ML system?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "MLflow handles four concerns: experiment tracking (log parameters, metrics, and artifacts per run), the model registry (version models and manage stage transitions from staging to production), reproducibility (snapshot the environment and code alongside each run), and serving via mlflow models serve. In practice, the experiment tracking and model registry are the most valuable — they replace the chaos of manually named notebook files and make rollback trivially easy."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why use Prefect instead of Airflow for ML pipelines?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Prefect has a significantly lower operational overhead than Airflow. Airflow requires a dedicated deployment with a scheduler, webserver, and database; Prefect Cloud handles orchestration state externally while your Python runs wherever you need it. For ML pipelines specifically, Prefect's native support for dynamic task graphs (number of tasks determined at runtime) is important because data preprocessing steps often fan out based on input size. Prefect also has first-class support for retries, caching, and observability without boilerplate."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you monitor ML models in production with Prometheus and Grafana?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Instrument your FastAPI inference endpoint with the prometheus-fastapi-instrumentator library — it exposes request latency, throughput, and error rate automatically. Add custom metrics for ML-specific signals: prediction confidence histograms, feature drift (compare live feature distributions to training distributions using Population Stability Index), and label distribution shifts. Prometheus scrapes these metrics; Grafana visualises them with dashboards and alert rules. Set alerts on p95 latency and confidence score drops, which are early indicators of model degradation before accuracy metrics degrade."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
