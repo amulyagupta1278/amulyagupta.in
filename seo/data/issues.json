@@ -1142,5 +1142,57 @@
     "description": "robots.txt has no explicit Allow for OAI-SearchBot.",
     "status": "active",
     "occurrences": 1
+  },
+  "a7c3b9e1f052": {
+    "issue_id": "a7c3b9e1f052",
+    "first_seen": "2026-06-21T04:30:00.000000",
+    "last_seen": "2026-06-21T04:30:00.000000",
+    "skill_id": 12,
+    "severity": "warning",
+    "category": "headings",
+    "url": "https://amulyagupta.in/blog/index.html",
+    "title": "H1 too short: /blog/index.html",
+    "description": "H1 'Writing' is only 7 characters — not descriptive enough for SEO. Search engines use H1 as a primary relevance signal.",
+    "status": "active",
+    "occurrences": 1
+  },
+  "b4d8c2a9f163": {
+    "issue_id": "b4d8c2a9f163",
+    "first_seen": "2026-06-21T04:30:00.000000",
+    "last_seen": "2026-06-21T04:30:00.000000",
+    "skill_id": 12,
+    "severity": "warning",
+    "category": "headings",
+    "url": "https://amulyagupta.in/blog/index.html",
+    "title": "Skipped heading level H1→H3: /blog/index.html",
+    "description": "Heading hierarchy jumps from H1 to H3 — no H2 exists between them. Blog post card titles use H3 without an organizing H2 section heading.",
+    "status": "active",
+    "occurrences": 1
+  },
+  "c5e9d3b7a274": {
+    "issue_id": "c5e9d3b7a274",
+    "first_seen": "2026-06-21T04:30:00.000000",
+    "last_seen": "2026-06-21T04:30:00.000000",
+    "skill_id": 12,
+    "severity": "info",
+    "category": "headings",
+    "url": "https://amulyagupta.in/blog/index.html",
+    "title": "No H2 headings: /blog/index.html",
+    "description": "Page lacks H2 subheadings, reducing scanability and topic clarity for search engines and screen readers.",
+    "status": "active",
+    "occurrences": 1
+  },
+  "d6f0e4c8b385": {
+    "issue_id": "d6f0e4c8b385",
+    "first_seen": "2026-06-21T04:30:00.000000",
+    "last_seen": "2026-06-21T04:30:00.000000",
+    "skill_id": 12,
+    "severity": "info",
+    "category": "headings",
+    "url": "https://amulyagupta.in/amulya-gupta.html",
+    "title": "No H2 headings: /amulya-gupta.html",
+    "description": "Profile page has only an H1 and no H2 subheadings. Adding H2s improves topical structure and entity authority signals for AI search.",
+    "status": "active",
+    "occurrences": 1
   }
 }
