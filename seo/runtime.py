@@ -380,6 +380,19 @@ def run() -> None:
         except Exception as e:
             log.warning("Failed to sync finding to Sheets: %s", e)
 
+    # ── Auto-resolve stale issues — mark previously-detected issues for this skill
+    #    as resolved when they no longer appear in the current run's findings.
+    try:
+        resolved_count = memory.resolve_stale_issues(skill_id, findings_dicts)
+        if resolved_count:
+            log.info("Auto-resolved %d stale issue(s) from skill %d that were not detected this run",
+                     resolved_count, skill_id)
+            sheets.log_runtime(run_id, "INFO",
+                               f"Auto-resolved {resolved_count} stale issue(s) from skill {skill_id}",
+                               skill_id)
+    except Exception as e:
+        log.warning("resolve_stale_issues failed (non-fatal): %s", e)
+
     # ── Append run record ────────────────────────────────────────────────────
     run_record = {
         "run_id": run_id,

@@ -14,7 +14,7 @@
 ## Technical Blog
 - [Blog](https://amulyagupta.in/blog/index.html)
 - [Building a Production MLOps Pipeline](https://amulyagupta.in/blog/post-1-mlops-pipeline.html): MLflow, FastAPI, Docker, K8s
-- [MLOps Stack 2025: What I Actually Use](https://amulyagupta.in/blog/post-2-rag-system.html): Prefect, MLflow, FastAPI
+- [MLOps Stack 2025: What I Actually Use](https://amulyagupta.in/blog/post-2-mlops-stack.html): Prefect, MLflow, FastAPI
 - [AI/ML Roadmap 2026](https://amulyagupta.in/blog/ai-ml-guide-2026.html): Career guide, 6 phases, ₹12-16k budget
 
 ## Key Skills

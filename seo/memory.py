@@ -125,6 +125,31 @@ def batch_upsert_issues(skill_id: int, findings: list) -> list:
     return results
 
 
+def resolve_stale_issues(skill_id: int, current_findings: list) -> int:
+    """Mark issues from this skill that weren't detected in this run as resolved.
+
+    Call this after batch_upsert_issues. Returns the count of newly-resolved issues.
+    Issues for other skills are never touched — each skill only owns its own findings.
+    """
+    issues = load_issues()
+    current_ids = {
+        make_issue_id(skill_id, f.get("category", ""), f.get("url", ""), f.get("title", ""))
+        for f in current_findings
+    }
+    now = datetime.utcnow().isoformat()
+    resolved = 0
+    for iid, issue in issues.items():
+        if (issue.get("skill_id") == skill_id
+                and issue.get("status") == "active"
+                and iid not in current_ids):
+            issues[iid]["status"] = "resolved"
+            issues[iid]["last_seen"] = now
+            resolved += 1
+    if resolved:
+        save_issues(issues)
+    return resolved
+
+
 def load_score_history() -> list:
     return load_json("scores.json", [])
 
@@ -462,28 +487,35 @@ def append_email_log(entry: dict):
 
 
 def build_cwv_summary(findings: list) -> dict:
-    """Extract Core Web Vitals from findings and produce a concise summary."""
-    cwv = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": [], "records": []}
+    """Extract Core Web Vitals from findings and produce a concise summary.
+
+    CWV findings store metrics in the title/description, not as direct keys.
+    The records list is populated only when findings carry numeric metric fields
+    (e.g. from a future skill that stores them explicitly). The seo_cwv Sheets
+    tab receives the authoritative records via runtime.py → sheets.append().
+    """
+    cwv: dict[str, list] = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": [], "records": []}
     for f in findings:
         cat = f.get("category", "")
-        if cat == "cwv":
-            for metric in ("lcp", "cls", "fid", "inp", "ttfb"):
-                val = f.get(metric)
-                if val is not None:
-                    try:
-                        cwv[metric].append(float(val))
-                    except (TypeError, ValueError):
-                        pass
-            if meta:
-                cwv["records"].append({
-                    "url": f.get("url", ""),
-                    "strategy": meta.get("strategy", "mobile"),
-                    "lcp_ms": meta.get("lcp"),
-                    "cls": meta.get("cls"),
-                    "fid_ms": meta.get("fid"),
-                    "inp_ms": meta.get("inp"),
-                    "ttfb_ms": meta.get("ttfb"),
-                })
+        if cat != "cwv":
+            continue
+        for metric in ("lcp", "cls", "fid", "inp", "ttfb"):
+            val = f.get(metric)
+            if val is not None:
+                try:
+                    cwv[metric].append(float(val))
+                except (TypeError, ValueError):
+                    pass
+        # Build a record entry only when the finding carries raw metric values
+        # (numeric keys on the dict). CWV skill findings embed values in text;
+        # skills that expose them as direct keys will populate this list.
+        rec_metrics = {k: f.get(k) for k in ("lcp_ms", "cls", "fid_ms", "inp_ms", "ttfb_ms")}
+        if any(v is not None for v in rec_metrics.values()):
+            cwv["records"].append({
+                "url": f.get("url", ""),
+                "strategy": f.get("strategy", "mobile"),
+                **rec_metrics,
+            })
     return {
         "lcp_avg": round(sum(cwv["lcp"]) / len(cwv["lcp"]), 0) if cwv["lcp"] else None,
         "cls_avg": round(sum(cwv["cls"]) / len(cwv["cls"]), 3) if cwv["cls"] else None,
