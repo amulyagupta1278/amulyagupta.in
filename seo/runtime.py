@@ -226,6 +226,15 @@ def run() -> None:
     elif config.FORCE_INIT:
         log.info("FORCE_INIT=true — initialising all Google Sheets tabs")
         sheets.initialize_all_sheets()
+    else:
+        # Auto-detect first run: if Sheets has no prior runs, initialise all tabs
+        # This satisfies Spec §5.A without requiring a manual FORCE_INIT flag
+        try:
+            if sheets.get_last_run() is None:
+                log.info("First run detected (no prior runs in Sheets) — auto-initialising all tabs")
+                sheets.initialize_all_sheets()
+        except Exception as _init_exc:
+            log.warning("First-run auto-init check failed (non-fatal): %s", _init_exc)
 
     # ── Hard Stop 3: verify at least one persistence layer is available ───────
     try:

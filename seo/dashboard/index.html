@@ -955,6 +955,7 @@ function showDashboard() {
   document.getElementById('auth-overlay').style.display = 'none';
   document.getElementById('page-overview').classList.add('active');
   loadData();
+  startAutoRefresh();
 }
 
 document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
@@ -968,6 +969,27 @@ function switchPage(id, btn) {
   if (btn) btn.classList.add('active');
 }
 
+/* ── Auto-refresh (5 min cycle with countdown) ────────────────────────────── */
+const AUTO_REFRESH_SECONDS = 300;
+let _refreshTimer = null;
+let _refreshCountdown = 0;
+
+function startAutoRefresh() {
+  clearInterval(_refreshTimer);
+  _refreshCountdown = AUTO_REFRESH_SECONDS;
+  _refreshTimer = setInterval(() => {
+    _refreshCountdown--;
+    const badge = document.getElementById('last-updated');
+    if (_refreshCountdown <= 0) {
+      _refreshCountdown = AUTO_REFRESH_SECONDS;
+      loadData();
+    } else if (badge && !badge.textContent.startsWith('Updated')) {
+      // Only show countdown if data hasn't loaded yet
+      badge.textContent = `Auto-refresh in ${_refreshCountdown}s`;
+    }
+  }, 1000);
+}
+
 /* ── Data loading ─────────────────────────────────────────────────────────── */
 async function loadData() {
   try {
@@ -975,6 +997,7 @@ async function loadData() {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
     renderAll(data);
+    _refreshCountdown = AUTO_REFRESH_SECONDS; // reset countdown after successful load
   } catch(e) {
     console.warn('Failed to load dashboard data:', e.message);
     document.getElementById('last-updated').textContent = 'Data unavailable — run the workflow to populate';

@@ -36,16 +36,22 @@ class Skill11AISearchReadiness(BaseSEOSkill):
                     recommendation="Expand llms.txt with detailed summaries, skills, projects, and contact info.",
                 ))
 
-            required_sections = ["## Professional Profile", "## Key Skills", "## Contact"]
-            for sec in required_sections:
+            # All sections required by the llms.txt spec for personal AI profiles
+            required_sections = [
+                ("## Professional Profile", "Needed so AI systems can locate canonical profile pages"),
+                ("## Key Skills", "Required for AI engines to extract topical expertise signals"),
+                ("## Technical Blog", "Needed for AI systems to discover and cite blog content"),
+                ("## Contact", "Required for entity verification (LinkedIn, GitHub, email)"),
+            ]
+            for sec, reason in required_sections:
                 if sec.lower() not in content.lower():
                     findings.append(Finding(
                         title=f"Missing section in llms.txt: {sec}",
-                        description=f"llms.txt should include a '{sec}' section for AI comprehension.",
+                        description=f"llms.txt is missing '{sec}'. {reason}.",
                         severity="info",
                         category="ai-seo",
                         url=f"{SITE_URL}/llms.txt",
-                        recommendation=f"Add a '{sec}' section to llms.txt.",
+                        recommendation=f"Add a '{sec}' section to llms.txt with relevant links and summaries.",
                     ))
 
         # FAQ schema check on key pages
@@ -111,18 +117,29 @@ class Skill11AISearchReadiness(BaseSEOSkill):
                         ))
 
         # Check for AI crawler permissions in robots.txt
+        # Priority bots: major LLM search engines & AI citation platforms
+        AI_BOTS = [
+            ("GPTBot", "ChatGPT Search"),
+            ("OAI-SearchBot", "OpenAI SearchGPT"),
+            ("ClaudeBot", "Claude / Anthropic"),
+            ("Anthropic-AI", "Anthropic AI crawler"),
+            ("Google-Extended", "Google AI Overviews / Gemini"),
+            ("PerplexityBot", "Perplexity AI"),
+            ("DuckAssistBot", "DuckDuckGo AI Chat"),
+            ("Meta-ExternalAgent", "Meta AI / Llama"),
+        ]
         robots = crawler.fetch(f"{SITE_URL}/robots.txt")
         if robots["status"] == 200:
             content = robots.get("html", "")
-            for bot in ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "OAI-SearchBot"]:
+            for bot, platform in AI_BOTS:
                 if bot.lower() not in content.lower():
                     findings.append(Finding(
                         title=f"AI crawler {bot} not explicitly permitted",
-                        description=f"robots.txt has no explicit Allow for {bot}.",
+                        description=f"robots.txt has no explicit Allow for {bot} ({platform}).",
                         severity="info",
                         category="ai-seo",
                         url=f"{SITE_URL}/robots.txt",
-                        recommendation=f"Explicitly allow {bot} in robots.txt for maximum AI search coverage.",
+                        recommendation=f"Add 'User-agent: {bot}\\nAllow: /' to robots.txt for {platform} coverage.",
                     ))
 
         score = self.clamp_score(score, findings=findings)

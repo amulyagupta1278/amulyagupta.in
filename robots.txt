@@ -1,16 +1,36 @@
 User-agent: *
 Allow: /
 
+# ChatGPT Search
 User-agent: GPTBot
 Allow: /
 
+# OpenAI SearchGPT
+User-agent: OAI-SearchBot
+Allow: /
+
+# Claude / Anthropic
 User-agent: ClaudeBot
 Allow: /
 
+# Anthropic AI crawler
+User-agent: Anthropic-AI
+Allow: /
+
+# Google AI Overviews & Gemini
 User-agent: Google-Extended
 Allow: /
 
+# Perplexity AI
 User-agent: PerplexityBot
+Allow: /
+
+# DuckDuckGo AI Chat
+User-agent: DuckAssistBot
+Allow: /
+
+# Meta AI / Llama
+User-agent: Meta-ExternalAgent
 Allow: /
 
 Sitemap: https://amulyagupta.in/sitemap.xml
