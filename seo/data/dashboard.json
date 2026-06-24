@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-06-09T00:03:42.654987",
+  "generated_at": "2026-06-24T22:36:51.673624",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "e1d8739c",
-    "date": "2026-06-09T00:03:33.961110",
-    "skill_id": 11,
-    "skill_name": "AI Search Readiness",
-    "score": 85,
-    "issues_found": 10,
+    "run_id": "9431474e",
+    "date": "2026-06-24T22:36:51.190327",
+    "skill_id": 12,
+    "skill_name": "Heading Hierarchy Audit",
+    "score": 90,
+    "issues_found": 4,
     "issues_critical": 0,
-    "duration_s": 7,
+    "duration_s": 0,
     "status": "completed",
-    "notes": "Group 3 | skill 11/23",
+    "notes": "Group 3 | skill 12/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 60.4,
-    "active_issues": 88,
+    "avg_score": 62.8,
+    "active_issues": 92,
     "critical_issues": 5,
-    "warning_issues": 65,
-    "total_runs": 11,
+    "warning_issues": 67,
+    "total_runs": 12,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 48
+    "cycle_percent": 52
   },
   "recent_runs": [
     {
@@ -167,97 +167,56 @@
       "status": "completed",
       "notes": "Group 3 | skill 11/23",
       "cycle": 1
+    },
+    {
+      "run_id": "9431474e",
+      "date": "2026-06-24T22:36:51.190327",
+      "skill_id": 12,
+      "skill_name": "Heading Hierarchy Audit",
+      "score": 90,
+      "issues_found": 4,
+      "issues_critical": 0,
+      "duration_s": 0,
+      "status": "completed",
+      "notes": "Group 3 | skill 12/23",
+      "cycle": 1
     }
   ],
   "latest_findings": [
     {
-      "title": "Missing Speakable schema: /",
-      "description": "Speakable schema helps voice search and AI assistants identify key content.",
+      "title": "No H2 headings: /amulya-gupta.html",
+      "description": "Page lacks H2 subheadings, reducing scanability and topic clarity.",
       "severity": "info",
-      "category": "ai-seo",
-      "url": "https://amulyagupta.in/",
-      "recommendation": "Add Speakable schema pointing to the most important content sections.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing Speakable schema: /about.html",
-      "description": "Speakable schema helps voice search and AI assistants identify key content.",
-      "severity": "info",
-      "category": "ai-seo",
-      "url": "https://amulyagupta.in/about.html",
-      "recommendation": "Add Speakable schema pointing to the most important content sections.",
-      "evidence": ""
-    },
-    {
-      "title": "Person schema missing knowsAbout: /about.html",
-      "description": "knowsAbout property tells AI engines your areas of expertise.",
-      "severity": "info",
-      "category": "ai-seo",
-      "url": "https://amulyagupta.in/about.html",
-      "recommendation": "Add knowsAbout: ['AI Engineering', 'LLMs', 'MLOps'] to Person schema.",
-      "evidence": ""
-    },
-    {
-      "title": "Person schema missing knowsAbout: /experience.html",
-      "description": "knowsAbout property tells AI engines your areas of expertise.",
-      "severity": "info",
-      "category": "ai-seo",
-      "url": "https://amulyagupta.in/experience.html",
-      "recommendation": "Add knowsAbout: ['AI Engineering', 'LLMs', 'MLOps'] to Person schema.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing Speakable schema: /amulya-gupta.html",
-      "description": "Speakable schema helps voice search and AI assistants identify key content.",
-      "severity": "info",
-      "category": "ai-seo",
+      "category": "headings",
       "url": "https://amulyagupta.in/amulya-gupta.html",
-      "recommendation": "Add Speakable schema pointing to the most important content sections.",
+      "recommendation": "Add H2 subheadings to organize content into scannable sections.",
       "evidence": ""
     },
     {
-      "title": "Person schema missing knowsAbout: /contact.html",
-      "description": "knowsAbout property tells AI engines your areas of expertise.",
+      "title": "H1 too short: /blog/index.html",
+      "description": "H1 'Writing' is only 7 characters \u2014 not descriptive enough.",
+      "severity": "warning",
+      "category": "headings",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Write a more descriptive H1 that includes the primary keyword.",
+      "evidence": ""
+    },
+    {
+      "title": "Skipped heading level H1\u2192H3: /blog/index.html",
+      "description": "Heading hierarchy jumps from H1 to H3 ('AI/ML Roadmap 2026: From Zero to Job-Ready Without').",
+      "severity": "warning",
+      "category": "headings",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Don't skip heading levels. Use H2 instead of H3.",
+      "evidence": "After H1, found H3: 'AI/ML Roadmap 2026: From Zero to Job-Ready Without'"
+    },
+    {
+      "title": "No H2 headings: /blog/index.html",
+      "description": "Page lacks H2 subheadings, reducing scanability and topic clarity.",
       "severity": "info",
-      "category": "ai-seo",
-      "url": "https://amulyagupta.in/contact.html",
-      "recommendation": "Add knowsAbout: ['AI Engineering', 'LLMs', 'MLOps'] to Person schema.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing FAQ schema on blog post: /blog/post-1-mlops-pipeline.html",
-      "description": "Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
-      "severity": "warning",
-      "category": "ai-seo",
-      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
-      "recommendation": "Add FAQPage JSON-LD schema with common questions and answers about the topic.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing FAQ schema on blog post: /blog/post-2-mlops-stack.html",
-      "description": "Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
-      "severity": "warning",
-      "category": "ai-seo",
-      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
-      "recommendation": "Add FAQPage JSON-LD schema with common questions and answers about the topic.",
-      "evidence": ""
-    },
-    {
-      "title": "Missing FAQ schema on blog post: /blog/ai-ml-guide-2026.html",
-      "description": "Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
-      "severity": "warning",
-      "category": "ai-seo",
-      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Add FAQPage JSON-LD schema with common questions and answers about the topic.",
-      "evidence": ""
-    },
-    {
-      "title": "AI crawler OAI-SearchBot not explicitly permitted",
-      "description": "robots.txt has no explicit Allow for OAI-SearchBot.",
-      "severity": "info",
-      "category": "ai-seo",
-      "url": "https://amulyagupta.in/robots.txt",
-      "recommendation": "Explicitly allow OAI-SearchBot in robots.txt for maximum AI search coverage.",
+      "category": "headings",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "recommendation": "Add H2 subheadings to organize content into scannable sections.",
       "evidence": ""
     }
   ],
@@ -371,6 +330,16 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "e1d8739c"
+    },
+    {
+      "date": "2026-06-24T22:36:51.670951",
+      "skill_id": 12,
+      "skill_name": "Heading Hierarchy Audit",
+      "score": 90,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "9431474e"
     }
   ],
   "active_issues_list": [
@@ -1027,13 +996,13 @@
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 11,
+    "position": 12,
     "total": 23,
-    "percent": 48,
+    "percent": 52,
     "cycle": 1,
-    "current_skill_id": 11,
-    "skills_completed_this_cycle": 11,
-    "next_skill_id": 12
+    "current_skill_id": 12,
+    "skills_completed_this_cycle": 12,
+    "next_skill_id": 13
   },
   "forecast": {
     "trend": "first_cycle_in_progress",
@@ -1042,8 +1011,8 @@
     "confidence": "low",
     "momentum": "neutral",
     "risk_level": "low",
-    "data_points": 11,
-    "cycle_status": "Cycle 1 in progress \u2014 11/23 skills run",
+    "data_points": 12,
+    "cycle_status": "Cycle 1 in progress \u2014 12/23 skills run",
     "lowest_scoring_skills": [
       [
         10,
@@ -1074,22 +1043,22 @@
     ]
   },
   "historical_comparison": {
-    "current_skill_id": 11,
-    "current_score": 85,
+    "current_skill_id": 12,
+    "current_score": 90,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 10,
+    "current_issues_found": 4,
     "issue_delta": null,
     "skill_trend": [
-      85
+      90
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 60.8,
-    "avg_score_prev_7d": 45.2,
-    "week_over_week_delta": 15.5,
-    "total_runs_completed": 11,
+    "avg_score_last_7d": 90.0,
+    "avg_score_prev_7d": null,
+    "week_over_week_delta": null,
+    "total_runs_completed": 12,
     "cycle_number": 1
   },
   "cwv_summary": {
@@ -1150,6 +1119,16 @@
       "skill_id": 11,
       "skill_name": "AI Search Readiness",
       "score": 85
+    },
+    {
+      "date": "2026-06-24T22:36:51.190327",
+      "type": "morning_brief",
+      "subject": "[SEO \u2713] Skill 12/23 \u2014 Heading Hierarchy Audit | Score 90/100 | Jun 24",
+      "status": "failed",
+      "run_id": "9431474e",
+      "skill_id": 12,
+      "skill_name": "Heading Hierarchy Audit",
+      "score": 90
     }
   ],
   "technical_snapshot": {

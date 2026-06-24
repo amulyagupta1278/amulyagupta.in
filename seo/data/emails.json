@@ -48,5 +48,15 @@
     "skill_id": 11,
     "skill_name": "AI Search Readiness",
     "score": 85
+  },
+  {
+    "date": "2026-06-24T22:36:51.190327",
+    "type": "morning_brief",
+    "subject": "[SEO \u2713] Skill 12/23 \u2014 Heading Hierarchy Audit | Score 90/100 | Jun 24",
+    "status": "failed",
+    "run_id": "9431474e",
+    "skill_id": 12,
+    "skill_name": "Heading Hierarchy Audit",
+    "score": 90
   }
 ]

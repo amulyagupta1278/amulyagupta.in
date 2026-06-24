@@ -108,5 +108,15 @@
     "delta": 0,
     "cycle": 1,
     "run_id": "e1d8739c"
+  },
+  {
+    "date": "2026-06-24T22:36:51.670951",
+    "skill_id": 12,
+    "skill_name": "Heading Hierarchy Audit",
+    "score": 90,
+    "prev_score": null,
+    "delta": 0,
+    "cycle": 1,
+    "run_id": "9431474e"
   }
 ]

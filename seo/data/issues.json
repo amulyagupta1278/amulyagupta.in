@@ -1142,5 +1142,57 @@
     "description": "robots.txt has no explicit Allow for OAI-SearchBot.",
     "status": "active",
     "occurrences": 1
+  },
+  "b50786a070a0": {
+    "issue_id": "b50786a070a0",
+    "first_seen": "2026-06-24T22:36:51.668301",
+    "last_seen": "2026-06-24T22:36:51.668301",
+    "skill_id": 12,
+    "severity": "info",
+    "category": "headings",
+    "url": "https://amulyagupta.in/amulya-gupta.html",
+    "title": "No H2 headings: /amulya-gupta.html",
+    "description": "Page lacks H2 subheadings, reducing scanability and topic clarity.",
+    "status": "active",
+    "occurrences": 1
+  },
+  "6a2db29ef25b": {
+    "issue_id": "6a2db29ef25b",
+    "first_seen": "2026-06-24T22:36:51.668301",
+    "last_seen": "2026-06-24T22:36:51.668301",
+    "skill_id": 12,
+    "severity": "warning",
+    "category": "headings",
+    "url": "https://amulyagupta.in/blog/index.html",
+    "title": "H1 too short: /blog/index.html",
+    "description": "H1 'Writing' is only 7 characters \u2014 not descriptive enough.",
+    "status": "active",
+    "occurrences": 1
+  },
+  "3a6452f6b2a8": {
+    "issue_id": "3a6452f6b2a8",
+    "first_seen": "2026-06-24T22:36:51.668301",
+    "last_seen": "2026-06-24T22:36:51.668301",
+    "skill_id": 12,
+    "severity": "warning",
+    "category": "headings",
+    "url": "https://amulyagupta.in/blog/index.html",
+    "title": "Skipped heading level H1\u2192H3: /blog/index.html",
+    "description": "Heading hierarchy jumps from H1 to H3 ('AI/ML Roadmap 2026: From Zero to Job-Ready Without').",
+    "status": "active",
+    "occurrences": 1
+  },
+  "783b9073d17e": {
+    "issue_id": "783b9073d17e",
+    "first_seen": "2026-06-24T22:36:51.668301",
+    "last_seen": "2026-06-24T22:36:51.668301",
+    "skill_id": 12,
+    "severity": "info",
+    "category": "headings",
+    "url": "https://amulyagupta.in/blog/index.html",
+    "title": "No H2 headings: /blog/index.html",
+    "description": "Page lacks H2 subheadings, reducing scanability and topic clarity.",
+    "status": "active",
+    "occurrences": 1
   }
 }

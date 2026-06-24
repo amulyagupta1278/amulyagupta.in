@@ -141,5 +141,18 @@
     "status": "completed",
     "notes": "Group 3 | skill 11/23",
     "cycle": 1
+  },
+  {
+    "run_id": "9431474e",
+    "date": "2026-06-24T22:36:51.190327",
+    "skill_id": 12,
+    "skill_name": "Heading Hierarchy Audit",
+    "score": 90,
+    "issues_found": 4,
+    "issues_critical": 0,
+    "duration_s": 0,
+    "status": "completed",
+    "notes": "Group 3 | skill 12/23",
+    "cycle": 1
   }
 ]
