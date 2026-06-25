@@ -462,35 +462,25 @@ def append_email_log(entry: dict):
 
 
 def build_cwv_summary(findings: list) -> dict:
-    """Extract Core Web Vitals from findings and produce a concise summary."""
-    cwv = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": [], "records": []}
-    for f in findings:
-        cat = f.get("category", "")
-        if cat == "cwv":
-            for metric in ("lcp", "cls", "fid", "inp", "ttfb"):
-                val = f.get(metric)
-                if val is not None:
-                    try:
-                        cwv[metric].append(float(val))
-                    except (TypeError, ValueError):
-                        pass
-            if meta:
-                cwv["records"].append({
-                    "url": f.get("url", ""),
-                    "strategy": meta.get("strategy", "mobile"),
-                    "lcp_ms": meta.get("lcp"),
-                    "cls": meta.get("cls"),
-                    "fid_ms": meta.get("fid"),
-                    "inp_ms": meta.get("inp"),
-                    "ttfb_ms": meta.get("ttfb"),
-                })
+    """Summarise Core Web Vitals findings from the current run.
+
+    CWV findings carry qualitative issue descriptions (title/severity/recommendation),
+    not raw metric values. Raw metric averages are written to Google Sheets (seo_cwv
+    sheet) directly from result.metadata["cwv_records"] in runtime.py.
+    """
+    cwv_findings = [f for f in findings if f.get("category") == "cwv"]
+    critical = sum(1 for f in cwv_findings if f.get("severity") == "critical")
+    warning = sum(1 for f in cwv_findings if f.get("severity") == "warning")
     return {
-        "lcp_avg": round(sum(cwv["lcp"]) / len(cwv["lcp"]), 0) if cwv["lcp"] else None,
-        "cls_avg": round(sum(cwv["cls"]) / len(cwv["cls"]), 3) if cwv["cls"] else None,
-        "fid_avg": round(sum(cwv["fid"]) / len(cwv["fid"]), 0) if cwv["fid"] else None,
-        "inp_avg": round(sum(cwv["inp"]) / len(cwv["inp"]), 0) if cwv["inp"] else None,
-        "ttfb_avg": round(sum(cwv["ttfb"]) / len(cwv["ttfb"]), 0) if cwv["ttfb"] else None,
-        "records": cwv["records"][:20],
+        "lcp_avg": None,
+        "cls_avg": None,
+        "fid_avg": None,
+        "inp_avg": None,
+        "ttfb_avg": None,
+        "records": [],
+        "issue_count": len(cwv_findings),
+        "critical_count": critical,
+        "warning_count": warning,
     }
 
 
