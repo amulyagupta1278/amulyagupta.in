@@ -474,15 +474,14 @@ def build_cwv_summary(findings: list) -> dict:
                         cwv[metric].append(float(val))
                     except (TypeError, ValueError):
                         pass
-            if meta:
-                cwv["records"].append({
+            cwv["records"].append({
                     "url": f.get("url", ""),
-                    "strategy": meta.get("strategy", "mobile"),
-                    "lcp_ms": meta.get("lcp"),
-                    "cls": meta.get("cls"),
-                    "fid_ms": meta.get("fid"),
-                    "inp_ms": meta.get("inp"),
-                    "ttfb_ms": meta.get("ttfb"),
+                    "strategy": f.get("strategy", "mobile"),
+                    "lcp_ms": f.get("lcp"),
+                    "cls": f.get("cls"),
+                    "fid_ms": f.get("fid"),
+                    "inp_ms": f.get("inp"),
+                    "ttfb_ms": f.get("ttfb"),
                 })
     return {
         "lcp_avg": round(sum(cwv["lcp"]) / len(cwv["lcp"]), 0) if cwv["lcp"] else None,

@@ -165,7 +165,8 @@ _SCHEMA_FIXES: dict[str, dict] = {
     "itemListElement": [
       {"@type": "ListItem", "position": 1, "name": "Building a Production MLOps Pipeline", "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html"},
       {"@type": "ListItem", "position": 2, "name": "MLOps in 2025: The Stack I Actually Use", "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html"},
-      {"@type": "ListItem", "position": 3, "name": "AI/ML Roadmap 2026", "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html"}
+      {"@type": "ListItem", "position": 3, "name": "Building a Production RAG System", "url": "https://amulyagupta.in/blog/post-2-rag-system.html"},
+      {"@type": "ListItem", "position": 4, "name": "AI/ML Roadmap 2026", "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html"}
     ]
   }
   </script>
