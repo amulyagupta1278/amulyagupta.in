@@ -522,8 +522,11 @@ def run() -> None:
 
     # ── Dashboard snapshot (after email log is finalized) ─────────────────────
     issues = memory.load_issues()  # reload — email log now written
-    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
-    log.info("Dashboard snapshot written")
+    try:
+        memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
+        log.info("Dashboard snapshot written")
+    except Exception as e:
+        log.warning("Dashboard snapshot failed (non-fatal): %s", e)
 
     # ── Save state ───────────────────────────────────────────────────────────
     memory.save_run_state(skill_id, run_id)

@@ -21,7 +21,7 @@ class Skill07InternalLinking(BaseSEOSkill):
             if not soup:
                 continue
 
-            links = crawler.get_all_links(soup)
+            links = crawler.get_all_links(soup, base_url=url)
             for link in links["internal"]:
                 target = link["url"].split("?")[0].split("#")[0].rstrip("/")
                 if target in {u.rstrip("/") for u in all_urls}:
@@ -64,7 +64,7 @@ class Skill07InternalLinking(BaseSEOSkill):
             soup = page.get("soup")
             if not soup:
                 continue
-            links = crawler.get_all_links(soup)
+            links = crawler.get_all_links(soup, base_url=url)
             for link in links["internal"]:
                 if link["text"].lower().strip() in generic_anchors:
                     path = url.replace(SITE_URL, "")

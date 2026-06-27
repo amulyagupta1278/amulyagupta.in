@@ -122,6 +122,8 @@ class Skill10KeywordOptimization(BaseSEOSkill):
 
             scores.append(page_score / max_score * 100)
 
+        # Use the average page score directly — findings already reflect the same
+        # failures that drove page_score down, so applying clamp_score on top would
+        # double-count every penalty and collapse the score to 0 incorrectly.
         avg = int(sum(scores) / len(scores)) if scores else 50
-        score = self.clamp_score(avg, penalty_per_critical=10, penalty_per_warning=5, findings=findings)
-        return self.result(score, findings, {"pages_analyzed": len(scores)})
+        return self.result(avg, findings, {"pages_analyzed": len(scores)})

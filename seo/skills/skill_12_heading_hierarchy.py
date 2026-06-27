@@ -90,6 +90,8 @@ class Skill12HeadingHierarchy(BaseSEOSkill):
             if page_ok:
                 ok_count += 1
 
-        score = int(ok_count / total * 100) if total else 50
-        score = self.clamp_score(score, findings=findings)
+        # Start from 100 and subtract for each finding; don't also subtract via
+        # ok_count/total because that ratio and the findings represent the same H1
+        # failures — combining both paths double-counts every H1-related penalty.
+        score = self.clamp_score(100, findings=findings)
         return self.result(score, findings, {"pages_ok": ok_count, "total_pages": total})

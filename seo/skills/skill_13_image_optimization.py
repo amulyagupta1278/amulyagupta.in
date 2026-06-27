@@ -90,8 +90,10 @@ class Skill13ImageOptimization(BaseSEOSkill):
                             evidence=f"src='{src[:60]}'",
                         ))
 
-        pct_ok = max(0, 100 - (issues / max(total_images, 1) * 100))
-        score = self.clamp_score(int(pct_ok), findings=findings)
+        # Use a pure penalty-based approach consistent with other skills.
+        # pct_ok only counted missing-alt images while clamp_score would penalize
+        # for ALL findings — combining both paths double-counted alt issues.
+        score = self.clamp_score(100, findings=findings)
         return self.result(score, findings, {
             "total_images": total_images,
             "images_with_issues": issues,

@@ -2,7 +2,7 @@ import crawler
 from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
-TITLE_MIN, TITLE_MAX = 30, 60
+TITLE_MIN, TITLE_MAX = 30, 70
 DESC_MIN, DESC_MAX = 120, 160
 
 

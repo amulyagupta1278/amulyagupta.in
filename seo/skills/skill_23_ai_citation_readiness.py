@@ -19,7 +19,6 @@ class Skill23AICitationReadiness(BaseSEOSkill):
 
     def run(self, pages: list[dict]) -> SkillResult:
         findings = []
-        citation_score = 100
 
         for page in pages:
             url = page["url"]
@@ -43,7 +42,6 @@ class Skill23AICitationReadiness(BaseSEOSkill):
                 ) or bool(soup.find(attrs={"rel": "author"}) or soup.find(class_=lambda c: c and "author" in c.lower()))
 
                 if not has_author:
-                    citation_score -= 15
                     findings.append(Finding(
                         title=f"Missing author attribution: {path}",
                         description="AI systems need clear author attribution to cite content credibly.",
@@ -55,7 +53,6 @@ class Skill23AICitationReadiness(BaseSEOSkill):
 
                 has_date = any("datePublished" in s for s in flat_schemas)
                 if not has_date:
-                    citation_score -= 10
                     findings.append(Finding(
                         title=f"Missing publication date: {path}",
                         description="AI systems require publication dates to assess content freshness and cite correctly.",
@@ -122,5 +119,8 @@ class Skill23AICitationReadiness(BaseSEOSkill):
                     recommendation="Add GitHub, LinkedIn, and email links to llms.txt for AI entity verification.",
                 ))
 
-        score = self.clamp_score(citation_score, findings=findings)
-        return self.result(score, findings, {"citation_score": citation_score})
+        # Use a unified penalty-based score: all findings drive the score from 100.
+        # Previously citation_score was manually decremented for some findings AND
+        # clamp_score penalized the same findings again — double-counting.
+        score = self.clamp_score(100, findings=findings)
+        return self.result(score, findings, {})

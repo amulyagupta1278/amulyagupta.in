@@ -462,11 +462,19 @@ def append_email_log(entry: dict):
 
 
 def build_cwv_summary(findings: list) -> dict:
-    """Extract Core Web Vitals from findings and produce a concise summary."""
+    """Extract Core Web Vitals from findings and produce a concise summary.
+
+    CWV metric values (lcp_ms, cls, etc.) live in skill metadata, not in
+    individual finding dicts. This function collects the affected page URLs
+    from CWV findings so the dashboard can surface which pages have issues.
+    """
     cwv = {"lcp": [], "cls": [], "fid": [], "inp": [], "ttfb": [], "records": []}
+    seen_urls: set[str] = set()
     for f in findings:
         cat = f.get("category", "")
         if cat == "cwv":
+            # Accumulate any per-metric values that skills optionally embed.
+            # Standard Finding dicts don't carry these, but future skills may.
             for metric in ("lcp", "cls", "fid", "inp", "ttfb"):
                 val = f.get(metric)
                 if val is not None:
@@ -474,16 +482,11 @@ def build_cwv_summary(findings: list) -> dict:
                         cwv[metric].append(float(val))
                     except (TypeError, ValueError):
                         pass
-            if meta:
-                cwv["records"].append({
-                    "url": f.get("url", ""),
-                    "strategy": meta.get("strategy", "mobile"),
-                    "lcp_ms": meta.get("lcp"),
-                    "cls": meta.get("cls"),
-                    "fid_ms": meta.get("fid"),
-                    "inp_ms": meta.get("inp"),
-                    "ttfb_ms": meta.get("ttfb"),
-                })
+            # Record each unique page URL that has a CWV issue.
+            url = f.get("url", "")
+            if url and url not in seen_urls:
+                seen_urls.add(url)
+                cwv["records"].append({"url": url, "strategy": "mobile"})
     return {
         "lcp_avg": round(sum(cwv["lcp"]) / len(cwv["lcp"]), 0) if cwv["lcp"] else None,
         "cls_avg": round(sum(cwv["cls"]) / len(cwv["cls"]), 3) if cwv["cls"] else None,
