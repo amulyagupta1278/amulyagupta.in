@@ -105,6 +105,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r seo/requirements.txt
 
+      - name: Restore SEO runtime state
+        id: cache-state
+        uses: actions/cache/restore@v4
+        with:
+          path: seo/data
+          key: seo-data-${{ github.run_number }}
+          restore-keys: |
+            seo-data-
+
       - name: Run SEO Runtime
         working-directory: seo
         env:
@@ -126,6 +135,13 @@ jobs:
           GOOGLE_SEARCH_CONSOLE_CREDENTIALS: ${{ secrets.GOOGLE_SEARCH_CONSOLE_CREDENTIALS }}
           GOOGLE_ANALYTICS_CREDENTIALS: ${{ secrets.GOOGLE_ANALYTICS_CREDENTIALS }}
         run: python runtime.py
+
+      - name: Save SEO runtime state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: seo/data
+          key: seo-data-${{ github.run_number }}
 
       - name: Email credential check
         if: always()
