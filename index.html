@@ -67,6 +67,8 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="assets/css/style.css" as="style" />
+  <link rel="preload" href="assets/css/home.css" as="style" />
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap"></noscript>
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -431,6 +433,34 @@
       <div style="margin-top:20px;">
         <a href="/contact.html" class="btn btn-primary btn-sm" data-ga-event="currently_contact_click">Let's Talk →</a>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= EXPLORE ======= -->
+<section class="section-sm" aria-label="Explore more">
+  <div class="container">
+    <div class="section-header fade-in" style="margin-bottom:1.5rem;">
+      <div class="section-tag">// Explore</div>
+      <h2 style="font-size:clamp(1.4rem,2.5vw,2rem);">More About Me</h2>
+    </div>
+    <div class="stats-bar fade-in" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
+      <a href="/about.html" class="stat-item" style="text-decoration:none;display:block;" data-ga-event="explore_about_click">
+        <div class="stat-num" style="font-size:1.6rem;">About</div>
+        <div class="stat-label">Background, skills &amp; education</div>
+      </a>
+      <a href="/experience.html" class="stat-item" style="text-decoration:none;display:block;" data-ga-event="explore_exp_click">
+        <div class="stat-num" style="font-size:1.6rem;">Experience</div>
+        <div class="stat-label">HCLTech, Classplus, BITS Pilani</div>
+      </a>
+      <a href="/projects.html" class="stat-item" style="text-decoration:none;display:block;" data-ga-event="explore_projects_click">
+        <div class="stat-num" style="font-size:1.6rem;">Projects</div>
+        <div class="stat-label">Agentic AI, RAG, MLOps systems</div>
+      </a>
+      <a href="/blog/index.html" class="stat-item" style="text-decoration:none;display:block;" data-ga-event="explore_blog_click">
+        <div class="stat-num" style="font-size:1.6rem;">Blog</div>
+        <div class="stat-label">AI systems engineering deep-dives</div>
+      </a>
     </div>
   </div>
 </section>

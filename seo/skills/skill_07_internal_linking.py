@@ -4,6 +4,20 @@ from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL, SITE_PAGES
 
 
+def _normalize_url(raw: str) -> str:
+    """Normalize internal URL for comparison.
+    - Strip query/fragment/trailing slash
+    - Map directory index variants: /blog/ → /blog/index.html,
+      https://site.com/ → https://site.com
+    """
+    url = raw.split("?")[0].split("#")[0].rstrip("/")
+    # /blog/ and /blog both resolve to /blog/index.html on static hosts
+    for suffix in ("/blog", SITE_URL + "/blog"):
+        if url == suffix:
+            return SITE_URL + "/blog/index.html"
+    return url
+
+
 class Skill07InternalLinking(BaseSEOSkill):
     SKILL_ID = 7
     SKILL_NAME = "Internal Linking Analysis"
@@ -14,6 +28,7 @@ class Skill07InternalLinking(BaseSEOSkill):
         inbound = defaultdict(list)
         outbound = defaultdict(list)
         all_urls = {SITE_URL + p for p in SITE_PAGES}
+        normalized_known = {_normalize_url(u) for u in all_urls}
 
         for page in pages:
             url = page["url"]
@@ -23,15 +38,16 @@ class Skill07InternalLinking(BaseSEOSkill):
 
             links = crawler.get_all_links(soup)
             for link in links["internal"]:
-                target = link["url"].split("?")[0].split("#")[0].rstrip("/")
-                if target in {u.rstrip("/") for u in all_urls}:
+                target = _normalize_url(link["url"])
+                if target in normalized_known:
                     outbound[url].append(link)
                     inbound[target].append({"from": url, "text": link["text"]})
 
         # Orphan pages (no inbound links)
         for page_url in all_urls:
-            norm = page_url.rstrip("/")
-            if norm == SITE_URL and page_url in {SITE_URL + "/", SITE_URL}:
+            norm = _normalize_url(page_url)
+            # Skip homepage — it's always the root and implicitly linked by every nav
+            if page_url in {SITE_URL + "/", SITE_URL, SITE_URL + ""}:
                 continue
             if not inbound.get(norm) and not inbound.get(page_url):
                 path = page_url.replace(SITE_URL, "")
@@ -85,7 +101,9 @@ class Skill07InternalLinking(BaseSEOSkill):
             soup = page.get("soup")
             if not soup or page.get("status") != 200:
                 continue
-            if len(outbound.get(url, [])) == 0 and path not in ["/privacy.html", "/contact.html"]:
+            norm_url = _normalize_url(url)
+            if len(outbound.get(url, [])) == 0 and len(outbound.get(norm_url, [])) == 0 \
+                    and path not in ["/privacy.html", "/contact.html"]:
                 findings.append(Finding(
                     title=f"No internal links on {path}",
                     description="Page has no outbound internal links, reducing link equity flow.",

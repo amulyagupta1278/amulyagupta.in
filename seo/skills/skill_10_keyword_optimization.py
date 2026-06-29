@@ -4,16 +4,16 @@ from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
 PAGE_KEYWORDS = {
-    "/": ["amulya gupta", "ai engineer", "ml engineer", "agentic ai", "llm"],
-    "/about.html": ["amulya gupta", "bits pilani", "hcltech", "ai ml"],
-    "/projects.html": ["mlops pipeline", "rag system", "multi-agent ai", "ml projects"],
-    "/experience.html": ["hcltech", "classplus", "senior software engineer", "experience"],
+    "/": ["amulya gupta", "ai systems engineer", "agentic ai", "llm pipelines"],
+    "/about.html": ["amulya gupta", "bits pilani", "hcltech", "ai systems engineer"],
+    "/projects.html": ["mlops", "rag", "agentic ai", "ai projects"],
+    "/experience.html": ["hcltech", "classplus", "ai systems engineer", "software engineer"],
     "/amulya-gupta.html": ["amulya gupta", "ai systems engineer"],
-    "/contact.html": ["contact amulya", "hire"],
+    "/contact.html": ["contact amulya", "amulya gupta"],
     "/blog/post-1-mlops-pipeline.html": ["mlops pipeline", "mlflow", "fastapi", "kubernetes"],
-    "/blog/post-2-mlops-stack.html": ["mlops stack", "prefect", "mlflow"],
-    "/blog/ai-ml-guide-2026.html": ["ai ml guide", "machine learning roadmap", "2026"],
-    "/blog/index.html": ["ai blog", "machine learning blog"],
+    "/blog/post-2-mlops-stack.html": ["mlops", "mlflow", "fastapi"],
+    "/blog/ai-ml-guide-2026.html": ["ai", "machine learning", "roadmap"],
+    "/blog/index.html": ["ai", "mlops", "agentic ai"],
 }
 
 
