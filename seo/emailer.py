@@ -7,6 +7,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
 from config import GMAIL_SENDER, GMAIL_APP_PASSWORD, REPORT_EMAIL, SKILL_NAMES
+from governance import HardStopViolation, enforce_verified_recipient
 
 log = logging.getLogger(__name__)
 
@@ -75,6 +76,12 @@ def send_report(
 ) -> bool:
     if not GMAIL_SENDER or not GMAIL_APP_PASSWORD:
         log.warning("Gmail not configured — email skipped")
+        return False
+
+    try:
+        enforce_verified_recipient(REPORT_EMAIL)
+    except HardStopViolation as exc:
+        log.critical(str(exc))
         return False
 
     msg = MIMEMultipart("alternative")

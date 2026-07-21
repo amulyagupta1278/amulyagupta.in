@@ -36,6 +36,7 @@ GOVERNANCE_RULES: dict[int, str] = {
     5: "GOOGLE_SHEETS_PERSISTENT_MEMORY",
     6: "EXPERIMENTAL_BRANCH_ISOLATION",
     7: "CAVEMAN_CREDIT_OPTIMIZATION",
+    8: "VERIFIED_RECIPIENT_ALLOWLIST",
 }
 
 
@@ -308,6 +309,34 @@ def assert_humaniser_scope(caller: str) -> None:
             "[HS7] Humaniser called by '%s' during execution mode. "
             "Rich formatting (email/reports) should only run post-execution.",
             caller,
+        )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Hard Stop 8 — Verified recipient allowlist
+#
+# REPORT_EMAIL is read from an environment variable so it can, in principle,
+# be pointed anywhere. Defense-in-depth: every email send is checked against a
+# hardcoded allowlist of human-verified addresses *before* any SMTP call is
+# made, independent of what config.py or the workflow env resolved. A typo'd
+# or spoofed lookalike address (e.g. a dropped character in the mailbox name)
+# must never silently receive operational SEO intelligence.
+# ─────────────────────────────────────────────────────────────────────────────
+
+VERIFIED_REPORT_RECIPIENTS = frozenset({"amulyagupta2001@gmail.com"})
+
+
+def enforce_verified_recipient(email: str) -> None:
+    """Abort if the configured report recipient is not on the verified allowlist."""
+    normalized = (email or "").strip().lower()
+    if normalized not in VERIFIED_REPORT_RECIPIENTS:
+        _raise(
+            8,
+            f"Report recipient {email!r} is NOT on the verified allowlist "
+            f"{sorted(VERIFIED_REPORT_RECIPIENTS)}.\n"
+            "This blocks sending operational SEO intelligence to an unverified "
+            "or lookalike address. Update VERIFIED_REPORT_RECIPIENTS in "
+            "governance.py only after manually confirming the new address.",
         )
 
 

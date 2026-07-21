@@ -26,6 +26,12 @@ name: SEO Autonomous Runtime
 #        Execution mode suppresses verbose context; Humaniser (emailer)
 #        runs post-execution only.
 #
+#   HS8  VERIFIED_RECIPIENT_ALLOWLIST
+#        Every email send is checked against a hardcoded allowlist in
+#        governance.py before SMTP dispatch — blocks delivery to a
+#        mistyped, spoofed, or otherwise unverified recipient address,
+#        regardless of what REPORT_EMAIL resolves to at runtime.
+#
 # Skill group advancement:
 #   Phase 1 (Group 1)  -- Robots/Sitemap, Meta/OG, Internal Linking, Headings
 #   Phase 2 (Group 2)  -- Crawl Audit, Schema, CWV, Images, Mobile, Page Speed
