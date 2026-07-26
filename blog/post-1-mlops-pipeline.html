@@ -33,15 +33,15 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap"></noscript>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap"></noscript>
   <link rel="stylesheet" href="../assets/css/style.css" />
   <link rel="canonical" href="https://amulyagupta.in/blog/post-1-mlops-pipeline.html" />
   <meta property="og:site_name" content="Amulya Gupta">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
+    "@type": ["BlogPosting", "Article"],
     "headline": "How I Built an End-to-End MLOps Pipeline: MLflow + FastAPI + Kubernetes",
     "author": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
     "publisher": {"@type": "Person", "name": "Amulya Gupta", "url": "https://amulyagupta.in"},
@@ -64,6 +64,38 @@
     ]
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why use MLflow instead of just logging experiments manually?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Manual tracking doesn't survive contact with reality. MLflow logs params, metrics, and the model artifact on every run, so reproducing a result from weeks ago doesn't depend on memory."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why FastAPI over Flask for serving the model?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Pydantic validation catches malformed input before it reaches the model instead of surfacing as a cryptic error downstream, and the auto-generated docs save real time for anyone else calling the API."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Kubernetes overkill for deploying a single model?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For a personal project, yes — Minikube is more than the traffic needs. The value is that the same manifests deploy unchanged on a real cluster."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
@@ -75,7 +107,7 @@
       <li><a href="/about.html">About</a></li>
       <li><a href="/projects.html">Projects</a></li>
       <li><a href="/experience.html">Experience</a></li>
-      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/blog/index.html">Blog</a></li>
       <li><a href="/contact.html" class="btn-nav">Contact</a></li>
     </ul>
     <button class="hamburger" id="hamburger" aria-label="Toggle menu">
@@ -87,7 +119,7 @@
     <a href="/about.html">About</a>
     <a href="/projects.html">Projects</a>
     <a href="/experience.html">Experience</a>
-    <a href="/blog/">Blog</a>
+    <a href="/blog/index.html">Blog</a>
     <a href="/contact.html">Contact</a>
   </div>
 </nav>
@@ -106,7 +138,7 @@
     <div style="display:flex;align-items:center;gap:20px;color:var(--muted);font-size:0.88rem;flex-wrap:wrap;">
       <span>By <strong style="color:var(--white);">Amulya Gupta</strong></span>
       <span>8 min read</span>
-      <a href="/blog/" style="color:var(--blue-light);">← Back to Blog</a>
+      <a href="/blog/index.html" style="color:var(--blue-light);">← Back to Blog</a>
     </div>
   </div>
 </header>
@@ -116,7 +148,7 @@
   <div class="container" style="max-width:760px;">
     <div class="post-body">
 
-      <p>I kept running into the same frustration — every ML tutorial ends at model.fit(). You get a nice accuracy score, maybe a confusion matrix, and that's supposed to be the finish line. But when I tried to actually get a model running somewhere a teammate could hit it with a request, everything fell apart. So I decided to build the whole thing, soup to nuts, and figure out where the real headaches are.</p>
+      <p>I kept running into the same frustration — every ML tutorial ends at model.fit(). You get a nice accuracy score, maybe a confusion matrix, and that's supposed to be the finish line. But when I tried to actually get a model running somewhere a teammate could hit it with a request, everything fell apart. So I decided to build a full MLOps pipeline myself, soup to nuts, and figure out where the real headaches are.</p>
 
       <div style="background:rgba(56,189,248,0.08);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:16px 20px;margin:24px 0;">
         <div style="font-family:var(--font-mono);font-size:0.68rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">TL;DR</div>
@@ -204,6 +236,17 @@ async def health():
       <p>The bigger surprise was how much the project changed how I think about the training side of things. When you have dashboards showing prediction distribution in real time, you start noticing things you'd never catch by looking at offline metrics. The training set had a class imbalance I thought was fine based on the F1 score, but watching the live prediction distribution made it obvious the model was systematically under-predicting one class. That's not a monitoring problem — that's a training problem I would have shipped and never discovered without the observability layer.</p>
       <p>If I were starting this over: set up MLflow and the monitoring layer before writing a single line of model training code. Both are the kind of thing that's painful to retrofit and trivial to build from the start.</p>
 
+      <h2>FAQ: Building an MLOps Pipeline</h2>
+
+      <h3>Why use MLflow instead of just logging experiments manually?</h3>
+      <p>Because "manually" doesn't survive contact with reality. The third time I couldn't reproduce a model that worked two weeks earlier was the last time — MLflow logs params, metrics, and the artifact itself on every run, so nothing depends on remembering what you did.</p>
+
+      <h3>Why FastAPI over Flask for serving the model?</h3>
+      <p>Pydantic validation catches malformed input before it reaches the model instead of surfacing as a cryptic numpy error downstream, and the auto-generated docs save real time for anyone else who needs to call the API.</p>
+
+      <h3>Is Kubernetes overkill for deploying a single model?</h3>
+      <p>For a personal project, yes — Minikube on a laptop is more than the traffic needs. But the point isn't scale, it's that the same manifests deploy unchanged on a real cluster, which is the actual skill worth having.</p>
+
       <div style="margin-top:48px;padding-top:32px;border-top:1px solid var(--border);">
         <div style="font-size:0.68rem;font-family:var(--font-mono);color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">More From the Blog</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:32px;">
@@ -217,7 +260,7 @@ async def health():
             <p style="color:var(--white);font-weight:600;margin:8px 0 6px;font-size:0.9rem;line-height:1.4;">AI/ML Roadmap 2026: From Zero to Job-Ready</p>
             <span style="font-size:0.78rem;color:var(--blue-light);">Read Post →</span>
           </a>
-          <a href="/blog/" style="display:block;padding:18px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;text-decoration:none;" data-ga-event="related_post_click" data-ga-label="blog-index">
+          <a href="/blog/index.html" style="display:block;padding:18px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;text-decoration:none;" data-ga-event="related_post_click" data-ga-label="blog-index">
             <span style="font-size:0.65rem;font-family:var(--font-mono);color:var(--accent);">// Blog</span>
             <p style="color:var(--white);font-weight:600;margin:8px 0 6px;font-size:0.9rem;line-height:1.4;">All Posts</p>
             <span style="font-size:0.78rem;color:var(--blue-light);">Browse →</span>
@@ -241,7 +284,7 @@ async def health():
       </div>
 
       <div style="padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <a href="/blog/" class="btn btn-outline btn-sm">← Back to Blog</a>
+        <a href="/blog/index.html" class="btn btn-outline btn-sm">← Back to Blog</a>
         <a href="/projects.html#heart-disease" class="btn btn-primary btn-sm">View Full Project →</a>
       </div>
 
@@ -257,6 +300,7 @@ async def health():
     <div class="footer-links">
       <a href="/sitemap.xml">Sitemap</a>
       <a href="/privacy.html">Privacy</a>
+      <a href="/amulya-gupta.html">Profile</a>
       <a href="https://github.com/amulyagupta1278" target="_blank" rel="noopener">GitHub</a>
       <a href="https://linkedin.com/in/amulya-gupta-bits-pilani" target="_blank" rel="noopener">LinkedIn</a>
     </div>

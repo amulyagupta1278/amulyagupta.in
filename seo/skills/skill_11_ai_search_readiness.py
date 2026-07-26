@@ -78,7 +78,8 @@ class Skill11AISearchReadiness(BaseSEOSkill):
 
             # Check for speakable schema
             if path in ["/", "/amulya-gupta.html", "/about.html"]:
-                if "Speakable" not in str(schema_types) and "speakable" not in str(schema_types).lower():
+                has_speakable = any("speakable" in s for s in schemas) or "speakable" in str(schema_types).lower()
+                if not has_speakable:
                     findings.append(Finding(
                         title=f"Missing Speakable schema: {path}",
                         description="Speakable schema helps voice search and AI assistants identify key content.",
