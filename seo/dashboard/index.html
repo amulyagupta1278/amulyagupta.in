@@ -262,6 +262,7 @@
   <div class="header-right">
     <div class="status-dot live" id="status-dot" title="Live"></div>
     <span class="badge" id="last-updated">Loading…</span>
+    <button class="btn-sm" id="download-btn" onclick="downloadReport()">⬇ Download Report</button>
     <button class="btn-sm" onclick="loadData()">↺ Refresh</button>
   </div>
 </header>
@@ -925,6 +926,7 @@ const CONFIG = {
 const DATA_URL = CONFIG.dataSource === 'sheets' ? CONFIG.sheetsEndpoint : CONFIG.legacyEndpoint;
 
 let charts = {};
+let LAST_DATA = null;
 
 /* ── Auth ─────────────────────────────────────────────────────────────────── */
 function simpleHash(s) {
@@ -983,6 +985,7 @@ async function loadData() {
 
 /* ── Master render ────────────────────────────────────────────────────────── */
 function renderAll(data) {
+  LAST_DATA = data;
   const summary = data.summary || {};
   const currentRun = data.current_run || {};
   const runs = data.recent_runs || [];
@@ -2272,6 +2275,161 @@ function renderEmailLog(emailLog, runs) {
         <span class="sev ${ok?'sev-good':'sev-critical'}" style="flex-shrink:0">${ok?'SENT':'FAILED'}</span>
       </div>`;
     }).join('') || `<div style="color:var(--muted);font-size:12px">No email logs yet. Logs appear after the first run.</div>`}`;
+}
+
+/* ── Download report (Markdown export of live dashboard data) ────────────────
+   Built straight from the same JSON the dashboard renders from, so it always
+   matches what's on screen — meant to be pasted into an LLM (Claude, Codex,
+   etc.) for further analysis. ────────────────────────────────────────────── */
+function mdCell(v) {
+  return String(v === undefined || v === null ? '—' : v).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+}
+
+function buildReportMarkdown(data) {
+  const summary = data.summary || {};
+  const cr = data.current_run || {};
+  const runs = data.recent_runs || [];
+  const scores = data.score_history || [];
+  const issues = data.active_issues_list || [];
+  const recurring = data.recurring_issues || [];
+  const cwv = data.cwv_summary || {};
+  const forecast = data.forecast || {};
+  const comparison = data.historical_comparison || {};
+  const cycleProgress = data.cycle_progress || {};
+  const generatedAt = data.generated_at || new Date().toISOString();
+
+  const lines = [];
+  lines.push('# SEO Command Center Report — amulyagupta.in');
+  lines.push('');
+  lines.push(`Generated: ${generatedAt}`);
+  lines.push('');
+  lines.push('## Executive Summary');
+  lines.push('');
+  lines.push(`- SEO health score (avg): ${summary.avg_score ?? '—'}`);
+  lines.push(`- Critical issues: ${summary.critical_issues ?? 0}`);
+  lines.push(`- Active issues: ${summary.active_issues ?? 0}`);
+  lines.push(`- Recurring issues (3+ runs): ${summary.recurring_issues ?? recurring.length ?? 0}`);
+  lines.push(`- Total runs: ${summary.total_runs ?? 0}`);
+  lines.push('');
+
+  if (cr.skill_id) {
+    const name = SKILL_NAMES[cr.skill_id - 1] || 'Unknown';
+    lines.push('## Last Execution');
+    lines.push('');
+    lines.push(`- Skill ${cr.skill_id}/23 — ${name}`);
+    lines.push(`- Score: ${cr.score ?? '—'}/100`);
+    lines.push(`- Issues found: ${cr.issues_found ?? 0} (critical: ${cr.issues_critical ?? 0})`);
+    lines.push(`- Duration: ${cr.duration_s ?? '—'}s`);
+    lines.push(`- Date: ${cr.date ?? '—'}`);
+    lines.push(`- Run ID: ${cr.run_id ?? '—'}`);
+    lines.push('');
+  }
+
+  lines.push('## Cycle Progress');
+  lines.push('');
+  lines.push(`- Cycle #${cycleProgress.cycle ?? 1}, position ${cycleProgress.position ?? 0}/${cycleProgress.total ?? 23}`);
+  lines.push(`- Completed this cycle: ${cycleProgress.skills_completed_this_cycle ?? 0}`);
+  if (cycleProgress.next_skill_id) {
+    lines.push(`- Next skill: #${cycleProgress.next_skill_id} — ${SKILL_NAMES[cycleProgress.next_skill_id - 1] || ''}`);
+  }
+  lines.push('');
+
+  if (forecast && forecast.trend && forecast.trend !== 'insufficient_data') {
+    lines.push('## Predictive Forecast');
+    lines.push('');
+    lines.push(`- Trend: ${forecast.trend} (risk: ${forecast.risk_level ?? '—'})`);
+    lines.push(`- Projected score (7d): ${forecast.projected_score_7d ?? '—'}`);
+    lines.push(`- Projected score (30d): ${forecast.projected_score_30d ?? '—'}`);
+    lines.push(`- Slope: ${forecast.slope_per_day ?? 0} pts/day · confidence: ${forecast.confidence ?? '—'} · data points: ${forecast.data_points ?? 0}`);
+    lines.push('');
+  }
+
+  if (comparison && Object.keys(comparison).length) {
+    lines.push('## Historical Comparison');
+    lines.push('');
+    lines.push('```json');
+    lines.push(JSON.stringify(comparison, null, 2));
+    lines.push('```');
+    lines.push('');
+  }
+
+  if (cwv && Object.keys(cwv).length) {
+    lines.push('## Core Web Vitals Summary');
+    lines.push('');
+    lines.push('```json');
+    lines.push(JSON.stringify(cwv, null, 2));
+    lines.push('```');
+    lines.push('');
+  }
+
+  lines.push('## Score by Skill');
+  lines.push('');
+  lines.push('| # | Skill | Score |');
+  lines.push('|---|---|---|');
+  SKILL_NAMES.forEach((name, i) => {
+    const num = i + 1;
+    const rec = scores.find(s => s.skill_id === num);
+    lines.push(`| ${num} | ${mdCell(name)} | ${rec ? mdCell(rec.score) : '—'} |`);
+  });
+  lines.push('');
+
+  lines.push('## Recent Runs');
+  lines.push('');
+  lines.push('| Date | Skill | Score | Issues | Critical | Duration |');
+  lines.push('|---|---|---|---|---|---|');
+  runs.slice(-30).reverse().forEach(r => {
+    lines.push(`| ${mdCell(r.date)} | S${mdCell(r.skill_id)} ${mdCell(r.skill_name)} | ${mdCell(r.score)} | ${mdCell(r.issues_found)} | ${mdCell(r.issues_critical)} | ${mdCell(r.duration_s)}s |`);
+  });
+  lines.push('');
+
+  lines.push('## Active Issues');
+  lines.push('');
+  if (issues.length) {
+    lines.push('| Severity | Title | Category | URL | First Seen | Occurrences | Status |');
+    lines.push('|---|---|---|---|---|---|---|');
+    issues.forEach(i => {
+      lines.push(`| ${mdCell(i.severity)} | ${mdCell(i.title)} | ${mdCell(i.category)} | ${mdCell(i.url)} | ${mdCell(i.first_seen)} | ${mdCell(i.occurrences)} | ${mdCell(i.status)} |`);
+    });
+  } else {
+    lines.push('_No active issues._');
+  }
+  lines.push('');
+
+  lines.push('## Recurring Issues (3+ occurrences)');
+  lines.push('');
+  if (recurring.length) {
+    lines.push('| Title | Category | First Detected | Occurrences |');
+    lines.push('|---|---|---|---|');
+    recurring.forEach(i => {
+      lines.push(`| ${mdCell(i.title)} | ${mdCell(i.category)} | ${mdCell(i.first_seen)} | ${mdCell(i.occurrences)} |`);
+    });
+  } else {
+    lines.push('_None._');
+  }
+  lines.push('');
+
+  lines.push('---');
+  lines.push('_Exported from the amulyagupta.in SEO Command Center dashboard._');
+
+  return lines.join('\n');
+}
+
+function downloadReport() {
+  if (!LAST_DATA) {
+    alert('Dashboard data hasn\'t loaded yet — wait a moment and try again.');
+    return;
+  }
+  const md = buildReportMarkdown(LAST_DATA);
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = (LAST_DATA.generated_at || new Date().toISOString()).slice(0, 10);
+  a.href = url;
+  a.download = `seo-report-${stamp}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ── Auto-refresh every 5 minutes ─────────────────────────────────────────── */
