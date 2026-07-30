@@ -522,7 +522,10 @@ def run() -> None:
 
     # ── Dashboard snapshot (after email log is finalized) ─────────────────────
     issues = memory.load_issues()  # reload — email log now written
-    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
+    snapshot = memory.build_dashboard_snapshot(
+        run_record, findings_dicts, scores, issues,
+        cwv_records=result.metadata.get("cwv_records", []),
+    )
     log.info("Dashboard snapshot written")
 
     # ── Save state ───────────────────────────────────────────────────────────
