@@ -485,21 +485,26 @@ def run() -> None:
 
     # ── Email report — Humaniser layer (post-execution only) ─────────────────
     governance.assert_humaniser_scope("emailer.build_morning_brief")
-    html, text = emailer.build_morning_brief(
-        run_record, findings_dicts, skill_name, result.score,
-        comparison=comparison,
-        forecast=forecast,
-        cycle_progress=cycle_progress,
-        recurring=recurring,
-    )
-    status_icon = "✓" if result.score >= 80 else "⚠" if result.score >= 50 else "✗"
-    subject = (
-        f"[SEO {status_icon}] Skill {skill_id:02d}/23 — {skill_name} | "
-        f"Score {result.score}/100 | {now.strftime('%b %d')}"
-    )
-    if result.critical_count > 0:
-        subject = "[SEO CRITICAL] " + subject.split("] ", 1)[-1]
-    email_ok = emailer.send_report(subject, html, text)
+    try:
+        html, text = emailer.build_morning_brief(
+            run_record, findings_dicts, skill_name, result.score,
+            comparison=comparison,
+            forecast=forecast,
+            cycle_progress=cycle_progress,
+            recurring=recurring,
+        )
+        status_icon = "✓" if result.score >= 80 else "⚠" if result.score >= 50 else "✗"
+        subject = (
+            f"[SEO {status_icon}] Skill {skill_id:02d}/23 — {skill_name} | "
+            f"Score {result.score}/100 | {now.strftime('%b %d')}"
+        )
+        if result.critical_count > 0:
+            subject = "[SEO CRITICAL] " + subject.split("] ", 1)[-1]
+        email_ok = emailer.send_report(subject, html, text)
+    except Exception as e:
+        log.error("Morning brief email failed (non-fatal): %s\n%s", e, traceback.format_exc())
+        email_ok = False
+        subject = f"[SEO] Skill {skill_id:02d}/23 email build error"
     sheets.append("seo_emails", [
         now.isoformat(), config.REPORT_EMAIL, subject,
         "sent" if email_ok else "failed",
@@ -522,8 +527,14 @@ def run() -> None:
 
     # ── Dashboard snapshot (after email log is finalized) ─────────────────────
     issues = memory.load_issues()  # reload — email log now written
-    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
-    log.info("Dashboard snapshot written")
+    try:
+        snapshot = memory.build_dashboard_snapshot(
+            run_record, findings_dicts, scores, issues,
+            cwv_records=result.metadata.get("cwv_records", []),
+        )
+        log.info("Dashboard snapshot written")
+    except Exception as e:
+        log.error("Dashboard snapshot failed (non-fatal): %s\n%s", e, traceback.format_exc())
 
     # ── Save state ───────────────────────────────────────────────────────────
     memory.save_run_state(skill_id, run_id)
