@@ -16,6 +16,15 @@ EXPECTED_SCHEMAS = {
     "/contact.html": ["Person"],
 }
 
+SCHEMA_PARENTS = {"BlogPosting": {"Article"}}
+
+
+def has_schema_type(schema_types: list, expected: str) -> bool:
+    return any(
+        expected == actual or expected in SCHEMA_PARENTS.get(actual, set())
+        for actual in schema_types
+    )
+
 REQUIRED_PROPS = {
     "Person": ["name", "url"],
     "BlogPosting": ["headline", "datePublished", "author"],
@@ -73,7 +82,7 @@ class Skill04StructuredData(BaseSEOSkill):
 
             expected = EXPECTED_SCHEMAS.get(path, [])
             for exp in expected:
-                if not any(exp.lower() in str(st).lower() for st in schema_types):
+                if not has_schema_type(schema_types, exp):
                     findings.append(Finding(
                         title=f"Missing {exp} schema: {path}",
                         description=f"Expected {exp} schema not found. Found: {schema_types}",

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from bs4 import BeautifulSoup
 import crawler
 from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
@@ -6,7 +7,7 @@ from config import SITE_URL
 GENERIC_ANCHORS = {
     "click here", "here", "read more", "learn more", "this", "link",
     "page", "more", "view", "see more", "go", "visit", "check out",
-    "follow", "watch", "download", "get it", "find out",
+    "follow", "watch", "download", "get it", "find out", "read post", "read post →",
 }
 
 
@@ -30,7 +31,8 @@ class Skill22AnchorText(BaseSEOSkill):
 
             links = crawler.get_all_links(soup)
             for link in links["internal"]:
-                text = link["text"].strip().lower()
+                element = BeautifulSoup(link["element"], "html.parser").find("a")
+                text = ((element.get("aria-label") if element else "") or link["text"]).strip().lower()
                 target = link["url"]
                 total_links += 1
 
@@ -54,7 +56,7 @@ class Skill22AnchorText(BaseSEOSkill):
         # Same anchor text pointing to multiple different URLs (over-optimization signal)
         for anchor, targets in anchor_to_urls.items():
             target_urls = list(set(t["to"] for t in targets))
-            if len(target_urls) > 1 and anchor not in GENERIC_ANCHORS and len(anchor) > 4:
+            if len(target_urls) > 1 and anchor not in GENERIC_ANCHORS and 4 < len(anchor) <= 80:
                 findings.append(Finding(
                     title=f"Same anchor points to multiple URLs: '{anchor}'",
                     description=f"Anchor '{anchor}' points to {len(target_urls)} different URLs — confusing for search engines.",

@@ -110,6 +110,8 @@
 <section class="section">
   <div class="container" style="max-width:760px;">
 
+    <h2>Engineering Profile</h2>
+
     <p>
       I'm Amulya Gupta — an AI Systems Engineer based in Noida, India. I build things that use LLMs, agentic pipelines, and production ML infrastructure to do something useful. That sounds broad because the work actually is broad: designing multi-agent orchestration systems, building RAG pipelines that retrieve the right context instead of just the nearest-neighbor context, wiring up MLOps tooling so models can be retrained without someone SSH-ing into a server at 2am.
     </p>
@@ -122,6 +124,8 @@
       Before that I was at Classplus. The main project was helping pull apart a monolithic backend into services with cleaner ownership boundaries. It's the kind of work that's genuinely unglamorous — mapping dependencies, deciding what deserves its own database versus what can share one, writing migration scripts that don't lose data. I also built the ETL pipelines on MySQL and PostgreSQL that the ops team used daily for tracking student performance across cohorts. When those dashboards started loading in seconds instead of timing out, that mattered to real people.
     </p>
 
+    <h2>Current Technical Focus</h2>
+
     <p>
       Right now most of my personal engineering time goes into agentic AI systems. I've been building with LangChain and LangGraph, and my honest take is that agent reliability is still the unsolved problem. The architecture questions that interest me most are: how do you design the handoff protocols between agents so failures stay local, how do you build a memory layer that doesn't just bloat the context window, and how do you evaluate whether a multi-step reasoning chain is actually doing what you think it is. I don't think these are easy problems and I don't think the current tooling has solved them.
     </p>
@@ -130,9 +134,20 @@
       On RAG: most teams I've seen spend their time choosing between Chroma and FAISS when they should be thinking harder about their chunking strategy. Embedding quality matters, but a poorly chunked document retrieves badly regardless of the model. I've seen retrieval precision jump meaningfully just from moving to sentence-boundary-aware chunking and adding metadata filters. The vector store is usually not the bottleneck.
     </p>
 
+    <h2>Education and Verified Experience</h2>
+
     <p>
       I'm doing an M.Tech in AI/ML at BITS Pilani through the WILP program — working full-time and studying simultaneously. The distributed systems coursework has been directly applicable: understanding consensus, partition tolerance, and failure modes at scale changes how you think about deploying models that need to be consistent across nodes. The deep learning coursework fills in theoretical gaps that matter when you're debugging why a fine-tuned model drifts after a few thousand inference calls.
     </p>
+
+    <dl class="profile-facts">
+      <dt>Current role</dt><dd>Senior Software Engineer at HCLTech</dd>
+      <dt>Education</dt><dd>M.Tech in AI/ML, BITS Pilani WILP</dd>
+      <dt>Primary focus</dt><dd>Agentic AI, RAG systems, and production ML infrastructure</dd>
+      <dt>Location</dt><dd>Noida, India</dd>
+    </dl>
+
+    <h2>What I Want to Build Next</h2>
 
     <p>
       What I'm looking for next is a role where I own AI system architecture end-to-end — from data pipeline design through model serving to observability. I want to work on problems where the ML component is genuinely the hard part, not a wrapper around an API call. If you're building agentic systems, production RAG infrastructure, or MLOps tooling at a company that ships actual product, I'd like to talk.
@@ -147,6 +162,7 @@
       <a href="/projects.html" class="btn btn-outline">View Projects</a>
       <a href="/experience.html" class="btn btn-outline">Experience</a>
       <a href="/contact.html" class="btn btn-outline">Get In Touch</a>
+      <a href="/blog/index.html" class="btn btn-outline">Read the AI &amp; MLOps Blog</a>
     </div>
 
   </div>

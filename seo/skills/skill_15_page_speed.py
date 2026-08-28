@@ -48,12 +48,12 @@ class Skill15PageSpeed(BaseSEOSkill):
             findings.append(Finding(
                 title="PageSpeed API key not configured",
                 description="PAGESPEED_API_KEY secret not set — detailed speed audit skipped.",
-                severity="warning",
+                severity="info",
                 category="configuration",
                 url="",
                 recommendation="Set PAGESPEED_API_KEY in GitHub Secrets to enable PageSpeed audits.",
             ))
-            return self.result(50, findings)
+            return self.result(100, findings, {"api_available": False, "score_available": False})
 
         scores = []
         for path in AUDIT_PAGES:

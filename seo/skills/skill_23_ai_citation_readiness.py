@@ -9,7 +9,7 @@ CITATION_SIGNALS = [
 
 AUTHORITATIVE_CLAIMS = [
     "years of experience", "worked at", "published", "contributed to",
-    "built", "developed", "designed", "led", "architected",
+    "built", "build", "shipped", "developed", "designed", "led", "architected",
 ]
 
 

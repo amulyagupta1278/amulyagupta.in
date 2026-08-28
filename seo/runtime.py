@@ -351,10 +351,15 @@ def run() -> None:
     findings_dicts = result.findings_as_dicts()
 
     try:
-        upserted = memory.batch_upsert_issues(skill_id, findings_dicts)
+        reconciliation = memory.reconcile_skill_issues(
+            skill_id, findings_dicts, run_id=run_id, verified=True
+        )
+        upserted = reconciliation["active"]
+        resolved = reconciliation["resolved"]
     except Exception as e:
         log.warning("batch_upsert_issues failed, falling back to per-issue: %s", e)
         upserted = []
+        resolved = []
         for finding in findings_dicts:
             try:
                 upserted.append(memory.upsert_issue(skill_id, finding))
@@ -367,7 +372,10 @@ def run() -> None:
                 issue["issue_id"], issue["first_seen"], issue["last_seen"],
                 issue["skill_id"], issue["severity"], issue["category"],
                 issue["url"], issue["title"][:200], issue["description"][:500],
-                issue["status"], issue["occurrences"],
+                issue["status"], issue["occurrences"], issue.get("consecutive_occurrences", 1),
+                issue.get("resolved_at", ""),
+                issue.get("resolution_reason", ""), issue.get("last_verified_run", run_id),
+                issue.get("state", issue["status"]),
             ])
             if finding.get("severity") == "critical":
                 sheets.append("seo_incidents", [
@@ -379,6 +387,16 @@ def run() -> None:
                 ])
         except Exception as e:
             log.warning("Failed to sync finding to Sheets: %s", e)
+
+    for issue in resolved:
+        sheets.append("seo_issues", [
+            issue["issue_id"], issue["first_seen"], issue["last_seen"],
+            issue["skill_id"], issue["severity"], issue["category"], issue["url"],
+            issue["title"][:200], issue.get("description", "")[:500],
+            "resolved", issue.get("occurrences", 1), issue.get("consecutive_occurrences", 1),
+            issue.get("resolved_at", ""),
+            issue.get("resolution_reason", ""), run_id, "resolved",
+        ])
 
     # ── Append run record ────────────────────────────────────────────────────
     run_record = {
@@ -399,9 +417,11 @@ def run() -> None:
     # ── Score history ────────────────────────────────────────────────────────
     memory.append_score(skill_id, skill_name, result.score, run_id)
     scores = memory.load_score_history()
+    score_record = scores[-1]
     sheets.append("seo_scores", [
         now.isoformat(), skill_id, skill_name, result.score,
-        result.score, 0, config.ENABLED_SKILL_GROUP, run_id,
+        score_record.get("prev_score"), score_record.get("delta", 0),
+        score_record.get("cycle", config.ENABLED_SKILL_GROUP), run_id,
     ])
 
     # ── Specialty tracking ───────────────────────────────────────────────────
@@ -485,21 +505,26 @@ def run() -> None:
 
     # ── Email report — Humaniser layer (post-execution only) ─────────────────
     governance.assert_humaniser_scope("emailer.build_morning_brief")
-    html, text = emailer.build_morning_brief(
-        run_record, findings_dicts, skill_name, result.score,
-        comparison=comparison,
-        forecast=forecast,
-        cycle_progress=cycle_progress,
-        recurring=recurring,
-    )
-    status_icon = "✓" if result.score >= 80 else "⚠" if result.score >= 50 else "✗"
-    subject = (
-        f"[SEO {status_icon}] Skill {skill_id:02d}/23 — {skill_name} | "
-        f"Score {result.score}/100 | {now.strftime('%b %d')}"
-    )
-    if result.critical_count > 0:
-        subject = "[SEO CRITICAL] " + subject.split("] ", 1)[-1]
-    email_ok = emailer.send_report(subject, html, text)
+    try:
+        html, text = emailer.build_morning_brief(
+            run_record, findings_dicts, skill_name, result.score,
+            comparison=comparison,
+            forecast=forecast,
+            cycle_progress=cycle_progress,
+            recurring=recurring,
+        )
+        status_icon = "✓" if result.score >= 80 else "⚠" if result.score >= 50 else "✗"
+        subject = (
+            f"[SEO {status_icon}] Skill {skill_id:02d}/23 — {skill_name} | "
+            f"Score {result.score}/100 | {now.strftime('%b %d')}"
+        )
+        if result.critical_count > 0:
+            subject = "[SEO CRITICAL] " + subject.split("] ", 1)[-1]
+        email_ok = emailer.send_report(subject, html, text)
+    except Exception as e:
+        log.error("Morning brief email failed (non-fatal): %s", e)
+        email_ok = False
+        subject = f"[SEO] Skill {skill_id:02d}/23 email build error"
     sheets.append("seo_emails", [
         now.isoformat(), config.REPORT_EMAIL, subject,
         "sent" if email_ok else "failed",
@@ -522,7 +547,10 @@ def run() -> None:
 
     # ── Dashboard snapshot (after email log is finalized) ─────────────────────
     issues = memory.load_issues()  # reload — email log now written
-    snapshot = memory.build_dashboard_snapshot(run_record, findings_dicts, scores, issues)
+    snapshot = memory.build_dashboard_snapshot(
+        run_record, findings_dicts, scores, issues,
+        cwv_records=result.metadata.get("cwv_records", []),
+    )
     log.info("Dashboard snapshot written")
 
     # ── Save state ───────────────────────────────────────────────────────────

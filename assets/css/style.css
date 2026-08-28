@@ -58,6 +58,13 @@ a { color: var(--blue-light); text-decoration: none; transition: color var(--tra
 a:hover { color: var(--accent); }
 
 code, .mono { font-family: var(--font-mono); font-size: 0.9em; }
+.profile-facts { display:grid; grid-template-columns:max-content 1fr; gap:8px 20px; margin:24px 0 32px; }
+.profile-facts dt { color:var(--muted); font-family:var(--font-mono); font-size:0.82rem; }
+.profile-facts dd { margin:0; color:var(--white); }
+@media (max-width:600px) {
+  .profile-facts { grid-template-columns:1fr; gap:4px; }
+  .profile-facts dd { margin-bottom:12px; }
+}
 
 /* ======= LAYOUT ======= */
 .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }

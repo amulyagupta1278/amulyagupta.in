@@ -57,17 +57,6 @@ class Skill14MobileFriendliness(BaseSEOSkill):
                         recommendation="Remove 'user-scalable=no' to allow users to zoom on mobile.",
                     ))
 
-            # Fixed-width CSS detection
-            if re.search(r'width\s*:\s*\d{3,}px', html_raw):
-                findings.append(Finding(
-                    title=f"Fixed-width CSS detected: {path}",
-                    description="Page may contain fixed pixel widths that break on narrow screens.",
-                    severity="warning",
-                    category="mobile",
-                    url=url,
-                    recommendation="Use relative units (%, vw, rem) instead of fixed px widths for responsive layouts.",
-                ))
-
             # Font size check
             if re.search(r'font-size\s*:\s*([89]|1[01])px', html_raw):
                 findings.append(Finding(

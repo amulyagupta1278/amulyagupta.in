@@ -12,7 +12,7 @@ OWN_KEYWORDS = [
     "agentic ai", "llm engineer", "bits pilani",
 ]
 
-SCHEMA_TYPES_TO_CHECK = ["Person", "BlogPosting", "WebSite", "BreadcrumbList", "FAQPage"]
+SCHEMA_TYPES_TO_CHECK = ["Person", "BlogPosting", "WebSite", "BreadcrumbList"]
 
 
 class Skill20CompetitorAnalysis(BaseSEOSkill):
@@ -22,11 +22,12 @@ class Skill20CompetitorAnalysis(BaseSEOSkill):
     def run(self, pages: list[dict]) -> SkillResult:
         findings = []
 
-        # Analyze own site strengths
-        home = next((p for p in pages if p["url"].rstrip("/") == SITE_URL.rstrip("/")), None)
+        # Analyze schema coverage across the site, not just the homepage.
         own_schema_types = set()
-        if home and home.get("soup"):
-            schemas = crawler.extract_json_ld(home["soup"])
+        for page in pages:
+            if not page.get("soup"):
+                continue
+            schemas = crawler.extract_json_ld(page["soup"])
             for s in schemas:
                 if "@graph" in s:
                     for item in (s["@graph"] if isinstance(s["@graph"], list) else [s["@graph"]]):
