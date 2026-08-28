@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-05-28T18:13:28.879300",
+  "generated_at": "2026-06-09T00:03:42.654987",
   "site_url": "https://amulyagupta.in",
   "current_run": {
-    "run_id": "fbc18b83",
-    "date": "2026-05-28T18:13:22.019519",
-    "skill_id": 7,
-    "skill_name": "Internal Linking Analysis",
-    "score": 10,
-    "issues_found": 18,
+    "run_id": "e1d8739c",
+    "date": "2026-06-09T00:03:33.961110",
+    "skill_id": 11,
+    "skill_name": "AI Search Readiness",
+    "score": 85,
+    "issues_found": 10,
     "issues_critical": 0,
-    "duration_s": 6,
+    "duration_s": 7,
     "status": "completed",
-    "notes": "Group 3 | skill 7/23",
+    "notes": "Group 3 | skill 11/23",
     "cycle": 1
   },
   "summary": {
-    "avg_score": 60.1,
-    "active_issues": 50,
-    "critical_issues": 4,
-    "warning_issues": 45,
-    "total_runs": 7,
+    "avg_score": 60.4,
+    "active_issues": 88,
+    "critical_issues": 5,
+    "warning_issues": 65,
+    "total_runs": 11,
     "recurring_issues": 0,
     "cycle_number": 1,
-    "cycle_percent": 30
+    "cycle_percent": 48
   },
   "recent_runs": [
     {
@@ -115,169 +115,149 @@
       "status": "completed",
       "notes": "Group 3 | skill 7/23",
       "cycle": 1
+    },
+    {
+      "run_id": "17b27248",
+      "date": "2026-06-06T19:49:32.171598",
+      "skill_id": 8,
+      "skill_name": "Content Quality Audit",
+      "score": 58,
+      "issues_found": 8,
+      "issues_critical": 1,
+      "duration_s": 6,
+      "status": "completed",
+      "notes": "Group 3 | skill 8/23",
+      "cycle": 1
+    },
+    {
+      "run_id": "ba3ea34e",
+      "date": "2026-06-07T00:02:12.767673",
+      "skill_id": 9,
+      "skill_name": "Duplicate Content Detection",
+      "score": 100,
+      "issues_found": 0,
+      "issues_critical": 0,
+      "duration_s": 7,
+      "status": "completed",
+      "notes": "Group 3 | skill 9/23",
+      "cycle": 1
+    },
+    {
+      "run_id": "3774c192",
+      "date": "2026-06-08T00:04:26.227576",
+      "skill_id": 10,
+      "skill_name": "Keyword Optimization Audit",
+      "score": 0,
+      "issues_found": 20,
+      "issues_critical": 0,
+      "duration_s": 6,
+      "status": "completed",
+      "notes": "Group 3 | skill 10/23",
+      "cycle": 1
+    },
+    {
+      "run_id": "e1d8739c",
+      "date": "2026-06-09T00:03:33.961110",
+      "skill_id": 11,
+      "skill_name": "AI Search Readiness",
+      "score": 85,
+      "issues_found": 10,
+      "issues_critical": 0,
+      "duration_s": 7,
+      "status": "completed",
+      "notes": "Group 3 | skill 11/23",
+      "cycle": 1
     }
   ],
   "latest_findings": [
     {
-      "title": "Orphan page: /blog/post-1-mlops-pipeline.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
-      "recommendation": "Add at least 2-3 internal links to /blog/post-1-mlops-pipeline.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "Orphan page: /blog/post-2-mlops-stack.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
-      "recommendation": "Add at least 2-3 internal links to /blog/post-2-mlops-stack.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "Orphan page: /about.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/about.html",
-      "recommendation": "Add at least 2-3 internal links to /about.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "Orphan page: /contact.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/contact.html",
-      "recommendation": "Add at least 2-3 internal links to /contact.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "Orphan page: /privacy.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/privacy.html",
-      "recommendation": "Add at least 2-3 internal links to /privacy.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "Orphan page: /experience.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/experience.html",
-      "recommendation": "Add at least 2-3 internal links to /experience.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "Orphan page: /blog/index.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Add at least 2-3 internal links to /blog/index.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "Orphan page: /projects.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/projects.html",
-      "recommendation": "Add at least 2-3 internal links to /projects.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "Orphan page: /amulya-gupta.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/amulya-gupta.html",
-      "recommendation": "Add at least 2-3 internal links to /amulya-gupta.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "Orphan page: /blog/ai-ml-guide-2026.html",
-      "description": "This page has no internal links pointing to it.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Add at least 2-3 internal links to /blog/ai-ml-guide-2026.html from relevant pages.",
-      "evidence": ""
-    },
-    {
-      "title": "No internal links on /",
-      "description": "Page has no outbound internal links, reducing link equity flow.",
-      "severity": "warning",
-      "category": "internal-linking",
+      "title": "Missing Speakable schema: /",
+      "description": "Speakable schema helps voice search and AI assistants identify key content.",
+      "severity": "info",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/",
-      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "recommendation": "Add Speakable schema pointing to the most important content sections.",
       "evidence": ""
     },
     {
-      "title": "No internal links on /about.html",
-      "description": "Page has no outbound internal links, reducing link equity flow.",
-      "severity": "warning",
-      "category": "internal-linking",
+      "title": "Missing Speakable schema: /about.html",
+      "description": "Speakable schema helps voice search and AI assistants identify key content.",
+      "severity": "info",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/about.html",
-      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "recommendation": "Add Speakable schema pointing to the most important content sections.",
       "evidence": ""
     },
     {
-      "title": "No internal links on /projects.html",
-      "description": "Page has no outbound internal links, reducing link equity flow.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/projects.html",
-      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "title": "Person schema missing knowsAbout: /about.html",
+      "description": "knowsAbout property tells AI engines your areas of expertise.",
+      "severity": "info",
+      "category": "ai-seo",
+      "url": "https://amulyagupta.in/about.html",
+      "recommendation": "Add knowsAbout: ['AI Engineering', 'LLMs', 'MLOps'] to Person schema.",
       "evidence": ""
     },
     {
-      "title": "No internal links on /experience.html",
-      "description": "Page has no outbound internal links, reducing link equity flow.",
-      "severity": "warning",
-      "category": "internal-linking",
+      "title": "Person schema missing knowsAbout: /experience.html",
+      "description": "knowsAbout property tells AI engines your areas of expertise.",
+      "severity": "info",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/experience.html",
-      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "recommendation": "Add knowsAbout: ['AI Engineering', 'LLMs', 'MLOps'] to Person schema.",
       "evidence": ""
     },
     {
-      "title": "No internal links on /blog/index.html",
-      "description": "Page has no outbound internal links, reducing link equity flow.",
-      "severity": "warning",
-      "category": "internal-linking",
-      "url": "https://amulyagupta.in/blog/index.html",
-      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "title": "Missing Speakable schema: /amulya-gupta.html",
+      "description": "Speakable schema helps voice search and AI assistants identify key content.",
+      "severity": "info",
+      "category": "ai-seo",
+      "url": "https://amulyagupta.in/amulya-gupta.html",
+      "recommendation": "Add Speakable schema pointing to the most important content sections.",
       "evidence": ""
     },
     {
-      "title": "No internal links on /blog/post-1-mlops-pipeline.html",
-      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "title": "Person schema missing knowsAbout: /contact.html",
+      "description": "knowsAbout property tells AI engines your areas of expertise.",
+      "severity": "info",
+      "category": "ai-seo",
+      "url": "https://amulyagupta.in/contact.html",
+      "recommendation": "Add knowsAbout: ['AI Engineering', 'LLMs', 'MLOps'] to Person schema.",
+      "evidence": ""
+    },
+    {
+      "title": "Missing FAQ schema on blog post: /blog/post-1-mlops-pipeline.html",
+      "description": "Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
       "severity": "warning",
-      "category": "internal-linking",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/blog/post-1-mlops-pipeline.html",
-      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "recommendation": "Add FAQPage JSON-LD schema with common questions and answers about the topic.",
       "evidence": ""
     },
     {
-      "title": "No internal links on /blog/post-2-mlops-stack.html",
-      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "title": "Missing FAQ schema on blog post: /blog/post-2-mlops-stack.html",
+      "description": "Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
       "severity": "warning",
-      "category": "internal-linking",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/blog/post-2-mlops-stack.html",
-      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "recommendation": "Add FAQPage JSON-LD schema with common questions and answers about the topic.",
       "evidence": ""
     },
     {
-      "title": "No internal links on /blog/ai-ml-guide-2026.html",
-      "description": "Page has no outbound internal links, reducing link equity flow.",
+      "title": "Missing FAQ schema on blog post: /blog/ai-ml-guide-2026.html",
+      "description": "Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
       "severity": "warning",
-      "category": "internal-linking",
+      "category": "ai-seo",
       "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "recommendation": "Add relevant internal links to other pages to improve crawlability and UX.",
+      "recommendation": "Add FAQPage JSON-LD schema with common questions and answers about the topic.",
+      "evidence": ""
+    },
+    {
+      "title": "AI crawler OAI-SearchBot not explicitly permitted",
+      "description": "robots.txt has no explicit Allow for OAI-SearchBot.",
+      "severity": "info",
+      "category": "ai-seo",
+      "url": "https://amulyagupta.in/robots.txt",
+      "recommendation": "Explicitly allow OAI-SearchBot in robots.txt for maximum AI search coverage.",
       "evidence": ""
     }
   ],
@@ -351,6 +331,46 @@
       "delta": 0,
       "cycle": 1,
       "run_id": "fbc18b83"
+    },
+    {
+      "date": "2026-06-06T19:49:38.883620",
+      "skill_id": 8,
+      "skill_name": "Content Quality Audit",
+      "score": 58,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "17b27248"
+    },
+    {
+      "date": "2026-06-07T00:02:20.358315",
+      "skill_id": 9,
+      "skill_name": "Duplicate Content Detection",
+      "score": 100,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "ba3ea34e"
+    },
+    {
+      "date": "2026-06-08T00:04:33.188501",
+      "skill_id": 10,
+      "skill_name": "Keyword Optimization Audit",
+      "score": 0,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "3774c192"
+    },
+    {
+      "date": "2026-06-09T00:03:41.340467",
+      "skill_id": 11,
+      "skill_name": "AI Search Readiness",
+      "score": 85,
+      "prev_score": null,
+      "delta": 0,
+      "cycle": 1,
+      "run_id": "e1d8739c"
     }
   ],
   "active_issues_list": [
@@ -940,93 +960,95 @@
       "occurrences": 1
     },
     {
-      "issue_id": "c480b3b2441f",
-      "first_seen": "2026-05-28T17:27:39.828706",
-      "last_seen": "2026-05-28T17:27:39.828706",
-      "skill_id": 6,
-      "severity": "info",
-      "category": "social",
-      "url": "https://amulyagupta.in/privacy.html",
-      "title": "Missing Twitter Card: /privacy.html",
-      "description": "No twitter:card meta tag found.",
-      "status": "active",
-      "occurrences": 1
-    },
-    {
-      "issue_id": "2f295c7feabf",
-      "first_seen": "2026-05-28T00:02:55.395906",
-      "last_seen": "2026-05-28T00:02:55.395906",
-      "skill_id": 5,
-      "severity": "critical",
-      "category": "cwv",
+      "issue_id": "ecf6f86e26f4",
+      "first_seen": "2026-06-06T19:49:38.882239",
+      "last_seen": "2026-06-06T19:49:38.882239",
+      "skill_id": 8,
+      "severity": "warning",
+      "category": "content-quality",
       "url": "https://amulyagupta.in/",
-      "title": "Poor LCP on / (mobile)",
-      "description": "LCP is 4333ms \u2014 above 4000ms threshold.",
+      "title": "Below-ideal content length: / (534 words)",
+      "description": "534 words \u2014 aim for 600+ words for better ranking potential.",
       "status": "active",
       "occurrences": 1
     },
     {
-      "issue_id": "d989d2e1d10b",
-      "first_seen": "2026-05-28T00:02:55.396444",
-      "last_seen": "2026-05-28T00:02:55.396444",
-      "skill_id": 5,
-      "severity": "critical",
-      "category": "cwv",
-      "url": "https://amulyagupta.in/about.html",
-      "title": "Poor LCP on /about.html (mobile)",
-      "description": "LCP is 4108ms \u2014 above 4000ms threshold.",
+      "issue_id": "3fd57af1adfa",
+      "first_seen": "2026-06-06T19:49:38.882239",
+      "last_seen": "2026-06-06T19:49:38.882239",
+      "skill_id": 8,
+      "severity": "warning",
+      "category": "content-quality",
+      "url": "https://amulyagupta.in/blog/index.html",
+      "title": "Below-ideal content length: /blog/index.html (329 words)",
+      "description": "329 words \u2014 aim for 600+ words for better ranking potential.",
       "status": "active",
       "occurrences": 1
     },
     {
-      "issue_id": "b5662c129f3b",
-      "first_seen": "2026-05-28T00:02:55.396736",
-      "last_seen": "2026-05-28T00:02:55.396736",
-      "skill_id": 5,
-      "severity": "critical",
-      "category": "cwv",
+      "issue_id": "f4f9275f6267",
+      "first_seen": "2026-06-06T19:49:38.882239",
+      "last_seen": "2026-06-06T19:49:38.882239",
+      "skill_id": 8,
+      "severity": "warning",
+      "category": "content-quality",
+      "url": "https://amulyagupta.in/privacy.html",
+      "title": "Below-ideal content length: /privacy.html (534 words)",
+      "description": "534 words \u2014 aim for 600+ words for better ranking potential.",
+      "status": "active",
+      "occurrences": 1
+    },
+    {
+      "issue_id": "d9f5f34f6f63",
+      "first_seen": "2026-06-08T00:04:33.186892",
+      "last_seen": "2026-06-08T00:04:33.186892",
+      "skill_id": 10,
+      "severity": "warning",
+      "category": "keyword",
       "url": "https://amulyagupta.in/projects.html",
-      "title": "Poor LCP on /projects.html (mobile)",
-      "description": "LCP is 4691ms \u2014 above 4000ms threshold.",
+      "title": "Primary keyword missing from title: /projects.html",
+      "description": "'mlops pipeline' not in title: 'Projects | Amulya Gupta \u2014 AI & MLOps Engineer'",
       "status": "active",
       "occurrences": 1
     },
     {
-      "issue_id": "61f6eb656990",
-      "first_seen": "2026-05-28T00:02:55.397089",
-      "last_seen": "2026-05-28T00:02:55.397089",
-      "skill_id": 5,
-      "severity": "critical",
-      "category": "cwv",
-      "url": "https://amulyagupta.in/blog/ai-ml-guide-2026.html",
-      "title": "Poor LCP on /blog/ai-ml-guide-2026.html (mobile)",
-      "description": "LCP is 4359ms \u2014 above 4000ms threshold.",
+      "issue_id": "7e405e533f92",
+      "first_seen": "2026-06-08T00:04:33.186892",
+      "last_seen": "2026-06-08T00:04:33.186892",
+      "skill_id": 10,
+      "severity": "warning",
+      "category": "keyword",
+      "url": "https://amulyagupta.in/projects.html",
+      "title": "Primary keyword missing from H1: /projects.html",
+      "description": "'mlops pipeline' not in H1 heading.",
       "status": "active",
       "occurrences": 1
     }
   ],
   "recurring_issues": [],
   "cycle_progress": {
-    "position": 7,
+    "position": 11,
     "total": 23,
-    "percent": 30,
+    "percent": 48,
     "cycle": 1,
-    "current_skill_id": 7,
-    "skills_completed_this_cycle": 7,
-    "next_skill_id": 8
+    "current_skill_id": 11,
+    "skills_completed_this_cycle": 11,
+    "next_skill_id": 12
   },
   "forecast": {
-    "trend": "declining",
-    "slope_per_day": -18.0,
-    "current_score": 10,
-    "projected_score_7d": 0,
-    "projected_score_30d": 0,
-    "avg_delta_recent": -17.0,
+    "trend": "first_cycle_in_progress",
+    "projected_score_7d": null,
+    "projected_score_30d": null,
     "confidence": "low",
-    "momentum": "negative",
-    "risk_level": "high",
-    "data_points": 7,
+    "momentum": "neutral",
+    "risk_level": "low",
+    "data_points": 11,
+    "cycle_status": "Cycle 1 in progress \u2014 11/23 skills run",
     "lowest_scoring_skills": [
+      [
+        10,
+        0
+      ],
       [
         6,
         5
@@ -1034,10 +1056,6 @@
       [
         7,
         10
-      ],
-      [
-        5,
-        46
       ]
     ],
     "highest_scoring_skills": [
@@ -1050,28 +1068,103 @@
         100
       ],
       [
-        2,
-        95
+        9,
+        100
       ]
     ]
   },
   "historical_comparison": {
-    "current_skill_id": 7,
-    "current_score": 10,
+    "current_skill_id": 11,
+    "current_score": 85,
     "prev_score": null,
     "score_delta": null,
     "prev_run_date": null,
     "prev_issues_found": null,
-    "current_issues_found": 18,
+    "current_issues_found": 10,
     "issue_delta": null,
     "skill_trend": [
-      10
+      85
     ],
     "trend_direction": "stable",
-    "avg_score_last_7d": 60.1,
-    "avg_score_prev_7d": null,
-    "week_over_week_delta": null,
-    "total_runs_completed": 7,
+    "avg_score_last_7d": 60.8,
+    "avg_score_prev_7d": 45.2,
+    "week_over_week_delta": 15.5,
+    "total_runs_completed": 11,
     "cycle_number": 1
+  },
+  "cwv_summary": {
+    "lcp_avg": null,
+    "cls_avg": null,
+    "fid_avg": null,
+    "inp_avg": null,
+    "ttfb_avg": null,
+    "records": []
+  },
+  "email_log": [
+    {
+      "date": "2026-06-06T19:49:32.171598",
+      "type": "critical_alert",
+      "subject": "[SEO CRITICAL] 1 critical issue(s) \u2014 Skill 8",
+      "status": "sent",
+      "run_id": "17b27248",
+      "skill_id": 8,
+      "skill_name": "Content Quality Audit",
+      "score": 58
+    },
+    {
+      "date": "2026-06-06T19:49:32.171598",
+      "type": "morning_brief",
+      "subject": "[SEO CRITICAL] \u26a0] Skill 08/23 \u2014 Content Quality Audit | Score 58/100 | Jun 06",
+      "status": "sent",
+      "run_id": "17b27248",
+      "skill_id": 8,
+      "skill_name": "Content Quality Audit",
+      "score": 58
+    },
+    {
+      "date": "2026-06-07T00:02:12.767673",
+      "type": "morning_brief",
+      "subject": "[SEO \u2713] Skill 09/23 \u2014 Duplicate Content Detection | Score 100/100 | Jun 07",
+      "status": "sent",
+      "run_id": "ba3ea34e",
+      "skill_id": 9,
+      "skill_name": "Duplicate Content Detection",
+      "score": 100
+    },
+    {
+      "date": "2026-06-08T00:04:26.227576",
+      "type": "morning_brief",
+      "subject": "[SEO \u2717] Skill 10/23 \u2014 Keyword Optimization Audit | Score 0/100 | Jun 08",
+      "status": "sent",
+      "run_id": "3774c192",
+      "skill_id": 10,
+      "skill_name": "Keyword Optimization Audit",
+      "score": 0
+    },
+    {
+      "date": "2026-06-09T00:03:33.961110",
+      "type": "morning_brief",
+      "subject": "[SEO \u2713] Skill 11/23 \u2014 AI Search Readiness | Score 85/100 | Jun 09",
+      "status": "sent",
+      "run_id": "e1d8739c",
+      "skill_id": 11,
+      "skill_name": "AI Search Readiness",
+      "score": 85
+    }
+  ],
+  "technical_snapshot": {
+    "robots": [],
+    "sitemap": [],
+    "canonical": [],
+    "schema": [],
+    "redirects": [],
+    "cwv": [],
+    "crawl": [],
+    "indexation": []
+  },
+  "technical_issue_counts": {
+    "sitemap": 1,
+    "schema": 7,
+    "cwv": 4
   }
 }

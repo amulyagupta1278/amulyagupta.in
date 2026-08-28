@@ -1,0 +1,52 @@
+[
+  {
+    "date": "2026-06-06T19:49:32.171598",
+    "type": "critical_alert",
+    "subject": "[SEO CRITICAL] 1 critical issue(s) \u2014 Skill 8",
+    "status": "sent",
+    "run_id": "17b27248",
+    "skill_id": 8,
+    "skill_name": "Content Quality Audit",
+    "score": 58
+  },
+  {
+    "date": "2026-06-06T19:49:32.171598",
+    "type": "morning_brief",
+    "subject": "[SEO CRITICAL] \u26a0] Skill 08/23 \u2014 Content Quality Audit | Score 58/100 | Jun 06",
+    "status": "sent",
+    "run_id": "17b27248",
+    "skill_id": 8,
+    "skill_name": "Content Quality Audit",
+    "score": 58
+  },
+  {
+    "date": "2026-06-07T00:02:12.767673",
+    "type": "morning_brief",
+    "subject": "[SEO \u2713] Skill 09/23 \u2014 Duplicate Content Detection | Score 100/100 | Jun 07",
+    "status": "sent",
+    "run_id": "ba3ea34e",
+    "skill_id": 9,
+    "skill_name": "Duplicate Content Detection",
+    "score": 100
+  },
+  {
+    "date": "2026-06-08T00:04:26.227576",
+    "type": "morning_brief",
+    "subject": "[SEO \u2717] Skill 10/23 \u2014 Keyword Optimization Audit | Score 0/100 | Jun 08",
+    "status": "sent",
+    "run_id": "3774c192",
+    "skill_id": 10,
+    "skill_name": "Keyword Optimization Audit",
+    "score": 0
+  },
+  {
+    "date": "2026-06-09T00:03:33.961110",
+    "type": "morning_brief",
+    "subject": "[SEO \u2713] Skill 11/23 \u2014 AI Search Readiness | Score 85/100 | Jun 09",
+    "status": "sent",
+    "run_id": "e1d8739c",
+    "skill_id": 11,
+    "skill_name": "AI Search Readiness",
+    "score": 85
+  }
+]

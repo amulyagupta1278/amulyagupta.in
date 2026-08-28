@@ -89,5 +89,57 @@
     "status": "completed",
     "notes": "Group 3 | skill 7/23",
     "cycle": 1
+  },
+  {
+    "run_id": "17b27248",
+    "date": "2026-06-06T19:49:32.171598",
+    "skill_id": 8,
+    "skill_name": "Content Quality Audit",
+    "score": 58,
+    "issues_found": 8,
+    "issues_critical": 1,
+    "duration_s": 6,
+    "status": "completed",
+    "notes": "Group 3 | skill 8/23",
+    "cycle": 1
+  },
+  {
+    "run_id": "ba3ea34e",
+    "date": "2026-06-07T00:02:12.767673",
+    "skill_id": 9,
+    "skill_name": "Duplicate Content Detection",
+    "score": 100,
+    "issues_found": 0,
+    "issues_critical": 0,
+    "duration_s": 7,
+    "status": "completed",
+    "notes": "Group 3 | skill 9/23",
+    "cycle": 1
+  },
+  {
+    "run_id": "3774c192",
+    "date": "2026-06-08T00:04:26.227576",
+    "skill_id": 10,
+    "skill_name": "Keyword Optimization Audit",
+    "score": 0,
+    "issues_found": 20,
+    "issues_critical": 0,
+    "duration_s": 6,
+    "status": "completed",
+    "notes": "Group 3 | skill 10/23",
+    "cycle": 1
+  },
+  {
+    "run_id": "e1d8739c",
+    "date": "2026-06-09T00:03:33.961110",
+    "skill_id": 11,
+    "skill_name": "AI Search Readiness",
+    "score": 85,
+    "issues_found": 10,
+    "issues_critical": 0,
+    "duration_s": 7,
+    "status": "completed",
+    "notes": "Group 3 | skill 11/23",
+    "cycle": 1
   }
 ]

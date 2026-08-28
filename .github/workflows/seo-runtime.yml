@@ -205,37 +205,6 @@ jobs:
       # → Google Apps Script Web App endpoint → Browser fetch() → Dashboard renders
       # This eliminates HS2 governance violation (no more git push to main).
 
-      # ── DATA SAFETY FALLBACK: commit JSON to seo-data-backup branch if Sheets unavailable ──
-      - name: Backup data to git (fallback if Sheets unavailable)
-        if: always()
-        env:
-          GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
-          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-        run: |
-          # Only commit JSON backup if Sheets secrets are missing or unset
-          if [ -z "$GOOGLE_SHEETS_SPREADSHEET_ID" ] || [ -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
-            echo "::warning::Google Sheets not configured — committing JSON data to seo-data-backup branch as fallback."
-            git config user.name "SEO Runtime Bot"
-            git config user.email "seo-bot@amulyagupta.in"
-            git fetch origin seo-data-backup 2>/dev/null || true
-            git checkout -B seo-data-backup origin/seo-data-backup 2>/dev/null || git checkout -B seo-data-backup
-            cp -r seo/data/ seo-data-backup-tmp/ 2>/dev/null || true
-            git checkout -B seo-data-backup
-            mkdir -p seo/data
-            cp -r seo-data-backup-tmp/. seo/data/ 2>/dev/null || true
-            rm -rf seo-data-backup-tmp
-            git add seo/data/
-            if git diff --staged --quiet; then
-              echo "No new data to backup."
-            else
-              git commit -m "chore(data-backup): JSON fallback — run #${{ github.run_number }} [skip ci]"
-              git push origin seo-data-backup
-              echo "::warning::Data backed up to seo-data-backup branch. Fix Sheets secrets to restore primary persistence."
-            fi
-          else
-            echo "Google Sheets configured — no git fallback needed."
-          fi
-
       - name: Upload run artifacts
         if: always()
         uses: actions/upload-artifact@v4

@@ -105,6 +105,15 @@ class IssueLifecycleTests(unittest.TestCase):
         self.assertEqual(60, latest["prev_score"])
         self.assertEqual(40, latest["delta"])
 
+    def test_cwv_summary_uses_raw_records_and_survives_other_runs(self):
+        records = [{"url": "https://example.test/", "strategy": "mobile",
+                    "lcp_ms": 2400, "cls": 0.08, "inp_ms": 180, "ttfb_ms": 500}]
+        measured = memory.build_cwv_summary(records)
+        self.assertEqual(2400, measured["lcp_avg"])
+        memory.save_json("dashboard.json", {"cwv_summary": measured})
+        snapshot = memory.build_dashboard_snapshot({}, [], [], {}, cwv_records=[])
+        self.assertEqual(measured, snapshot["cwv_summary"])
+
 
 if __name__ == "__main__":
     unittest.main()
