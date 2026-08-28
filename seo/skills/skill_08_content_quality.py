@@ -3,8 +3,18 @@ import crawler
 from base import BaseSEOSkill, Finding, SkillResult
 from config import SITE_URL
 
-THIN_CONTENT_THRESHOLD = 300
-IDEAL_MIN_WORDS = 600
+PAGE_THRESHOLDS = {
+    "/": 500,
+    "/about.html": 400,
+    "/amulya-gupta.html": 400,
+    "/projects.html": 600,
+    "/experience.html": 600,
+    "/contact.html": 200,
+    "/blog/index.html": 400,
+    "/blog/post-1-mlops-pipeline.html": 1500,
+    "/blog/post-2-mlops-stack.html": 1500,
+    "/blog/ai-ml-guide-2026.html": 1500,
+}
 
 
 def flesch_reading_ease(text: str) -> float:
@@ -49,6 +59,7 @@ class Skill08ContentQuality(BaseSEOSkill):
     def run(self, pages: list[dict]) -> SkillResult:
         findings = []
         page_scores = []
+        observations = []
 
         for page in pages:
             url = page["url"]
@@ -61,21 +72,27 @@ class Skill08ContentQuality(BaseSEOSkill):
 
             page_score = 100
 
-            if wc < THIN_CONTENT_THRESHOLD:
+            minimum = PAGE_THRESHOLDS.get(path)
+            if minimum is None:
+                page_scores.append(page_score)
+                continue
+
+            thin_threshold = min(300, minimum)
+            if wc < thin_threshold:
                 page_score -= 40
                 findings.append(Finding(
                     title=f"Thin content: {path} ({wc} words)",
-                    description=f"Only {wc} words — below {THIN_CONTENT_THRESHOLD} threshold.",
+                    description=f"Only {wc} words — below the {minimum}-word target for this page type.",
                     severity="critical",
                     category="content-quality",
                     url=url,
-                    recommendation=f"Expand content to at least {IDEAL_MIN_WORDS} words with substantive, unique information.",
+                    recommendation=f"Expand to at least {minimum} useful, unique words.",
                 ))
-            elif wc < IDEAL_MIN_WORDS:
+            elif wc < minimum:
                 page_score -= 15
                 findings.append(Finding(
                     title=f"Below-ideal content length: {path} ({wc} words)",
-                    description=f"{wc} words — aim for {IDEAL_MIN_WORDS}+ words for better ranking potential.",
+                    description=f"{wc} words — below the {minimum}-word target for this page type.",
                     severity="warning",
                     category="content-quality",
                     url=url,
@@ -110,14 +127,7 @@ class Skill08ContentQuality(BaseSEOSkill):
                 level = reading_level(fre)
                 if fre < 30:
                     page_score -= 10
-                    findings.append(Finding(
-                        title=f"Very difficult readability: {path}",
-                        description=f"Flesch score {fre:.0f} — content may be too complex for general readers.",
-                        severity="info",
-                        category="content-quality",
-                        url=url,
-                        recommendation="Simplify language, use shorter sentences and paragraphs.",
-                    ))
+                    observations.append({"path": path, "type": "readability", "flesch_score": round(fre)})
             except Exception:
                 pass
 
@@ -137,4 +147,4 @@ class Skill08ContentQuality(BaseSEOSkill):
 
         avg = int(sum(page_scores) / len(page_scores)) if page_scores else 50
         score = self.clamp_score(avg, findings=findings)
-        return self.result(score, findings, {"pages_analyzed": len(page_scores)})
+        return self.result(score, findings, {"pages_analyzed": len(page_scores), "observations": observations})

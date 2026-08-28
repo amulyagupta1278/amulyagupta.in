@@ -2,7 +2,7 @@ import hashlib
 import json
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from config import DATA_DIR
 
 log = logging.getLogger(__name__)
@@ -85,13 +85,23 @@ def save_issues(issues: dict):
     save_json("issues.json", issues)
 
 
-def _upsert_one(issues: dict, skill_id: int, finding: dict, now: str) -> dict:
+def _upsert_one(issues: dict, skill_id: int, finding: dict, now: str,
+                run_id: str = "") -> dict:
     iid = make_issue_id(skill_id, finding.get("category", ""), finding.get("url", ""), finding.get("title", ""))
     if iid in issues:
+        was_active = issues[iid].get("state", issues[iid].get("status", "active")) == "active"
         issues[iid]["last_seen"] = now
         issues[iid]["occurrences"] = issues[iid].get("occurrences", 1) + 1
+        issues[iid]["consecutive_occurrences"] = (
+            issues[iid].get("consecutive_occurrences", issues[iid].get("occurrences", 1) - 1) + 1
+            if was_active else 1
+        )
         issues[iid]["severity"] = finding.get("severity", issues[iid]["severity"])
         issues[iid]["status"] = "active"
+        issues[iid]["state"] = "active"
+        issues[iid]["resolved_at"] = None
+        issues[iid]["resolution_reason"] = ""
+        issues[iid]["last_verified_run"] = run_id
     else:
         issues[iid] = {
             "issue_id": iid,
@@ -104,8 +114,15 @@ def _upsert_one(issues: dict, skill_id: int, finding: dict, now: str) -> dict:
             "title": finding.get("title", ""),
             "description": finding.get("description", ""),
             "status": "active",
+            "state": "active",
             "occurrences": 1,
+            "consecutive_occurrences": 1,
+            "resolved_at": None,
+            "resolution_reason": "",
+            "last_verified_run": run_id,
         }
+    issues[iid]["description"] = finding.get("description", issues[iid].get("description", ""))
+    issues[iid]["recommendation"] = finding.get("recommendation", issues[iid].get("recommendation", ""))
     return issues[iid]
 
 
@@ -119,10 +136,56 @@ def upsert_issue(skill_id: int, finding: dict) -> dict:
 def batch_upsert_issues(skill_id: int, findings: list) -> list:
     """Load once, upsert all findings, save once — O(1) file I/O regardless of N."""
     issues = load_issues()
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
     results = [_upsert_one(issues, skill_id, f, now) for f in findings]
     save_issues(issues)
     return results
+
+
+def reconcile_skill_issues(skill_id: int, findings: list, run_id: str = "",
+                           verified: bool = True) -> dict:
+    """Store this run's findings and resolve absent ones after a verified run."""
+    issues = load_issues()
+    now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
+    active = [_upsert_one(issues, skill_id, finding, now, run_id) for finding in findings]
+    active_ids = {issue["issue_id"] for issue in active}
+    resolved = []
+
+    if verified:
+        for issue in issues.values():
+            if issue.get("skill_id") != skill_id or issue.get("issue_id") in active_ids:
+                continue
+            if issue.get("state", issue.get("status", "active")) != "active":
+                continue
+            issue.update({
+                "status": "resolved",
+                "state": "resolved",
+                "resolved_at": now,
+                "resolution_reason": "Not detected in the latest successful audit",
+                "last_verified_run": run_id,
+            })
+            resolved.append(issue)
+
+    save_issues(issues)
+    return {"active": active, "resolved": resolved, "invalid": []}
+
+
+def invalidate_issue(issue_id: str, reason: str, run_id: str = "") -> dict | None:
+    """Invalidate a known false positive without deleting its history."""
+    issues = load_issues()
+    issue = issues.get(issue_id)
+    if not issue:
+        return None
+    now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
+    issue.update({
+        "status": "invalid",
+        "state": "invalid",
+        "resolved_at": now,
+        "resolution_reason": reason,
+        "last_verified_run": run_id,
+    })
+    save_issues(issues)
+    return issue
 
 
 def load_score_history() -> list:
@@ -249,12 +312,13 @@ def detect_recurring_issues(issues: dict) -> list[dict]:
     """Return issues that have appeared 3+ times and are still active."""
     recurring = []
     for iid, issue in issues.items():
-        if issue.get("status") == "active" and issue.get("occurrences", 1) >= 3:
+        streak = issue.get("consecutive_occurrences", issue.get("occurrences", 1))
+        if issue.get("status") == "active" and streak >= 3:
             issue_copy = dict(issue)
             issue_copy["issue_id"] = iid
             issue_copy["recurring"] = True
             recurring.append(issue_copy)
-    return sorted(recurring, key=lambda x: (-x.get("occurrences", 0), x.get("severity", "info")))
+    return sorted(recurring, key=lambda x: (-x.get("consecutive_occurrences", 0), x.get("severity", "info")))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -562,7 +626,8 @@ def build_dashboard_snapshot(run: dict, findings: list, scores: list, issues: di
         "recent_runs": recent_runs,
         "latest_findings": findings[:50],
         "score_history": scores[-46:],
-        "active_issues_list": sorted(active_issues, key=lambda x: x.get("severity", ""), reverse=True)[:50],
+        "active_issues_list": sorted(active_issues, key=lambda x: x.get("severity", ""), reverse=True),
+        "issue_events": list(issues.values()),
         "recurring_issues": recurring[:20],
         "cycle_progress": cycle_progress,
         "forecast": forecast,

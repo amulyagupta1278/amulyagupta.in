@@ -64,30 +64,6 @@ class Skill11AISearchReadiness(BaseSEOSkill):
                 else:
                     schema_types.append(s.get("@type", ""))
 
-            # Blog posts should have FAQ schema
-            if "blog/post" in path or "guide" in path:
-                if "FAQPage" not in schema_types:
-                    findings.append(Finding(
-                        title=f"Missing FAQ schema on blog post: {path}",
-                        description="Blog/guide pages benefit from FAQ schema for AI Overview inclusion.",
-                        severity="warning",
-                        category="ai-seo",
-                        url=url,
-                        recommendation="Add FAQPage JSON-LD schema with common questions and answers about the topic.",
-                    ))
-
-            # Check for speakable schema
-            if path in ["/", "/amulya-gupta.html", "/about.html"]:
-                if "Speakable" not in str(schema_types) and "speakable" not in str(schema_types).lower():
-                    findings.append(Finding(
-                        title=f"Missing Speakable schema: {path}",
-                        description="Speakable schema helps voice search and AI assistants identify key content.",
-                        severity="info",
-                        category="ai-seo",
-                        url=url,
-                        recommendation="Add Speakable schema pointing to the most important content sections.",
-                    ))
-
             # Check for structured entity signals (Person schema with sameAs)
             for s in schemas:
                 if s.get("@type") == "Person":

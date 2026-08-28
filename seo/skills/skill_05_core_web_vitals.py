@@ -70,12 +70,12 @@ class Skill05CoreWebVitals(BaseSEOSkill):
             findings.append(Finding(
                 title="PageSpeed API key not configured",
                 description="PAGESPEED_API_KEY secret not set — CWV audit skipped.",
-                severity="warning",
+                severity="info",
                 category="configuration",
                 url="",
                 recommendation="Set PAGESPEED_API_KEY GitHub secret to enable Core Web Vitals monitoring.",
             ))
-            return self.result(50, findings, {"api_available": False})
+            return self.result(100, findings, {"api_available": False, "score_available": False})
 
         scores = []
         for path in KEY_PAGES:

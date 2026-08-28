@@ -983,11 +983,12 @@ async function loadData() {
 
 /* ── Master render ────────────────────────────────────────────────────────── */
 function renderAll(data) {
-  const summary = data.summary || {};
+  const rawSummary = data.summary || {};
   const currentRun = data.current_run || {};
   const runs = data.recent_runs || [];
   const scores = data.score_history || [];
-  const issues = data.active_issues_list || [];
+  const canonicalIssues = normalizeIssueEvents(data.issue_events || data.active_issues_list || []);
+  const issues = canonicalIssues.filter(i => (i.state || i.status || 'active') === 'active');
   const findings = data.latest_findings || [];
   const recurring = data.recurring_issues || [];
   const cycleProgress = data.cycle_progress || {};
@@ -999,6 +1000,13 @@ function renderAll(data) {
   const emailLog = data.email_log || [];
   const technicalSnapshot = data.technical_snapshot || {};
   const technicalIssueCounts = data.technical_issue_counts || {};
+  const summary = data.issue_events ? {
+    ...rawSummary,
+    active_issues: issues.length,
+    critical_issues: issues.filter(i => i.severity === 'critical').length,
+    warning_issues: issues.filter(i => i.severity === 'warning').length,
+    recurring_issues: issues.filter(i => Number(i.consecutive_occurrences || i.occurrences) >= 3).length,
+  } : rawSummary;
 
   updateTimestamp(generatedAt);
   renderKPIs(summary, currentRun, scores, issues, recurring);
@@ -1041,6 +1049,18 @@ function renderAll(data) {
 
   // Memory page
   renderMemoryPage(scores, runs, issues, recurring);
+}
+
+function normalizeIssueEvents(events) {
+  const latest = new Map();
+  (events || []).forEach(issue => {
+    if (!issue || !issue.issue_id) return;
+    const stamp = Date.parse(issue.resolved_at || issue.last_seen || 0) || 0;
+    const previous = latest.get(issue.issue_id);
+    const previousStamp = previous ? (Date.parse(previous.resolved_at || previous.last_seen || 0) || 0) : -1;
+    if (!previous || stamp >= previousStamp) latest.set(issue.issue_id, issue);
+  });
+  return [...latest.values()];
 }
 
 /* ── Timestamp ────────────────────────────────────────────────────────────── */
@@ -1358,7 +1378,7 @@ function renderIssueTable(issues, recurring) {
       <td><span class="tag">${i.category || ''}</span></td>
       <td style="font-size:10px;color:var(--muted);font-family:monospace">${url}</td>
       <td style="font-size:11px;color:var(--muted)">${d}</td>
-      <td style="text-align:center;font-weight:700;color:${i.occurrences>=3?'var(--orange)':'var(--muted)'}">${i.occurrences||1}</td>
+      <td style="text-align:center;font-weight:700;color:${Number(i.consecutive_occurrences||i.occurrences)>=3?'var(--orange)':'var(--muted)'}">${i.consecutive_occurrences||i.occurrences||1}</td>
       <td><span class="sev sev-${i.status==='active'?'warning':'good'}">${i.status||'active'}</span></td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center">No issues tracked yet</td></tr>';
@@ -1405,7 +1425,7 @@ function renderRecurringList(recurring) {
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
         <span class="${sc}">${(i.severity||'').toUpperCase()}</span>
         <span style="font-size:12px;font-weight:600">${i.title||''}</span>
-        <span style="font-size:11px;color:var(--orange);margin-left:auto">${i.occurrences||0}×</span>
+        <span style="font-size:11px;color:var(--orange);margin-left:auto">${i.consecutive_occurrences||i.occurrences||0}×</span>
       </div>
       <div style="font-size:10px;color:var(--muted)">
         First seen: ${i.first_seen ? new Date(i.first_seen).toLocaleDateString() : '—'} ·
@@ -1638,7 +1658,8 @@ function renderContentIntelPanel(findings, issues, scores) {
   ];
   const contentCats = new Set([
     'content-quality','thin-content','duplicate-content',
-    'keyword-cannibalization','keyword-optimization','semantic',
+    // `keyword` is retained as a read-only alias for historical events.
+    'keyword','keyword-cannibalization','keyword-optimization','semantic',
   ]);
 
   const skillScoreMap = {};
@@ -1975,7 +1996,7 @@ function renderMemoryPage(scores, runs, issues, recurring) {
           <td><span class="tag">${issue.category || ''}</span></td>
           <td style="font-size:11px;color:var(--muted)">${firstSeen}</td>
           <td style="font-weight:700;color:var(--red)">${days}d</td>
-          <td style="font-weight:700;color:var(--orange)">${issue.occurrences || 0}×</td>
+          <td style="font-weight:700;color:var(--orange)">${issue.consecutive_occurrences || issue.occurrences || 0}×</td>
         </tr>`;
       }).join('');
     }

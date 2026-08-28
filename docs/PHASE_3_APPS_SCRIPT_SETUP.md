@@ -150,7 +150,19 @@ function doGet() {
     const currentRun = recentRuns.length > 0 ? recentRuns[recentRuns.length - 1] : {};
     
     // Calculate summaries
-    const activeIssues = issues.filter(i => i.status === 'active');
+    // seo_issues is an append-only event log. Keep only the newest state per ID.
+    const latestIssueById = {};
+    issues.forEach(issue => {
+      const key = issue.issue_id;
+      const timestamp = Date.parse(issue.resolved_at || issue.last_seen || 0) || 0;
+      const previous = latestIssueById[key];
+      const previousTimestamp = previous
+        ? (Date.parse(previous.resolved_at || previous.last_seen || 0) || 0)
+        : -1;
+      if (!previous || timestamp >= previousTimestamp) latestIssueById[key] = issue;
+    });
+    const canonicalIssues = Object.values(latestIssueById);
+    const activeIssues = canonicalIssues.filter(i => (i.state || i.status) === 'active');
     const criticalIssues = activeIssues.filter(i => i.severity === 'critical');
     const warningIssues = activeIssues.filter(i => i.severity === 'warning');
     
@@ -168,14 +180,9 @@ function doGet() {
       cyclePercent = Math.round((skillPos / 23) * 100);
     }
     
-    // Detect recurring issues (3+ occurrences)
-    const issueFreq = {};
-    issues.forEach(issue => {
-      const key = issue.issue_id;
-      issueFreq[key] = (issueFreq[key] || 0) + 1;
-    });
-    const recurring = issues
-      .filter(i => issueFreq[i.issue_id] >= 3 && i.status === 'active')
+    // Recurrence comes from successful detections, not duplicate event rows.
+    const recurring = activeIssues
+      .filter(i => (parseInt(i.consecutive_occurrences, 10) || 0) >= 3)
       .slice(-20);
     
     // Build category counts
@@ -185,7 +192,7 @@ function doGet() {
     };
     const techIssueCounts = {};
     
-    issues.forEach(issue => {
+    activeIssues.forEach(issue => {
       const cat = issue.category || '';
       if (cat in techCategories) {
         techIssueCounts[cat] = (techIssueCounts[cat] || 0) + 1;
@@ -239,7 +246,8 @@ function doGet() {
       recent_runs: recentRuns,
       latest_findings: [],
       score_history: scores.slice(-46),
-      active_issues_list: activeIssues.slice(0, 50),
+      active_issues_list: activeIssues,
+      issue_events: canonicalIssues,
       recurring_issues: recurring,
       cycle_progress: {
         position: Math.min(currentRun.skill_id || 1, 23),

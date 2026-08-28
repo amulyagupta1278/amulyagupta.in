@@ -21,7 +21,9 @@ SHEET_HEADERS = {
     "seo_runs": ["run_id", "date", "skill_id", "skill_name", "score", "issues_found",
                  "issues_critical", "duration_s", "status", "notes"],
     "seo_issues": ["issue_id", "first_seen", "last_seen", "skill_id", "severity",
-                   "category", "url", "title", "description", "status", "occurrences"],
+                   "category", "url", "title", "description", "status", "occurrences",
+                   "consecutive_occurrences", "resolved_at", "resolution_reason",
+                   "last_verified_run", "state"],
     "seo_scores": ["date", "skill_id", "skill_name", "score", "prev_score", "delta",
                    "cycle", "run_id"],
     "seo_reports": ["report_id", "date", "skill_id", "type", "title", "summary",
@@ -56,6 +58,16 @@ class SheetsClient:
             log.info("Google Sheets connected: %s", GOOGLE_SHEETS_SPREADSHEET_ID)
         except Exception as e:
             log.error("Google Sheets init failed: %s", e)
+            return
+
+        # One-time schema migration; history rows remain append-only.
+        try:
+            ws = self._get_or_create_sheet("seo_issues")
+            headers = SHEET_HEADERS["seo_issues"]
+            if ws.row_values(1) != headers:
+                ws.update([headers], "A1")
+        except Exception as e:
+            log.error("Sheets header migration failed [seo_issues]: %s", e)
 
     @property
     def available(self):
